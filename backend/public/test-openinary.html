@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Openinary Video Tester</title>
+    <link rel="stylesheet" href="/api-docs.css">
+</head>
+<body>
+    <div class="container">
+        <header style="background: linear-gradient(135deg, #059669 0%, #047857 100%);">
+            <div class="header-content">
+                <h1>🎥 Openinary Video Tester</h1>
+                <p class="subtitle">Test video uploads to your self-hosted Openinary instance</p>
+                <a href="/" class="badge" style="color: white; text-decoration: none;">← Back to API Docs</a>
+            </div>
+        </header>
+
+        <div class="endpoint-card">
+            <h2 style="margin-bottom: 1rem;">Upload Test Video</h2>
+            
+            <div class="info-box success">
+                <strong>✅ Openinary Status:</strong> Connected and ready!
+            </div>
+
+            <form id="openinary-upload-form" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label>Video File (max 300MB, 5 minutes):</label>
+                    <input type="file" name="video" accept="video/*" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Store ID (optional):</label>
+                    <input type="text" name="storeId" placeholder="65f8a1b2c3d4e5f6a7b8c9d0">
+                </div>
+                
+                <div class="form-group">
+                    <label>Title (Kurdish):</label>
+                    <input type="text" name="titleKurdish" value="ڤیدیۆی تاقیکردنەوە">
+                </div>
+                
+                <div class="form-group">
+                    <label>Title (English):</label>
+                    <input type="text" name="titleEnglish" value="Test Video">
+                </div>
+                
+                <button type="submit" class="upload-btn">📤 Upload to Openinary</button>
+            </form>
+
+            <div id="upload-progress" style="margin-top: 1rem;"></div>
+            <div id="upload-result" style="margin-top: 1rem;"></div>
+        </div>
+
+        <div class="endpoint-card">
+            <h3>📋 Recent Uploads</h3>
+            <div id="recent-uploads">
+                <p>Upload a video to see results here...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('openinary-upload-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const progressDiv = document.getElementById('upload-progress');
+            const resultDiv = document.getElementById('upload-result');
+            
+            progressDiv.innerHTML = '<div class="spinner"></div><p>Uploading to Openinary...</p>';
+            resultDiv.innerHTML = '';
+            
+            try {
+                const response = await fetch('http://localhost:4000/api/reels/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                progressDiv.innerHTML = '';
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div style="background: #10b981; color: white; padding: 1rem; border-radius: 6px;">
+                            ✅ Upload successful!
+                        </div>
+                        <pre style="background: #1e293b; color: #e2e8f0; padding: 1rem; border-radius: 6px; margin-top: 1rem;">
+                            ${JSON.stringify(data, null, 2)}
+                        </pre>
+                    `;
+                    
+                    // Add to recent uploads
+                    const recentDiv = document.getElementById('recent-uploads');
+                    const uploadItem = document.createElement('div');
+                    uploadItem.style.padding = '0.5rem';
+                    uploadItem.style.borderBottom = '1px solid #e2e8f0';
+                    uploadItem.innerHTML = `
+                        <strong>${data.title?.english || 'Video'}</strong><br>
+                        <small>Duration: ${data.duration}s | ID: ${data.id}</small>
+                    `;
+                    recentDiv.prepend(uploadItem);
+                    
+                } else {
+                    resultDiv.innerHTML = `<span style="color: #ef4444">❌ Upload failed: ${JSON.stringify(data)}</span>`;
+                }
+                
+            } catch (error) {
+                progressDiv.innerHTML = '';
+                resultDiv.innerHTML = `<span style="color: #ef4444">❌ Error: ${error.message}</span>`;
+            }
+        });
+    </script>
+</body>
+</html>

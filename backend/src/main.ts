@@ -2,12 +2,12 @@ import "dotenv/config";
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
-
+import path from "path";
 import storeRoutes from "./routes/store.route";
 import productRoutes from "./routes/product.route";
 import reelRoutes from "./routes/reel.route";
 import discountRoutes from "./routes/discount.route";
-   
+
 const app = express();
 const PORT = process.env.PORT || 4000;
 const MONGODB_URL = process.env.MONGODB_URL;
@@ -16,6 +16,9 @@ const MONGODB_URL = process.env.MONGODB_URL;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, "../public")));
 
 // Routes
 app.get("/", (req, res) => {
@@ -37,7 +40,11 @@ mongoose
   .then(() => {
     console.log("Connected to MongoDB");
     app.listen(PORT, () => {
-      console.log(`Server running on port http://localhost:${PORT}`);
+      console.log(`🚀 Server running on http://localhost:${PORT}`);
+      console.log(`📚 API Documentation: http://localhost:${PORT}/`);
+      console.log(
+        `🎥 Openinary Test: http://localhost:${PORT}/test-openinary.html`,
+      );
     });
   })
   .catch((error) => {
