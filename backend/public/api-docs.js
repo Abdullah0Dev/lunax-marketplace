@@ -51,18 +51,18 @@ document.addEventListener('DOMContentLoaded', function() {
             resultDiv.innerHTML = '<div class="spinner"></div>';
             
             try {
-                let url = `http://localhost:4000/api${endpoint}`;
+                let url = `https://lunax-marketplace.dmsystem.dpdns.org/api${endpoint}`;
                 
                 // Handle dynamic endpoints
                 if (endpoint.includes(':storeId') || endpoint === '/reels/limit/') {
                     const storeInput = example.querySelector('.store-id-input');
                     if (storeInput) {
-                        url = `http://localhost:4000/api${endpoint}${storeInput.value}`;
+                        url = `https://lunax-marketplace.dmsystem.dpdns.org/api${endpoint}${storeInput.value}`;
                     }
                 } else if (endpoint === '/products/search') {
                     const query = example.querySelector('.search-query')?.value || '';
                     const category = example.querySelector('.search-category')?.value || '';
-                    url = `http://localhost:4000/api/products/search?q=${query}&category=${category}`;
+                    url = `https://lunax-marketplace.dmsystem.dpdns.org/api/products/search?q=${query}&category=${category}`;
                 }
                 
                 const response = await fetch(url, {
@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function() {
             resultDiv.innerHTML = '';
             
             try {
-                const response = await fetch('http://localhost:4000/api/reels/upload', {
+                const response = await fetch('https://lunax-marketplace.dmsystem.dpdns.org/api/reels/upload', {
                     method: 'POST',
                     body: formData
                 });
