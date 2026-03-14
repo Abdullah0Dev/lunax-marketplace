@@ -10,3 +10,6 @@ router.put("/:id", StoreController.update);
 router.delete("/:id", StoreController.delete);
 
 export default router;
+
+
+// https://lunax-marketplace.dmsystem.dpdns.org/api/stores

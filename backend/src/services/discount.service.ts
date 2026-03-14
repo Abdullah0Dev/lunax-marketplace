@@ -141,9 +141,7 @@ export class DiscountService {
     });
 
     if (existingDiscount) {
-      throw new Error(
-        `A discount already exists for this product. Please update the existing discount instead. Discount ID: ${existingDiscount._id}`,
-      );
+      return this.updateDiscount(existingDiscount.id, { ...data });
     }
 
     const discount = await Discount.create({

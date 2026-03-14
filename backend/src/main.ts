@@ -28,7 +28,7 @@ app.use("/api/stores", storeRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/reels", reelRoutes);
 app.use("/api/discounts", discountRoutes);
-
+// .../stores/store_Id => GET
 // Health check
 app.get("/health", (req, res) => {
   res.json({ status: "OK", timestamp: new Date() });

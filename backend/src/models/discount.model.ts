@@ -4,8 +4,8 @@ export interface IDiscount extends mongoose.Document {
   store_id: mongoose.Types.ObjectId;
   product_id: mongoose.Types.ObjectId;
   amount: number; // percentage (0-100)
-  startDate?: Date;
   endDate?: Date;
+  startDate?: Date;
   isActive: boolean;
   createdAt: Date;
 }
