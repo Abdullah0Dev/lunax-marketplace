@@ -102,867 +102,867 @@ const Stack = createNativeStackNavigator();
 
 export const StackNavigator1 = () => (
 
-    <Stack.Navigator>
-      <Stack.Screen
-        name="Serekij"
-        component={Serekij}
-        options={{ headerShown: false, tabBarShowLabel: false }}
-      />
-      <Stack.Screen
-        name="Rellsrek"
-        component={Rellsrek}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-      <Stack.Screen
-        name="Homelaptop"
-        component={Homelaptop}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-
-      <Stack.Screen
-        name="Homelaptop1"
-        component={Homelaptop1}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-
- <Stack.Screen
-        name="HomelaptopRellsrek"
-        component={HomelaptopRellsrek}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
- <Stack.Screen
-        name="Homelaptopdetails"
-        component={Homelaptopdetails}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
- <Stack.Screen
-        name="Homemarket"
-        component={Homemarket}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
- <Stack.Screen
-        name="Homemarket1"
-        component={Homemarket1}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-       <Stack.Screen
-        name="HomemarketRellsrek"
-        component={HomemarketRellsrek}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-       <Stack.Screen
-        name="Homemarketdetails"
-        component={Homemarketdetails}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-
- <Stack.Screen
-        name="HomeClothesdetails"
-        component={HomeClothesdetails}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-       <Stack.Screen
-        name="HomeClothes"
-        component={HomeClothes}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-  <Stack.Screen
-        name="HomeClothes1"
-        component={HomeClothes1}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-       <Stack.Screen
-        name="HomeClothesRellsrek"
-        component={HomeClothesRellsrek}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
- <Stack.Screen
-        name="HomeshoesRellsrek"
-        component={HomeshoesRellsrek}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-       <Stack.Screen
-        name="Homeshoes"
-        component={Homeshoes}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-         <Stack.Screen
-        name="Homeshoes1"
-        component={Homeshoes1}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-
- <Stack.Screen
-        name="Homeshoesdetails"
-        component={Homeshoesdetails}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
- <Stack.Screen
-        name="Homeindustry"
-        component={Homeindustry}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-       <Stack.Screen
-        name="Homeindustry1"
-        component={Homeindustry1}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-         <Stack.Screen
-        name="HomeindustryRellsrek"
-        component={HomeindustryRellsrek}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-            <Stack.Screen
-        name="Homeindustrydetails"
-        component={Homeindustrydetails}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-              <Stack.Screen
-        name="Homesport"
-        component={Homesport}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-              <Stack.Screen
-        name="Homesport1"
-        component={Homesport1}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-          <Stack.Screen
-        name="HomesportRellsrek"
-        component={HomesportRellsrek}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-             <Stack.Screen
-        name="Homesportdetails"
-        component={Homesportdetails}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-         <Stack.Screen
-        name="Homeoil"
-        component={Homeoil}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-         <Stack.Screen
-        name="Homeoil1"
-        component={Homeoil1}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-   <Stack.Screen
-        name="HomeoilRellsrek"
-        component={HomeoilRellsrek}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-      <Stack.Screen
-        name="Homeoildetails"
-        component={Homeoildetails}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-   <Stack.Screen
-        name="Homepaper"
-        component={Homepaper}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
- <Stack.Screen
-        name="Homepaper1"
-        component={Homepaper1}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-       <Stack.Screen
-        name="Homepaperdetails"
-        component={Homepaperdetails}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-       <Stack.Screen
-        name="HomepaperRellsrek"
-        component={HomepaperRellsrek}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
- <Stack.Screen
-        name="Homefly"
-        component={Homefly}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-       <Stack.Screen
-        name="Homefly1"
-        component={Homefly1}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-       <Stack.Screen
-        name="HomeflyRellsrek"
-        component={HomeflyRellsrek}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-       <Stack.Screen
-        name="Homeflydetails"
-        component={Homeflydetails}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-  <Stack.Screen
-        name="Homehotel"
-        component={Homehotel}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-        <Stack.Screen
-        name="Homehotel1"
-        component={Homehotel1}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-        <Stack.Screen
-        name="Homehoteldetails"
-        component={Homehoteldetails}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-        <Stack.Screen
-        name="HomehotelRellsrek"
-        component={HomehotelRellsrek}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
+  <Stack.Navigator>
+    <Stack.Screen
+      name="Serekij"
+      component={Serekij}
+      options={{ headerShown: false, tabBarShowLabel: false }}
+    />
+    <Stack.Screen
+      name="Rellsrek"
+      component={Rellsrek}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homelaptop"
+      component={Homelaptop}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
 
     <Stack.Screen
-        name="Homemobilyat"
-        component={Homemobilyat}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-          <Stack.Screen
-        name="Homemobilyat1"
-        component={Homemobilyat1}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-          <Stack.Screen
-        name="HomemobilyatRellsrek"
-        component={HomemobilyatRellsrek}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-          <Stack.Screen
-        name="Homemobilyatdetails"
-        component={Homemobilyatdetails}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-   <Stack.Screen
-        name="Homephone"
-        component={Homephone}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-         <Stack.Screen
-        name="Homephone1"
-        component={Homephone1}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-         <Stack.Screen
-        name="HomephoneRellsrek"
-        component={HomephoneRellsrek}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-         <Stack.Screen
-        name="Homephonedetails"
-        component={Homephonedetails}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-   <Stack.Screen
-        name="Hometv"
-        component={Hometv}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-   <Stack.Screen
-        name="Hometv1"
-        component={Hometv1}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-         <Stack.Screen
-        name="HometvRellsrek"
-        component={HometvRellsrek}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-         <Stack.Screen
-        name="Hometvdetails"
-        component={Hometvdetails}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-          <Stack.Screen
-        name="Homestudio"
-        component={Homestudio}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-          <Stack.Screen
-        name="Homestudio1"
-        component={Homestudio1}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-          <Stack.Screen
-        name="HomestudioRellsrek"
-        component={HomestudioRellsrek}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-          <Stack.Screen
-        name="Homestudiodetails"
-        component={Homestudiodetails}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-           <Stack.Screen
-        name="Homesalon"
-        component={Homesalon}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-           <Stack.Screen
-        name="Homesalon1"
-        component={Homesalon1}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-           <Stack.Screen
-        name="HomesalonRellsrek"
-        component={HomesalonRellsrek}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-           <Stack.Screen
-        name="Homesalondetails"
-        component={Homesalondetails}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-      <Stack.Screen
-        name="Homeholl"
-        component={Homeholl}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-   <Stack.Screen
-        name="Homeholl1"
-        component={Homeholl1}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-         <Stack.Screen
-        name="Homeholldetails"
-        component={Homeholldetails}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-         <Stack.Screen
-        name="HomehollRellsrek"
-        component={HomehollRellsrek}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
+      name="Homelaptop1"
+      component={Homelaptop1}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
 
-      <Stack.Screen
-        name="Homedress"
-        component={Homedress}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-     <Stack.Screen
-        name="Homedress1"
-        component={Homedress1}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-           <Stack.Screen
-        name="HomedressRellsrek"
-        component={HomedressRellsrek}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-           <Stack.Screen
-        name="Homedressdetails"
-        component={Homedressdetails}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-           <Stack.Screen
-        name="Homegaming"
-        component={Homegaming}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
+    <Stack.Screen
+      name="HomelaptopRellsrek"
+      component={HomelaptopRellsrek}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homelaptopdetails"
+      component={Homelaptopdetails}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homemarket"
+      component={Homemarket}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homemarket1"
+      component={Homemarket1}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="HomemarketRellsrek"
+      component={HomemarketRellsrek}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homemarketdetails"
+      component={Homemarketdetails}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
 
-           <Stack.Screen
-        name="Homegaming1"
-        component={Homegaming1}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-           <Stack.Screen
-        name="HomegamingRellsrek"
-        component={HomegamingRellsrek}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-                 <Stack.Screen
-        name="Homegamingdetails"
-        component={Homegamingdetails}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-                <Stack.Screen
-        name="Homebaby"
-        component={Homebaby}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-            <Stack.Screen
-        name="Homebaby1"
-        component={Homebaby1}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-                  <Stack.Screen
-        name="HomebabyRellsrek"
-        component={HomebabyRellsrek}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-                  <Stack.Screen
-        name="Homebabydetails"
-        component={Homebabydetails}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-                <Stack.Screen
-        name="Homecar"
-        component={Homecar}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-                <Stack.Screen
-        name="Homecar1"
-        component={Homecar1}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-                      <Stack.Screen
-        name="HomecarRellsrek"
-        component={HomecarRellsrek}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-                      <Stack.Screen
-        name="Homecardetails"
-        component={Homecardetails}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
+    <Stack.Screen
+      name="HomeClothesdetails"
+      component={HomeClothesdetails}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="HomeClothes"
+      component={HomeClothes}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="HomeClothes1"
+      component={HomeClothes1}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="HomeClothesRellsrek"
+      component={HomeClothesRellsrek}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="HomeshoesRellsrek"
+      component={HomeshoesRellsrek}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homeshoes"
+      component={Homeshoes}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homeshoes1"
+      component={Homeshoes1}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
 
-<Stack.Screen
-        name="Homehouse"
-        component={Homehouse}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-      <Stack.Screen
-        name="Homehouse1"
-        component={Homehouse1}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-      <Stack.Screen
-        name="HomehouseRellsrek"
-        component={HomehouseRellsrek}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-      <Stack.Screen
-        name="Homehousedetails"
-        component={Homehousedetails}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
+    <Stack.Screen
+      name="Homeshoesdetails"
+      component={Homeshoesdetails}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homeindustry"
+      component={Homeindustry}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homeindustry1"
+      component={Homeindustry1}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="HomeindustryRellsrek"
+      component={HomeindustryRellsrek}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homeindustrydetails"
+      component={Homeindustrydetails}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homesport"
+      component={Homesport}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homesport1"
+      component={Homesport1}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="HomesportRellsrek"
+      component={HomesportRellsrek}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homesportdetails"
+      component={Homesportdetails}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homeoil"
+      component={Homeoil}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homeoil1"
+      component={Homeoil1}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="HomeoilRellsrek"
+      component={HomeoilRellsrek}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homeoildetails"
+      component={Homeoildetails}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homepaper"
+      component={Homepaper}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homepaper1"
+      component={Homepaper1}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homepaperdetails"
+      component={Homepaperdetails}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="HomepaperRellsrek"
+      component={HomepaperRellsrek}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homefly"
+      component={Homefly}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homefly1"
+      component={Homefly1}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="HomeflyRellsrek"
+      component={HomeflyRellsrek}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homeflydetails"
+      component={Homeflydetails}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homehotel"
+      component={Homehotel}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homehotel1"
+      component={Homehotel1}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homehoteldetails"
+      component={Homehoteldetails}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="HomehotelRellsrek"
+      component={HomehotelRellsrek}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
 
-      <Stack.Screen
-        name="Homewatch"
-        component={Homewatch}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-      <Stack.Screen
-        name="Homewatch1"
-        component={Homewatch1}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-            <Stack.Screen
-        name="HomewatchRellsrek"
-        component={HomewatchRellsrek}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-            <Stack.Screen
-        name="Homewatchdetails"
-        component={Homewatchdetails}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-            <Stack.Screen
-        name="Homehome"
-        component={Homehome}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-                  <Stack.Screen
-        name="Homehome1"
-        component={Homehome1}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-                  <Stack.Screen
-        name="HomehomeRellsrek"
-        component={HomehomeRellsrek}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-                  <Stack.Screen
-        name="Homehomedetails"
-        component={Homehomedetails}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
-               <Stack.Screen
-        name="Search"
-        component={Search}
-        options={{
-          headerShown: false,
-          tabBarShowLabel: false,
-          presentation: "containedModal",
-        }}
-      />
+    <Stack.Screen
+      name="Homemobilyat"
+      component={Homemobilyat}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homemobilyat1"
+      component={Homemobilyat1}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="HomemobilyatRellsrek"
+      component={HomemobilyatRellsrek}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homemobilyatdetails"
+      component={Homemobilyatdetails}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homephone"
+      component={Homephone}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homephone1"
+      component={Homephone1}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="HomephoneRellsrek"
+      component={HomephoneRellsrek}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homephonedetails"
+      component={Homephonedetails}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Hometv"
+      component={Hometv}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Hometv1"
+      component={Hometv1}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="HometvRellsrek"
+      component={HometvRellsrek}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Hometvdetails"
+      component={Hometvdetails}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homestudio"
+      component={Homestudio}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homestudio1"
+      component={Homestudio1}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="HomestudioRellsrek"
+      component={HomestudioRellsrek}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homestudiodetails"
+      component={Homestudiodetails}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homesalon"
+      component={Homesalon}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homesalon1"
+      component={Homesalon1}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="HomesalonRellsrek"
+      component={HomesalonRellsrek}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homesalondetails"
+      component={Homesalondetails}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homeholl"
+      component={Homeholl}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homeholl1"
+      component={Homeholl1}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homeholldetails"
+      component={Homeholldetails}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="HomehollRellsrek"
+      component={HomehollRellsrek}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+
+    <Stack.Screen
+      name="Homedress"
+      component={Homedress}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homedress1"
+      component={Homedress1}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="HomedressRellsrek"
+      component={HomedressRellsrek}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homedressdetails"
+      component={Homedressdetails}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homegaming"
+      component={Homegaming}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+
+    <Stack.Screen
+      name="Homegaming1"
+      component={Homegaming1}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="HomegamingRellsrek"
+      component={HomegamingRellsrek}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homegamingdetails"
+      component={Homegamingdetails}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homebaby"
+      component={Homebaby}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homebaby1"
+      component={Homebaby1}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="HomebabyRellsrek"
+      component={HomebabyRellsrek}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homebabydetails"
+      component={Homebabydetails}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homecar"
+      component={Homecar}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homecar1"
+      component={Homecar1}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="HomecarRellsrek"
+      component={HomecarRellsrek}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homecardetails"
+      component={Homecardetails}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+
+    <Stack.Screen
+      name="Homehouse"
+      component={Homehouse}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homehouse1"
+      component={Homehouse1}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="HomehouseRellsrek"
+      component={HomehouseRellsrek}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homehousedetails"
+      component={Homehousedetails}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+
+    <Stack.Screen
+      name="Homewatch"
+      component={Homewatch}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homewatch1"
+      component={Homewatch1}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="HomewatchRellsrek"
+      component={HomewatchRellsrek}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homewatchdetails"
+      component={Homewatchdetails}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homehome"
+      component={Homehome}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homehome1"
+      component={Homehome1}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="HomehomeRellsrek"
+      component={HomehomeRellsrek}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homehomedetails"
+      component={Homehomedetails}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
+    <Stack.Screen
+      name="Search"
+      component={Search}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "containedModal",
+      }}
+    />
 
 
 
@@ -974,7 +974,7 @@ export const StackNavigator1 = () => (
 
 
 
-      
-    </Stack.Navigator>
-  
+
+  </Stack.Navigator>
+
 );

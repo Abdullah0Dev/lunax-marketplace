@@ -1,5 +1,5 @@
 import { Provider } from "react-redux";
-import store from "./redux/store";
+import { store, persistor } from './services/store/store';
 import { useFonts } from "expo-font";
 import { NavigationContainer } from "@react-navigation/native";
 import {
@@ -14,16 +14,18 @@ import { useEffect } from "react";
 import registerNNPushToken from 'native-notify';
 import { ClerkProvider, ClerkLoaded } from "@clerk/clerk-expo";
 // import * as ScreenCapture from 'expo-screen-capture';
+import NetInfo from '@react-native-community/netinfo';
 
 import { useColorScheme } from "./hooks/useColorScheme";
 import { tokenCache } from "./utils/cache";
+import { PersistGate } from "redux-persist/integration/react";
 
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
 export default function App() {
   const colorScheme = useColorScheme();
 
-// registerNNPushToken(32980, 'JWCSVcILqymOIfCP1Q8BOX');
+  // registerNNPushToken(32980, 'JWCSVcILqymOIfCP1Q8BOX');
   const [fontsLoaded] = useFonts({
     roboto: require("./assets/font/Roboto.ttf"),
     roboto1: require("./assets/font/Roboto1.ttf"),
@@ -48,18 +50,29 @@ export default function App() {
   //     ScreenCapture.allowScreenCaptureAsync();
   //   };
   // }, []);
+  useEffect(() => {
+    // Monitor network status
+    const unsubscribe = NetInfo.addEventListener(state => {
+      if (state.isConnected) {
+        // Trigger sync when coming online
+        store.dispatch(offlineActions.processQueue());
+      }
+    });
 
+    return () => unsubscribe();
+  }, []);
   if (!fontsLoaded) return null;
 
- 
+
   return (
     <Provider store={store}>
-     
-            <NavigationContainer>
-              <AppNavigator />
-            </NavigationContainer>
-            <StatusBar style="auto" />
-          
+      <PersistGate loading={null} persistor={persistor}>
+            {/* <GestureHandlerRootView style={styles.container}></GestureHandlerRootView> */}
+        <NavigationContainer>
+          <AppNavigator />
+        </NavigationContainer>
+      </PersistGate> 
+      <StatusBar style="auto" />
     </Provider>
   );
 }

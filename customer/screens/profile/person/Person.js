@@ -45,10 +45,10 @@ export default function Person() {
         <View style={{ width: 26 }} />
       </View>
 
-      <ScrollView contentContainerStyle={{ paddingBottom: 40,marginTop:50 }}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 40, marginTop: 50 }}>
 
         {/* Username */}
-     
+
 
         {/* Info Card */}
         <View style={styles.card}>

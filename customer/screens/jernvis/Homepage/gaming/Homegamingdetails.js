@@ -82,7 +82,7 @@ const [openIndex, setOpenIndex] = React.useState(null);
   };
 
 
-  const [selectedPercent, setSelectedPercent] = useState(0);
+const [selectedPercent, setSelectedPercent] = useState(0);
 
 const totalAmount = 200000;
 const finalAmount = (totalAmount * selectedPercent) / 100;

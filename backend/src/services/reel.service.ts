@@ -122,6 +122,7 @@ export class ReelService {
         title,
         description,
       });
+      console.log("uploadResult: ", uploadResult);
     } catch (error) {
       console.error("Openinary upload failed:", error);
       // Error messages from OpeninaryService are already user-friendly
@@ -272,16 +273,9 @@ export class ReelService {
   private static formatReelResponse(reel: any): ReelResponse {
     return {
       id: reel._id.toString(),
-      store_id: reel.store_id?.toString() || reel.store_id,
-      public_id: reel.public_id,
-      url: reel.url,
       thumbnail_url:
         reel.thumbnail_url || OpeninaryService.getThumbnailUrl(reel.public_id),
-      title: reel.title,
-      description: reel.description,
-      duration: reel.duration,
-      format: reel.format,
-      createdAt: reel.createdAt,
+      ...reel,
     };
   }
 

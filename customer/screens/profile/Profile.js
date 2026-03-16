@@ -1,11 +1,11 @@
 
-import { StyleSheet,Dimensions, Text, View,ActivityIndicator ,ScrollView ,TouchableOpacity,Platform,FlatList,ImageBackground,Linking,Alert, Modal, Pressable } from 'react-native';
+import { StyleSheet, Dimensions, Text, View, ActivityIndicator, ScrollView, TouchableOpacity, Platform, FlatList, ImageBackground, Linking, Alert, Modal, Pressable } from 'react-native';
 import { BlurView } from 'expo-blur';
-import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 import { FontAwesome6 } from '@expo/vector-icons';
 import axios from "react-native-axios";
-import {useState,useEffect,useRef} from "react";
+import { useState, useEffect, useRef } from "react";
 import { LinearGradient } from 'expo-linear-gradient';
 import NetInfo from '@react-native-community/netinfo';
 import { Image } from 'expo-image';
@@ -16,15 +16,15 @@ import { Video } from 'expo-av';
 import * as ImagePicker from 'expo-image-picker';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-import {  FontAwesome } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 const isTablet = screenWidth >= 768;
-  const RADIUS = 20;
+const RADIUS = 20;
 const ITEM_WIDTH = isTablet ? screenWidth * 0.5 : screenWidth * 0.88;
-const ITEM_HEIGHT = isTablet ? screenHeight * 0.6 : screenHeight * 0.6;; 
-export default function Profile({navigation}) {
+const ITEM_HEIGHT = isTablet ? screenHeight * 0.6 : screenHeight * 0.6;;
+export default function Profile({ navigation }) {
   const [image, setImage] = useState(null);
- const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
   const pickImage = async () => {
     // permission بۆ gallery
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -45,29 +45,29 @@ export default function Profile({navigation}) {
       setImage(result.assets[0].uri);
     }
   };
-<TouchableOpacity
-  style={styles.row}
-  onPress={() =>
-    Alert.alert(
-      'چوونەدەرەوە',
-      'ئایا دڵنیایت کە دەتەوێت بچیتە دەرەوە؟',
-      [
-        {
-          text: 'نەخێر',
-          style: 'cancel',
-        },
-        {
-          text: 'بەڵێ',
-          style: 'destructive',
-          onPress: () => {
-            console.log('User logged out');
-           
+  <TouchableOpacity
+    style={styles.row}
+    onPress={() =>
+      Alert.alert(
+        'چوونەدەرەوە',
+        'ئایا دڵنیایت کە دەتەوێت بچیتە دەرەوە؟',
+        [
+          {
+            text: 'نەخێر',
+            style: 'cancel',
           },
-        },
-      ]
-    )
-  }
-></TouchableOpacity>
+          {
+            text: 'بەڵێ',
+            style: 'destructive',
+            onPress: () => {
+              console.log('User logged out');
+
+            },
+          },
+        ]
+      )
+    }
+  ></TouchableOpacity>
   return (
     <View style={styles.container}>
       {/* Profile Image */}
@@ -78,111 +78,111 @@ export default function Profile({navigation}) {
             style={styles.profileImage}
           />
         </TouchableOpacity>
-       <Text style={styles.nav}>DerfetNezir</Text>
+        <Text style={styles.nav}>DerfetNezir</Text>
 
 
 
- <View style={styles.container2}>
- <TouchableOpacity style={styles.row} onPress={()=>navigation.navigate("Person")}>
-     
-        <Ionicons name="chevron-back" size={22} color="#999" />
-        <Text style={styles.text}>پرۆفایل</Text>
-        <Ionicons name="person-outline" size={22} color="#333" />
-      </TouchableOpacity>
+        <View style={styles.container2}>
+          <TouchableOpacity style={styles.row} onPress={() => navigation.navigate("Person")}>
+
+            <Ionicons name="chevron-back" size={22} color="#999" />
+            <Text style={styles.text}>پرۆفایل</Text>
+            <Ionicons name="person-outline" size={22} color="#333" />
+          </TouchableOpacity>
 
 
-<TouchableOpacity style={styles.row} onPress={()=>navigation.navigate("Password")}>
-     
-        <Ionicons name="chevron-back" size={22} color="#999" />
-        <Text style={styles.text}>وشەیا نهێنی</Text>
-        <Ionicons name="lock-closed-outline" size={22} color="#333" />
-      </TouchableOpacity>
+          <TouchableOpacity style={styles.row} onPress={() => navigation.navigate("Password")}>
+
+            <Ionicons name="chevron-back" size={22} color="#999" />
+            <Text style={styles.text}>وشەیا نهێنی</Text>
+            <Ionicons name="lock-closed-outline" size={22} color="#333" />
+          </TouchableOpacity>
 
 
 
 
-      <TouchableOpacity style={styles.row} onPress={()=>navigation.navigate("Aboutus")}>
-        <Ionicons name="chevron-back" size={22} color="#999" />
-        <Text style={styles.text}>دەربارەی مە</Text>
-        <Ionicons name="information-circle-outline" size={22} color="#333" />
-      </TouchableOpacity>
+          <TouchableOpacity style={styles.row} onPress={() => navigation.navigate("Aboutus")}>
+            <Ionicons name="chevron-back" size={22} color="#999" />
+            <Text style={styles.text}>دەربارەی مە</Text>
+            <Ionicons name="information-circle-outline" size={22} color="#333" />
+          </TouchableOpacity>
 
-      <TouchableOpacity style={styles.row} onPress={()=>navigation.navigate("Contact")}>
-        <Ionicons name="chevron-back" size={22} color="#999" />
-        <Text style={styles.text}>پەیوەندیێ بکە</Text>
-        <Ionicons name="call-outline" size={22} color="#333" />
-      </TouchableOpacity>
+          <TouchableOpacity style={styles.row} onPress={() => navigation.navigate("Contact")}>
+            <Ionicons name="chevron-back" size={22} color="#999" />
+            <Text style={styles.text}>پەیوەندیێ بکە</Text>
+            <Ionicons name="call-outline" size={22} color="#333" />
+          </TouchableOpacity>
 
-    <TouchableOpacity
-        style={styles.row}
-        activeOpacity={0.8}
-        onPress={() => setModalVisible(true)}
-      >
-        <Ionicons name="chevron-back" size={22} color="#999" />
-        <Text style={styles.text}>وەشان</Text>
-        <Ionicons name="sync" size={22} color="#333" />
-      </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.row}
+            activeOpacity={0.8}
+            onPress={() => setModalVisible(true)}
+          >
+            <Ionicons name="chevron-back" size={22} color="#999" />
+            <Text style={styles.text}>وەشان</Text>
+            <Ionicons name="sync" size={22} color="#333" />
+          </TouchableOpacity>
 
-      {/* Modal */}
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>وەشانا ئەپێ</Text>
-            <Text style={styles.modalVersion}>1.0.0</Text>
-            <Text style={styles.modalText}>
-            ئەڤ وەشانە کومکرنا پێداویستیێن تەنە
-و ب ساناهیکرنا رێکا تەیە😍
-            </Text>
+          {/* Modal */}
+          <Modal
+            animationType="fade"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => setModalVisible(false)}
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalBox}>
+                <Text style={styles.modalTitle}>وەشانا ئەپێ</Text>
+                <Text style={styles.modalVersion}>1.0.0</Text>
+                <Text style={styles.modalText}>
+                  ئەڤ وەشانە کومکرنا پێداویستیێن تەنە
+                  و ب ساناهیکرنا رێکا تەیە😍
+                </Text>
 
-            <Pressable
-              style={styles.closeButton}
-              onPress={() => setModalVisible(false)}
-            >
-              <Text style={styles.closeText}>گرتن</Text>
-            </Pressable>
-          </View>
+                <Pressable
+                  style={styles.closeButton}
+                  onPress={() => setModalVisible(false)}
+                >
+                  <Text style={styles.closeText}>گرتن</Text>
+                </Pressable>
+              </View>
+            </View>
+          </Modal>
+
+
+          <TouchableOpacity
+            style={styles.row}
+            onPress={() =>
+              Alert.alert(
+                'چوونەدەرەوە',
+                'ئایا دڵنیایت کە دەتەوێت بچیتە دەرەوە؟',
+                [
+                  {
+                    text: 'نەخێر',
+                    style: 'cancel',
+                  },
+                  {
+                    text: 'بەڵێ',
+                    style: 'destructive',
+                    onPress: () => {
+                      console.log('User logged out');
+
+                    },
+                  },
+                ]
+              )
+            }
+          >
+            <Ionicons name="chevron-back" size={22} color="#999" />
+            <Text style={[styles.text, { color: '#e53935' }]}>چوونەدەرەوە</Text>
+            <Ionicons name="log-out-outline" size={22} color="#e53935" />
+          </TouchableOpacity>
+
         </View>
-      </Modal>
-
-
-     <TouchableOpacity
-  style={styles.row}
-  onPress={() =>
-    Alert.alert(
-      'چوونەدەرەوە',
-      'ئایا دڵنیایت کە دەتەوێت بچیتە دەرەوە؟',
-      [
-        {
-          text: 'نەخێر',
-          style: 'cancel',
-        },
-        {
-          text: 'بەڵێ',
-          style: 'destructive',
-          onPress: () => {
-            console.log('User logged out');
-           
-          },
-        },
-      ]
-    )
-  }
->
-  <Ionicons name="chevron-back" size={22} color="#999" />
-  <Text style={[styles.text, { color: '#e53935' }]}>چوونەدەرەوە</Text>
-  <Ionicons name="log-out-outline" size={22} color="#e53935" />
-</TouchableOpacity>
-
-    </View>
 
 
 
-  <View style={styles.socialRow}>
+        <View style={styles.socialRow}>
           <TouchableOpacity
             style={styles.socialButton}
             onPress={() => Linking.openURL('https://instagram.com/yourpage')}
@@ -203,26 +203,28 @@ export default function Profile({navigation}) {
 
       </View>
 
-  
 
-          <StatusBar style="auto" />
+
+      <StatusBar style="auto" />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f4f4f4', alignItems: 'center', paddingTop: 60 },
-  imageContainer: { alignItems: 'center', marginBottom: 40 ,marginTop:50},
-  profileImage: {   width: isTablet ? wp('40%') : wp('35%'),
+  imageContainer: { alignItems: 'center', marginBottom: 40, marginTop: 50 },
+  profileImage: {
+    width: isTablet ? wp('40%') : wp('35%'),
     height: isTablet ? wp('40%') : wp('35%'),
-     borderRadius: isTablet ?200:100, backgroundColor: '#ddd' },
-     nav:{
-        fontFamily:'k24',
-        fontSize:RFPercentage(2.5),
-        color:'rgb(75, 75, 75)',
-        marginTop:isTablet ? wp('3%') : wp('3%'),
-     },
-       container2: {
+    borderRadius: isTablet ? 200 : 100, backgroundColor: '#ddd'
+  },
+  nav: {
+    fontFamily: 'k24',
+    fontSize: RFPercentage(2.5),
+    color: 'rgb(75, 75, 75)',
+    marginTop: isTablet ? wp('3%') : wp('3%'),
+  },
+  container2: {
     backgroundColor: '#fff',
     marginHorizontal: 20,
     marginTop: 40,
@@ -251,8 +253,8 @@ const styles = StyleSheet.create({
     marginRight: 19,
     fontSize: 18,
     color: '#222',
-    textAlign:'right',
-    fontFamily:'k24',
+    textAlign: 'right',
+    fontFamily: 'k24',
 
   },
   socialRow: {
@@ -267,7 +269,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 14,
     backgroundColor: 'rgb(255, 255, 255)',
-    marginHorizontal:20
+    marginHorizontal: 20
   },
 
   socialText: {
@@ -275,7 +277,7 @@ const styles = StyleSheet.create({
     fontSize: wp('3.5%'),
     color: '#222',
   },
-    modalOverlay: {
+  modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'center',

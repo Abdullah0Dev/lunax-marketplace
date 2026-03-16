@@ -1,0 +1,7 @@
+{
+  "recommendations": [],
+  "unwantedRecommendations": [
+    "ms-vscode.vscode-typescript-next",
+    "ms-vscode.typescript-language-features"
+  ]
+}
