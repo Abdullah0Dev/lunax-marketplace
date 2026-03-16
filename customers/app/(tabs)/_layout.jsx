@@ -9,7 +9,6 @@ export default function TabLayout() {
     roboto1: require("../../assets/fonts/Roboto1.ttf"),
     k24: require("../../assets/fonts/k24.ttf"),
     lor: require("../../assets/fonts/logirent.otf"),
-
   });
 
   if (!fontsLoaded) return null;
@@ -21,9 +20,9 @@ export default function TabLayout() {
         tabBar={(props) => <TabBar {...props} />}
         screenOptions={{
           headerShown: false,
-        }}
+        }} 
       >
-        <Tabs.Screen name="index" />
+        <Tabs.Screen name="index" /> 
         <Tabs.Screen name="store" />
         <Tabs.Screen name="reels" />
         <Tabs.Screen name="favorites" />

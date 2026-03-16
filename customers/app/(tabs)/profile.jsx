@@ -66,7 +66,7 @@ const ProfileTab = () => {
         <View style={styles.container2}>
           <TouchableOpacity
             style={styles.row}
-            onPress={() => router.navigate("/profile")}
+            onPress={() => router.navigate("/account")}
           >
             <Ionicons name="chevron-back" size={22} color="#999" />
             <Text style={styles.text}>پرۆفایل</Text>
@@ -75,7 +75,7 @@ const ProfileTab = () => {
 
           <TouchableOpacity
             style={styles.row}
-            onPress={() => router.push("/profile/index")}
+            onPress={() => router.push("/account")}
           >
             <Ionicons name="chevron-back" size={22} color="#999" />
             <Text style={styles.text}>وشەیا نهێنی</Text>
@@ -84,7 +84,7 @@ const ProfileTab = () => {
 
           <TouchableOpacity
             style={styles.row}
-            onPress={() => router.push("/profile/about")}
+            onPress={() => router.push("/account/about")}
           >
             <Ionicons name="chevron-back" size={22} color="#999" />
             <Text style={styles.text}>دەربارەی مە</Text>
@@ -97,7 +97,7 @@ const ProfileTab = () => {
 
           <TouchableOpacity
             style={styles.row}
-            onPress={() => router.navigate("/profile")}
+            onPress={() => router.navigate("/account")}
           >
             <Ionicons name="chevron-back" size={22} color="#999" />
             <Text style={styles.text}>پەیوەندیێ بکە</Text>
