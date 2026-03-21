@@ -19,142 +19,142 @@ const Stack = createNativeStackNavigator();
 
 export const StackNavigator1 = () => (
 
-    <Stack.Navigator>
-      <Stack.Screen
-        name="Serekij"
-        component={Serekij}
-       options={{
-                headerShown: false,
-                tabBarShowLabel: false,
-                presentation: "transparentModal",
-              }}
-      />
-     
- <Stack.Screen
-        name="Logoanddescription"
-        component={Logoanddescription}
-       options={{
-                headerShown: false,
-                tabBarShowLabel: false,
-                presentation: "transparentModal",
-              }}
-      />
+  <Stack.Navigator>
+    <Stack.Screen
+      name="Serekij"
+      component={Serekij}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "transparentModal",
+      }}
+    />
 
- <Stack.Screen
-        name="Homerells"
-        component={Homerells}
-       options={{
-                headerShown: false,
-                tabBarShowLabel: false,
-                presentation: "transparentModal",
-              }}
-      />
+    <Stack.Screen
+      name="Logoanddescription"
+      component={Logoanddescription}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "transparentModal",
+      }}
+    />
+
+    <Stack.Screen
+      name="Homerells"
+      component={Homerells}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "transparentModal",
+      }}
+    />
 
 
- <Stack.Screen
-        name="Imagedetails"
-        component={Imagedetails}
-       options={{
-                headerShown: false,
-                tabBarShowLabel: false,
-                presentation: "transparentModal",
-              }}
-      />
- <Stack.Screen
-        name="Imagedetails1"
-        component={Imagedetails1}
-       options={{
-                headerShown: false,
-                tabBarShowLabel: false,
-                presentation: "transparentModal",
-              }}
-      />
- <Stack.Screen
-        name="Homediscount"
-        component={Homediscount}
-       options={{
-                headerShown: false,
-                tabBarShowLabel: false,
-                presentation: "transparentModal",
-              }}
-      />
- <Stack.Screen
-        name="Dis10"
-        component={Dis10}
-       options={{
-                headerShown: false,
-                tabBarShowLabel: false,
-                presentation: "transparentModal",
-              }}
-      />
+    <Stack.Screen
+      name="Imagedetails"
+      component={Imagedetails}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "transparentModal",
+      }}
+    />
+    <Stack.Screen
+      name="Imagedetails1"
+      component={Imagedetails1}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "transparentModal",
+      }}
+    />
+    <Stack.Screen
+      name="Homediscount"
+      component={Homediscount}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "transparentModal",
+      }}
+    />
+    <Stack.Screen
+      name="Dis10"
+      component={Dis10}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "transparentModal",
+      }}
+    />
 
-       <Stack.Screen
-        name="Dis15"
-        component={Dis15}
-       options={{
-                headerShown: false,
-                tabBarShowLabel: false,
-                presentation: "transparentModal",
-              }}
-      />
-        <Stack.Screen
-        name="Dis20"
-        component={Dis20}
-       options={{
-                headerShown: false,
-                tabBarShowLabel: false,
-                presentation: "transparentModal",
-              }}
-      />
+    <Stack.Screen
+      name="Dis15"
+      component={Dis15}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "transparentModal",
+      }}
+    />
+    <Stack.Screen
+      name="Dis20"
+      component={Dis20}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "transparentModal",
+      }}
+    />
 
-          <Stack.Screen
-        name="Dis25"
-        component={Dis25}
-       options={{
-                headerShown: false,
-                tabBarShowLabel: false,
-                presentation: "transparentModal",
-              }}
-      />
-           <Stack.Screen
-        name="Dis30"
-        component={Dis30}
-       options={{
-                headerShown: false,
-                tabBarShowLabel: false,
-                presentation: "transparentModal",
-              }}
-      />
+    <Stack.Screen
+      name="Dis25"
+      component={Dis25}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "transparentModal",
+      }}
+    />
+    <Stack.Screen
+      name="Dis30"
+      component={Dis30}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "transparentModal",
+      }}
+    />
 
-            <Stack.Screen
-        name="Dis35"
-        component={Dis35}
-       options={{
-                headerShown: false,
-                tabBarShowLabel: false,
-                presentation: "transparentModal",
-              }}
-      />
+    <Stack.Screen
+      name="Dis35"
+      component={Dis35}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "transparentModal",
+      }}
+    />
 
-              <Stack.Screen
-        name="Dis40"
-        component={Dis40}
-       options={{
-                headerShown: false,
-                tabBarShowLabel: false,
-                presentation: "transparentModal",
-              }}
-      />
+    <Stack.Screen
+      name="Dis40"
+      component={Dis40}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "transparentModal",
+      }}
+    />
 
-                 <Stack.Screen
-        name="Dis50"
-        component={Dis50}
-       options={{
-                headerShown: false,
-                tabBarShowLabel: false,
-                presentation: "transparentModal",
-              }}
-      />
-    </Stack.Navigator>
-  
+    <Stack.Screen
+      name="Dis50"
+      component={Dis50}
+      options={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        presentation: "transparentModal",
+      }}
+    />
+  </Stack.Navigator>
+
 );

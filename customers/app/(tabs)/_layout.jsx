@@ -26,7 +26,6 @@ export default function TabLayout() {
         <Tabs.Screen name="store" />
         <Tabs.Screen name="reels" />
         <Tabs.Screen name="favorites" />
-        <Tabs.Screen name="profile" />
       </Tabs>
     </>
   );

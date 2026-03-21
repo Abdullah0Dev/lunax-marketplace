@@ -30,6 +30,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/reels", reelRoutes);
 app.use("/api/upload", uploadImagesRoutes);
 app.use("/api/discounts", discountRoutes);
+
 // .../stores/store_Id => GET
 // Health check
 app.get("/health", (req, res) => {

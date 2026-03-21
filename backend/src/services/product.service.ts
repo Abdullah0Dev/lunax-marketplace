@@ -3,7 +3,7 @@ import { Types } from "mongoose";
 
 export class ProductService {
   // Get products by store ID
-  static async getAllProducts() { 
+  static async getAllProducts() {
     const products = await Product.find({});
     return products.map((product) => ({
       ...product,
@@ -156,5 +156,82 @@ export class ProductService {
           }
         : null,
     }));
+  }
+  /**
+   * Get latest products (new arrivals)
+   * @param page - Page number for pagination
+   * @param limit - Number of products per page
+   * @returns Paginated list of latest products
+   */
+  static async getLatestProducts(
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<{
+    products: any[];
+    total: number;
+    page: number;
+    totalPages: number;
+  }> {
+    try {
+      const skip = (page - 1) * limit;
+
+      // Get products sorted by creation date (newest first)
+      const [products, total] = await Promise.all([
+        Product.find()
+          .populate("store_id", "name logo address phone_number")
+          .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(limit)
+          .lean(),
+        Product.countDocuments(),
+      ]);
+
+      // Format products for response
+      const formattedProducts = products.map((product) => ({
+        id: product._id.toString(),
+        store_id: product.store_id,
+        cover_image: product.cover_image,
+        name: {
+          kurdish: product.name?.kurdish,
+          english: product.name?.english,
+        },
+        price: product.price,
+        discount_price: product.discount_price,
+        finalPrice: product.discount_price || product.price,
+        description: product.description,
+        quantity: product.quantity,
+        category: product.category,
+        media: product.media,
+        specifications: product.specifications,
+        // Add store info
+        store: product.store_id
+          ? {
+              id: (product.store_id as any)._id.toString(),
+              name: (product.store_id as any).name,
+              logo: (product.store_id as any).logo,
+              address: (product.store_id as any).address,
+              phone_number: (product.store_id as any).phone_number,
+            }
+          : null,
+        hasDiscount: !!product.discount_price,
+        discountPercentage: product.discount_price
+          ? Math.round(
+              ((product.price - product.discount_price) / product.price) * 100,
+            )
+          : 0,
+        inStock: product.quantity > 0,
+        createdAt: product.createdAt,
+      }));
+
+      return {
+        products: formattedProducts,
+        total,
+        page,
+        totalPages: Math.ceil(total / limit),
+      };
+    } catch (error) {
+      console.error("Error in getLatestProducts:", error);
+      throw new Error(`Failed to fetch latest products: ${error}`);
+    }
   }
 }

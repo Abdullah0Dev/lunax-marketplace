@@ -19,10 +19,11 @@ import { RFPercentage } from "react-native-responsive-fontsize";
 import axios from "axios";
 import { useState, useEffect, useRef } from "react";
 import { LinearGradient } from "expo-linear-gradient";
-import { Image } from "expo-image"; 
+import { Image } from "expo-image";
 // import { SliderBox } from "react-native-image-slider-box";
 import { useRouter } from "expo-router";
 import VideoCard from "../../components/VideoCard";
+import { categoriesData } from "../../constants";
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 const isTablet = screenWidth >= 768;
 const RADIUS = 20;
@@ -110,7 +111,8 @@ const HomeScreen = () => {
   }, []);
 
   const navigateTo = (screen) => {
-    router.push(`/(tabs)/${screen}`);
+    const url = `/category/${screen}`;
+    router.push(url);
   };
 
   const navigateToRellsrek = (video, startIndex) => {
@@ -342,131 +344,28 @@ const HomeScreen = () => {
                     contentContainerStyle={styles.horizontalScroll}
                   >
                     <View>
-                      {/* ROW 1 */}
-                      <View style={styles.row1}>
-                        <TouchableOpacity onPress={() => navigateTo("store")}>
-                          <View style={styles.item}>
-                            <View style={styles.imageButton}>
-                              <Image
-                                source={require("../../assets/images/m20.png")}
-                                style={styles.iconImage1}
-                              />
-                            </View>
-                            <Text style={styles.imageText}>کومپیوتەر</Text>
-                          </View>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity onPress={() => navigateTo("store")}>
-                          <View style={styles.item}>
-                            <View style={styles.imageButton}>
-                              <Image
-                                source={require("../../assets/images/m21.png")}
-                                style={styles.iconImage1}
-                              />
-                            </View>
-                            <Text style={styles.imageText}>جلوبەرگ</Text>
-                          </View>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity onPress={() => navigateTo("store")}>
-                          <View style={styles.item}>
-                            <View style={styles.imageButton}>
-                              <Image
-                                source={require("../../assets/images/m22.webp")}
-                                style={styles.iconImage1}
-                              />
-                            </View>
-                            <Text style={styles.imageText}>پێلاڤ</Text>
-                          </View>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity onPress={() => navigateTo("store")}>
-                          <View style={styles.item}>
-                            <View style={styles.imageButton}>
-                              <Image
-                                source={require("../../assets/images/m23.png")}
-                                style={styles.iconImage1}
-                              />
-                            </View>
-                            <Text style={styles.imageText}>دروسکەر</Text>
-                          </View>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity onPress={() => navigateTo("store")}>
-                          <View style={styles.item}>
-                            <View style={styles.imageButton}>
-                              <Image
-                                source={require("../../assets/images/m26.png")}
-                                style={styles.iconImage1}
-                              />
-                            </View>
-                            <Text style={styles.imageText}>وەرزشی</Text>
-                          </View>
-                        </TouchableOpacity>
-                      </View>
-
-                      {/* ROW 2 */}
-                      <View style={styles.row1}>
-                        <TouchableOpacity onPress={() => navigateTo("store")}>
-                          <View style={styles.item}>
-                            <View style={styles.imageButton}>
-                              <Image
-                                source={require("../../assets/images/m24.webp")}
-                                style={styles.iconImage1}
-                              />
-                            </View>
-                            <Text style={styles.imageText}>مارکێت</Text>
-                          </View>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity onPress={() => navigateTo("store")}>
-                          <View style={styles.item}>
-                            <View style={styles.imageButton}>
-                              <Image
-                                source={require("../../assets/images/m25.png")}
-                                style={styles.iconImage1}
-                              />
-                            </View>
-                            <Text style={styles.imageText}>پانزینخانە</Text>
-                          </View>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity onPress={() => navigateTo("store")}>
-                          <View style={styles.item}>
-                            <View style={styles.imageButton}>
-                              <Image
-                                source={require("../../assets/images/m27.webp")}
-                                style={styles.iconImage1}
-                              />
-                            </View>
-                            <Text style={styles.imageText}>پەرگە</Text>
-                          </View>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity onPress={() => navigateTo("store")}>
-                          <View style={styles.item}>
-                            <View style={styles.imageButton}>
-                              <Image
-                                source={require("../../assets/images/m28.png")}
-                                style={styles.iconImage1}
-                              />
-                            </View>
-                            <Text style={styles.imageText}>فروکەڤانی</Text>
-                          </View>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity onPress={() => navigateTo("store")}>
-                          <View style={styles.item}>
-                            <View style={styles.imageButton}>
-                              <Image
-                                source={require("../../assets/images/m29.webp")}
-                                style={styles.iconImage1}
-                              />
-                            </View>
-                            <Text style={styles.imageText}>هوتێل</Text>
-                          </View>
-                        </TouchableOpacity>
-                      </View>
+                      {categoriesData.map((row, rowIndex) => (
+                        <View key={rowIndex} style={styles.row1}>
+                          {row.map((item) => (
+                            <TouchableOpacity
+                              key={item.id}
+                              onPress={() => navigateTo(item.screen)}
+                            >
+                              <View style={styles.item}>
+                                <View style={styles.imageButton}>
+                                  <Image
+                                    source={item.image}
+                                    style={styles.iconImage1}
+                                  />
+                                </View>
+                                <Text style={styles.imageText}>
+                                  {item.title}
+                                </Text>
+                              </View>
+                            </TouchableOpacity>
+                          ))}
+                        </View>
+                      ))}
                     </View>
                   </ScrollView>
                 </View>
@@ -1062,7 +961,7 @@ const styles = StyleSheet.create({
     fontSize: RFPercentage(2.2),
     textAlign: "center",
     fontFamily: "k24",
-    color: 'black',
+    color: "black",
     fontWeight: "bold",
   },
   bobilyat: {
@@ -1144,10 +1043,10 @@ const styles = StyleSheet.create({
   },
   textstudio: {
     fontSize: 30,
-    color: 'black',
-    fontFamily: 'lor',
-    textAlign: 'center',
-    fontWeight: "900"
+    color: "black",
+    fontFamily: "lor",
+    textAlign: "center",
+    fontWeight: "900",
   },
   iconImage12: {
     width: isTablet ? wp("90%") : wp("60%"),

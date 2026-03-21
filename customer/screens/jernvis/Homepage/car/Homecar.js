@@ -69,7 +69,7 @@ const GRADIENTS = [
   ['#e65100', '#ffb74d'], // orange soft
 
 ];
-
+// apple => 
 
 // 🔥 THEN: data
 const DATA = Array.from({ length: 20 }).map((_, i) => ({

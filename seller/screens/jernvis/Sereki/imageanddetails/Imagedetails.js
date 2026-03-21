@@ -524,7 +524,7 @@ export default function ProductManagement() {
 
                   <View style={styles.rowInputs}>
                     <View style={styles.halfInput}>
-                      <Text style={styles.inputLabel}>Price ($) *</Text>
+                      <Text style={styles.inputLabel}>Price (IQD) *</Text>
                       <TextInput
                         style={styles.input}
                         value={price}
