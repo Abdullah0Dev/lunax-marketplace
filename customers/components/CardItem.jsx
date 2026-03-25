@@ -14,17 +14,18 @@ const CardItem = ({ item, onPress }) => {
   const router = useRouter();
 
   return (
-    <TouchableOpacity
-      activeOpacity={0.85}
-      onPress={onPress}
-    >
+    <TouchableOpacity activeOpacity={0.85} onPress={onPress}>
       <LinearGradient
         colors={item.gradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.card}
       >
-        <Image source={item.iconImage} style={styles.cardIcon} />
+        <Image
+          source={item.iconImage}
+          contentFit="contain"
+          style={styles.cardIcon}
+        />
 
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>{item.title}</Text>
@@ -58,8 +59,17 @@ const styles = StyleSheet.create({
 
   cardIcon: {
     width: isTablet ? wp("25%") : wp("20%"),
-    height: isTablet ? hp("17%") : hp("10%"),
-    resizeMode: "contain",
+    height: isTablet ? wp("25%") : wp("20%"),
+    borderRadius: 50,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    shadowOpacity: 0.39,
+    shadowRadius: 8.3,
+
+    elevation: 13,
   },
 
   cardContent: {
@@ -80,4 +90,4 @@ const styles = StyleSheet.create({
     color: "#eee",
     textAlign: "right",
   },
-})
+});

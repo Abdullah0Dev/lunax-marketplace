@@ -115,7 +115,12 @@ export default function Serekij({ navigation }) {
   useEffect(() => {
     axios.get('https://amedbaz.github.io/rellsrek/rellsrek.json')
       .then(result => {
-        setTrsbadinii(result.data.rellsrek)
+        const filteredData = result.data.rellsrek.filter(
+          (v) => !v.play.includes("fib"),
+        );
+        // Then double the amount (create a copy of filtered data and combine)
+        const doubledData = [...filteredData, ...filteredData];
+        setTrsbadinii(doubledData);
       })
   }, []);
 

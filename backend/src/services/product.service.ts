@@ -174,11 +174,12 @@ export class ProductService {
   }> {
     try {
       const skip = (page - 1) * limit;
+      console.log("new request: ))");
 
       // Get products sorted by creation date (newest first)
       const [products, total] = await Promise.all([
         Product.find()
-          .populate("store_id", "name logo address phone_number")
+          .populate("store_id", "name logo address phone_number description")
           .sort({ createdAt: -1 })
           .skip(skip)
           .limit(limit)
@@ -211,6 +212,7 @@ export class ProductService {
               logo: (product.store_id as any).logo,
               address: (product.store_id as any).address,
               phone_number: (product.store_id as any).phone_number,
+              description: (product.store_id as any).description,
             }
           : null,
         hasDiscount: !!product.discount_price,

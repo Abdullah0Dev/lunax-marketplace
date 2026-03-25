@@ -275,7 +275,11 @@ export class ReelService {
       id: reel._id.toString(),
       thumbnail_url:
         reel.thumbnail_url || OpeninaryService.getThumbnailUrl(reel.public_id),
-      ...reel,
+      url: reel.url,
+      title: reel.title,
+      description: reel.description,
+      duration: reel.duration,
+      createdAt: reel.createdAt,
     };
   }
 

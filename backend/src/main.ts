@@ -8,6 +8,7 @@ import productRoutes from "./routes/product.route";
 import reelRoutes from "./routes/reel.route";
 import discountRoutes from "./routes/discount.route";
 import uploadImagesRoutes from "./routes/upload.routes";
+import customerRoutes from "./routes/customer.route";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -30,6 +31,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/reels", reelRoutes);
 app.use("/api/upload", uploadImagesRoutes);
 app.use("/api/discounts", discountRoutes);
+app.use("/api/customer", customerRoutes);
 
 // .../stores/store_Id => GET
 // Health check

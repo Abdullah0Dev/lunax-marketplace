@@ -161,3 +161,10 @@ export const getRandomPalette = () => {
 export const getPaletteByName = (name) => {
   return GRADIENT_PALETTES.find(p => p.name === name)?.colors || GRADIENT_PALETTES[0]?.colors;
 };
+export const getRandomGradient = () => {
+  const availableGradients = getRandomPalette().colors;
+  const randomNumber = Math.floor(Math.random() * availableGradients.length);
+  const randomGradient = availableGradients[randomNumber][0];
+  console.log(randomGradient);
+  return randomGradient
+}

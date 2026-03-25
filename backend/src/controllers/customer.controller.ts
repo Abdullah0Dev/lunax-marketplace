@@ -7,7 +7,7 @@ export class CustomerController {
   static async getRelevantStoresByCategory(req: Request, res: Response) {
     try {
       const { category } = req.params;
-      const limit = parseInt(req.query.limit as string) || 20;
+      const limit = parseInt(req.query.limit as string) || 20; 
       const minRelevance = parseInt(req.query.minRelevance as string) || 0;
 
       if (!category) {
@@ -34,10 +34,12 @@ export class CustomerController {
    */
   static async getLatestProducts(req: Request, res: Response) {
     try {
+      console.info("products: !!!", );
       const limit = parseInt(req.query.limit as string) || 20;
       const page = parseInt(req.query.page as string) || 1;
 
       const products = await ProductService.getLatestProducts(page, limit);
+      
       res.json(products);
     } catch (error) {
       console.error("Error fetching latest products:", error);

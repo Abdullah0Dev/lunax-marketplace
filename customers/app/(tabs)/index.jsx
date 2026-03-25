@@ -1,7 +1,6 @@
 // @ts-nocheck
 import {
   StyleSheet,
-  StatusBar,
   Dimensions,
   ActivityIndicator,
   ScrollView,
@@ -20,10 +19,12 @@ import axios from "axios";
 import { useState, useEffect, useRef } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { Image } from "expo-image";
-// import { SliderBox } from "react-native-image-slider-box";
 import { useRouter } from "expo-router";
 import VideoCard from "../../components/VideoCard";
-import { categoriesData } from "../../constants";
+import { adImages, categoriesData } from "../../constants";
+import { useExplore } from "../../hooks/useExplore";
+import { useDispatch } from "react-redux";
+import SlidingBox from "../../components/SlidingBox";
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 const isTablet = screenWidth >= 768;
 const RADIUS = 20;
@@ -33,23 +34,30 @@ const ITEM_HEIGHT = isTablet ? screenHeight * 0.6 : screenHeight * 0.6;
 const HomeScreen = () => {
   const router = useRouter();
   const { width } = Dimensions.get("window");
-
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+  const {
+    reels,
+    refetchReels,
+    isLoading,
+    getStoresByCategory,
+    preFetchAllCategories,
+  } = useExplore();
   ////////////////////////////////////////////////////
   const [images, setImages] = useState([]);
   const [links, setLinks] = useState([]);
+  const [localReels, setLocalReels] = useState([]);
 
-  useEffect(() => {
-    fetch("https://amedbaz.github.io/lunabalav/lunabalav.json")
-      .then((response) => response.json())
-      .then((data) => {
-        const lunabalav = data.lunabalav || [];
-        setImages(lunabalav.map((item) => item.image));
-        setLinks(lunabalav.map((item) => item.link));
-      })
-      .catch((error) => {
-        console.error("Error loading images:", error);
-      });
-  }, []);
+  // Option 1: Use useEffect to watch for reels changes
+  // Option 3: Use useEffect to fetch on mount
+  // useEffect(() => {
+  //   const fetchReels = async () => {
+  //     console.log("Fetching reels on mount...");
+  //     const result = await refetchReels();
+  //     console.log("Fetch result:", result);
+  //   };
+  //   fetchReels();
+  // }, []); // Empty dependency array means run once on mount
+ 
 
   const handleImagePress = (index) => {
     const url = links[index];
@@ -84,47 +92,60 @@ const HomeScreen = () => {
       );
     }
   };
-  ////////////////////////////////////////////////////
-
-  const [loading, setLoading] = useState(true);
-
+  // Pre-fetch all categories when app starts
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 3000));
-      } finally {
-        setLoading(false);
-      }
+    const loadAllCategoryData = async () => {
+      console.log("🚀 Pre-fetching all category data...");
+      setIsLoadingCategories(true);
+      await preFetchAllCategories();
+      setIsLoadingCategories(false);
     };
 
-    fetchData();
+    loadAllCategoryData();
   }, []);
-
-  ////////////////////////////////////
-  const [trsbadinii, setTrsbadinii] = useState([]);
-  useEffect(() => {
-    axios
-      .get("https://amedbaz.github.io/rellsrek/rellsrek.json")
-      .then((result) => {
-        setTrsbadinii(result.data.rellsrek);
-      });
-  }, []);
-
-  const navigateTo = (screen) => {
-    const url = `/category/${screen}`;
+  const navigateTo = async (categoryName) => {
+    console.log("categoryName: ", categoryName);
+    console.log(`Navigating to ${categoryName} (data already cached)`);
+    const url = `/category/${categoryName}`;
     router.push(url);
   };
 
   const navigateToRellsrek = (video, startIndex) => {
     router.push({
       pathname: "/(tabs)/reels",
-      params: { videos: JSON.stringify(videos), startIndex },
+      params: { videos: JSON.stringify({}), startIndex },
     });
   };
+  const quickCategories = [
+    {
+      gradient: ["rgb(6, 69, 117)", "rgb(5, 114, 156)"],
+      image: require("../../assets/images/m108.png"),
+      title: "ترومبێل",
+      link: "cars",
+    },
+    {
+      gradient: ["rgb(37, 81, 3)", "rgb(7, 138, 68)"],
+      image: require("../../assets/images/m106.png"),
+      title: "ئەرد و خانی",
+      link: "homes",
+    },
+    {
+      gradient: ["rgb(188, 114, 3)", "rgb(173, 156, 6)"],
+      image: require("../../assets/images/m102.png"),
+      title: "جیهانا دەمژمێرا",
+      link: "watches",
+    },
+    {
+      gradient: ["rgb(84, 27, 136)", "rgb(7, 44, 138)"],
+      image: require("../../assets/images/m910.webp"),
+      title: "ناف مالی",
+      link: "living",
+    },
+  ];
 
   return (
     <View style={styles.container}>
-      {loading ? (
+      {isLoading ? (
         <ActivityIndicator
           size="large"
           color="#f13a00"
@@ -145,7 +166,11 @@ const HomeScreen = () => {
                   resizeMode="contain"
                 />
 
-                <TouchableOpacity onPress={() => navigateTo("store")}>
+                <TouchableOpacity onPress={() => {
+                  console.log("search: ", router); 
+                  router.navigate("/_sitemap")
+                  
+                }}>
                   <Image
                     source={require("../../assets/images/m2.webp")}
                     style={styles.icon8}
@@ -156,30 +181,13 @@ const HomeScreen = () => {
 
               <View style={{ marginBottom: isTablet ? hp("0%") : hp("15%") }}>
                 {/* belavbun */}
-                {/* <View style={{ top: isTablet ? hp("-2%") : hp("-4%") }}>
-                  <SliderBox
-                    images={images}
-                    autoplay
-                    circleLoop
-                    dotColor="red"
-                    inactiveDotColor="#90A4AE"
-                    resizeMode="cover"
-                    ImageComponentStyle={{
-                      borderRadius: 20,
-                      width: screenWidth * 0.95,
-                      height: screenWidth * 0.5,
-                      marginTop: 10,
-                      alignSelf: "center",
-                    }}
-                    dotStyle={{
-                      width: 30,
-                      height: 7,
-                      borderRadius: 20,
-                    }}
-                    onCurrentImagePressed={handleImagePress}
+                <View style={{ top: isTablet ? hp("-2%") : hp("-4%") }}>
+                  <SlidingBox
+                    hideMargin
+                    images={adImages}
+                    handleImagePress={handleImagePress}
                   />
-                </View> */}
-                {/* belavbun */}
+                </View>
 
                 {/* discount */}
                 <View style={{ marginTop: isTablet ? hp("0%") : hp("-4%") }}>
@@ -344,7 +352,7 @@ const HomeScreen = () => {
                     contentContainerStyle={styles.horizontalScroll}
                   >
                     <View>
-                      {categoriesData.map((row, rowIndex) => (
+                      {categoriesData.slice(0, 2).map((row, rowIndex) => (
                         <View key={rowIndex} style={styles.row1}>
                           {row.map((item) => (
                             <TouchableOpacity
@@ -447,7 +455,7 @@ const HomeScreen = () => {
                 {/* marka */}
 
                 {/* mobilyat */}
-                <TouchableOpacity onPress={() => navigateTo("store")}>
+                <TouchableOpacity onPress={() => navigateTo("showroom")}>
                   <View>
                     <Image
                       source={require("../../assets/images/m50.png")}
@@ -480,7 +488,7 @@ const HomeScreen = () => {
 
                 {/* mobilyat */}
                 <View style={styles.mobilyatWrapper}>
-                  <TouchableOpacity onPress={() => navigateTo("store")}>
+                  <TouchableOpacity onPress={() => navigateTo("phone")}>
                     <View style={styles.mobilyatItem}>
                       <Image
                         source={require("../../assets/images/m54.gif")}
@@ -497,7 +505,7 @@ const HomeScreen = () => {
                     </View>
                   </TouchableOpacity>
 
-                  <TouchableOpacity onPress={() => navigateTo("store")}>
+                  <TouchableOpacity onPress={() => navigateTo("smart-tv")}>
                     <View style={styles.mobilyatItem}>
                       <Image
                         source={require("../../assets/images/m60.png")}
@@ -525,7 +533,7 @@ const HomeScreen = () => {
                   </View>
                 </View>
 
-                <TouchableOpacity onPress={() => navigateTo("store")}>
+                <TouchableOpacity onPress={() => navigateTo("studio")}>
                   <View style={{ marginTop: isTablet ? hp("0%") : hp("1%") }}>
                     <Image
                       source={require("../../assets/images/m61.png")}
@@ -551,7 +559,9 @@ const HomeScreen = () => {
                     <View>
                       {/* ROW 1 */}
                       <View style={styles.row1}>
-                        <TouchableOpacity onPress={() => navigateTo("store")}>
+                        <TouchableOpacity
+                          onPress={() => navigateTo("beauty-salon")}
+                        >
                           <View style={styles.item}>
                             <Image
                               source={require("../../assets/images/m62.png")}
@@ -563,7 +573,9 @@ const HomeScreen = () => {
                           </View>
                         </TouchableOpacity>
 
-                        <TouchableOpacity onPress={() => navigateTo("store")}>
+                        <TouchableOpacity
+                          onPress={() => navigateTo("wedding-hall")}
+                        >
                           <View style={styles.item}>
                             <Image
                               source={require("../../assets/images/m63.png")}
@@ -573,7 +585,9 @@ const HomeScreen = () => {
                           </View>
                         </TouchableOpacity>
 
-                        <TouchableOpacity onPress={() => navigateTo("store")}>
+                        <TouchableOpacity
+                          onPress={() => navigateTo("wedding-dress")}
+                        >
                           <View style={styles.item}>
                             <Image
                               source={require("../../assets/images/m64.png")}
@@ -622,7 +636,7 @@ const HomeScreen = () => {
                     <View style={styles.dashLine} />
                   </View>
                 </View>
-                <TouchableOpacity onPress={() => navigateTo("store")}>
+                <TouchableOpacity onPress={() => navigateTo("gaming")}>
                   <View style={{ marginTop: isTablet ? hp("0%") : hp("1%") }}>
                     <Image
                       source={require("../../assets/images/m65.png")}
@@ -640,14 +654,12 @@ const HomeScreen = () => {
                       showsHorizontalScrollIndicator={false}
                     >
                       <View style={styles.row99}>
-                        {trsbadinii.map((item, index) => (
+                        {reels.map((item, index) => (
                           <VideoCard
                             key={item.id}
                             item={item}
                             index={index}
-                            onPress={(idx) =>
-                              navigateToRellsrek(trsbadinii, idx)
-                            }
+                            onPress={(idx) => navigateToRellsrek(item, idx)}
                           />
                         ))}
                       </View>
@@ -657,7 +669,7 @@ const HomeScreen = () => {
                 {/* rells */}
 
                 {/* zarok */}
-                <TouchableOpacity onPress={() => navigateTo("store")}>
+                <TouchableOpacity onPress={() => navigateTo("kids")}>
                   <View>
                     <View style={{ marginTop: isTablet ? hp("5%") : hp("5%") }}>
                       <Image
@@ -679,7 +691,6 @@ const HomeScreen = () => {
                   </View>
                 </TouchableOpacity>
                 {/* zarok */}
-
                 <View>
                   <View
                     style={{
@@ -688,83 +699,26 @@ const HomeScreen = () => {
                       justifyContent: "space-around",
                     }}
                   >
-                    <TouchableOpacity onPress={() => navigateTo("store")}>
-                      <LinearGradient
-                        colors={["rgb(6, 69, 117)", "rgb(5, 114, 156)"]}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
-                        style={styles.vm91}
-                      >
-                        <View style={styles.cardContent}>
-                          <Image
-                            source={require("../../assets/images/m108.png")}
-                            style={styles.cardIcon}
-                          />
-                          <Text style={styles.cardTitle}>ترومبێل</Text>
-                        </View>
-                      </LinearGradient>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={() => navigateTo("store")}>
-                      <LinearGradient
-                        colors={["rgb(37, 81, 3)", "rgb(7, 138, 68)"]}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
-                        style={styles.vm91}
-                      >
-                        <View style={styles.cardContent}>
-                          <Image
-                            source={require("../../assets/images/m106.png")}
-                            style={styles.cardIcon}
-                          />
-                          <Text style={styles.cardTitle}>ئەرد و خانی</Text>
-                        </View>
-                      </LinearGradient>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-
-                <View>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      flexWrap: "wrap",
-                      justifyContent: "space-around",
-                    }}
-                  >
-                    <TouchableOpacity onPress={() => navigateTo("store")}>
-                      <LinearGradient
-                        colors={["rgb(188, 114, 3)", "rgb(173, 156, 6)"]}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
-                        style={styles.vm91}
-                      >
-                        <View style={styles.cardContent}>
-                          <Image
-                            source={require("../../assets/images/m102.png")}
-                            style={styles.cardIcon}
-                          />
-                          <Text style={styles.cardTitle}>جیهانا دەمژمێرا</Text>
-                        </View>
-                      </LinearGradient>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={() => navigateTo("store")}>
-                      <LinearGradient
-                        colors={["rgb(84, 27, 136)", "rgb(7, 44, 138)"]}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
-                        style={styles.vm91}
-                      >
-                        <View style={styles.cardContent}>
-                          <Image
-                            source={require("../../assets/images/m910.webp")}
-                            style={styles.cardIcon}
-                          />
-                          <Text style={styles.cardTitle}>ناف مالی</Text>
-                        </View>
-                      </LinearGradient>
-                    </TouchableOpacity>
+                    {quickCategories.map((item) => {
+                      return (
+                        <TouchableOpacity onPress={() => navigateTo("cars")}>
+                          <LinearGradient
+                            colors={item.gradient}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                            style={styles.vm91}
+                          >
+                            <View style={styles.cardContent}>
+                              <Image
+                                source={item.image}
+                                style={styles.cardIcon}
+                              />
+                              <Text style={styles.cardTitle}>{item.title}</Text>
+                            </View>
+                          </LinearGradient>
+                        </TouchableOpacity>
+                      );
+                    })}
                   </View>
                 </View>
               </View>

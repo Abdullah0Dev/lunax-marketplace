@@ -16,21 +16,15 @@ import {
 } from "react-native-responsive-screen";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useVideoPlayer, VideoView } from "expo-video";
-
+import { useExplore } from "../../hooks/useExplore";
+import { getRandomGradient } from "../../constants/Colors";
 const { height, width } = Dimensions.get("window");
 const isTablet = width >= 768;
-
-const videos = Array.from({ length: 10 }).map((_, i) => ({
-  id: i + 1,
-  play: require("../../assets/images/vv.mp4"),
-  wene1: require("../../assets/images/m202.png"),
-  nav: `Laptop ${i + 1}`,
-  subt: "ئەگەر دەتەوێت باشترین لەپتۆپ بەدەستبهێنی لە دۆزینەوەکەتدا، کلیل لەسەر 'زیاتر' بکە بۆ بینینی هەموو زانیارییەکان.",
-}));
-
+import { useLazyGetStoreByIdQuery } from "../../services/api/store.api";
+ 
 // Individual Video Component with its own player
 const VideoItem = ({ item, isActive, onTogglePlay, paused }) => {
-  const player = useVideoPlayer(item.play, (player) => {
+  const player = useVideoPlayer(item.url, (player) => {
     player.loop = true;
     player.muted = true;
   });
@@ -46,9 +40,9 @@ const VideoItem = ({ item, isActive, onTogglePlay, paused }) => {
 
   return (
     <View style={styles.videoContainer}>
-      <VideoView 
-        player={player} 
-        style={styles.video} 
+      <VideoView
+        player={player}
+        style={styles.video}
         contentFit="cover"
         nativeControls={false}
       />
@@ -58,9 +52,30 @@ const VideoItem = ({ item, isActive, onTogglePlay, paused }) => {
 
 const ReelsTab = () => {
   const router = useRouter();
+  const { reels,  } = useExplore();
+  const [fetchStore, { data: store, isLoading }] = useLazyGetStoreByIdQuery();
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const flatListRef = useRef(null);
+  const feedVideos = reels.map((item, index) => ({
+    id: item?.id,
+    url: item?.url.replace(
+      "http://tools-openinary-8f358f-173-249-22-222.traefik.me",
+      "https://storage.dmsystem.dpdns.org", // t/1773263618182-test-vid.mp4
+    ),
+    thumbnail_url: item?.thumbnail_url,
+    title:
+      `${item?.title?.kurdish}\n${item?.description}` ||
+      `${item?.title?.english}\n${item?.description}`,
+    store: {
+      id: item?.store?.id,
+      name: item?.store?.name?.kurdish || item?.store?.name?.english || "",
+      logo: item?.store?.logo
+        ? { uri: item?.store?.logo }
+        : require("../../assets/images/m202.png"),
+    },
+  }));
 
   // Handle viewable items change
   const onViewableItemsChanged = useRef(({ viewableItems }) => {
@@ -85,14 +100,36 @@ const ReelsTab = () => {
       return () => {
         setPaused(true);
       };
-    }, [])
+    }, []),
   );
+
+  const handleViewStore = async (item) => {
+    const storeId = item.store.id;
+    const results = await fetchStore(storeId);
+    const store = results.data;
+    console.log("item", item);
+    const stringifiedStore = JSON.stringify(store);
+    console.log("stringifiedStore: ", stringifiedStore);
+    console.log(getRandomGradient());
+    const url = `/store/${item.id}`;
+    const title = "";
+    router.navigate({
+      pathname: url,
+      params: {
+        store: stringifiedStore,
+        fromProduct: true,
+        gradient: getRandomGradient(),
+        title,
+      },
+    });
+    return;
+  };
 
   return (
     <View style={styles.container}>
       <FlatList
         ref={flatListRef}
-        data={videos}
+        data={feedVideos}
         keyExtractor={(item) => item.id.toString()}
         pagingEnabled
         showsVerticalScrollIndicator={false}
@@ -101,8 +138,8 @@ const ReelsTab = () => {
         renderItem={({ item, index }) => (
           <View style={styles.videoContainer}>
             {/* 🎥 VIDEO with expo-video */}
-            <VideoItem 
-              item={item} 
+            <VideoItem
+              item={item}
               isActive={index === currentIndex}
               paused={paused}
               onTogglePlay={togglePlay}
@@ -124,14 +161,19 @@ const ReelsTab = () => {
             </TouchableOpacity>
 
             {/* 🧊 BLUR BOX (CLICKABLE) */}
-            <BlurView intensity={20} tint="dark" style={styles.userBox}>
-              <TouchableOpacity>
-                <Image source={item.wene1} style={styles.avatar} />
-              </TouchableOpacity>
-
-              <View style={styles.userTextBox}>
+            <BlurView intensity={28} tint="dark" style={styles.userBox}>
+              <TouchableOpacity
+                onPress={() => handleViewStore(item)}
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 8,
+                }}
+              >
+                <Image source={item.store.logo} style={styles.avatar} />
                 <View style={styles.nameRow}>
-                  <Text style={styles.username}>{item.nav}</Text>
+                  <Text style={styles.username}>{item.store.name}</Text>
                   <MaterialCommunityIcons
                     name="check-decagram"
                     size={20}
@@ -139,8 +181,10 @@ const ReelsTab = () => {
                     style={{ marginLeft: 6, marginTop: 0 }}
                   />
                 </View>
+              </TouchableOpacity>
 
-                <Text style={styles.subText}>{item.subt}</Text>
+              <View style={styles.userTextBox}>
+                <Text style={styles.subText}>{item.title}</Text>
               </View>
             </BlurView>
           </View>
@@ -155,8 +199,8 @@ export default ReelsTab;
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "black" },
   videoContainer: { height, width: "100%", position: "relative" },
-  video: { 
-    width: "100%", 
+  video: {
+    width: "100%",
     height: "100%",
     position: "absolute",
     top: 0,
@@ -182,7 +226,7 @@ const styles = StyleSheet.create({
     bottom: isTablet ? hp("15%") : hp("12%"),
     width: isTablet ? wp("60%") : wp("94%"),
     left: isTablet ? wp("20%") : wp("3%"),
-    flexDirection: "row",
+    // flexDirection: "row",
     paddingHorizontal: wp("4%"),
     paddingVertical: hp("1.6%"),
     borderRadius: 22,
@@ -197,14 +241,12 @@ const styles = StyleSheet.create({
   },
 
   userTextBox: {
-    marginLeft: 10,
     flex: 1,
   },
 
   nameRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: wp("2.5%"),
   },
 
   username: {

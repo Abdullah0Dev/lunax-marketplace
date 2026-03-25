@@ -11,9 +11,9 @@ router.get(
   CustomerController.getRelevantStoresByCategory,
 );
 router.get("/stores/:id", CustomerController.getStoreById);
-router.get("/products/:id", CustomerController.getProductDetails);
-router.get("/reels/feed", CustomerController.getReelsFeed);
 router.get("/products/latest", CustomerController.getLatestProducts);
+router.get("/reels/feed", CustomerController.getReelsFeed);
+router.get("/products/:id", CustomerController.getProductDetails);
 
 export default router;
 

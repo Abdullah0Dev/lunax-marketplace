@@ -87,6 +87,7 @@ export default function Rellsall() {
               ref={(ref) => (videoRefs.current[index] = ref)}
               source={item.play}
               style={styles.video}
+              isMuted
               resizeMode={ResizeMode.COVER}
               isLooping
               shouldPlay={index === currentIndex && !paused}

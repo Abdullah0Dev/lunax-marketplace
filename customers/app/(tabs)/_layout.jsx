@@ -1,6 +1,5 @@
 import { useFonts } from "expo-font";
 import { Tabs } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 import TabBar from "../../components/TabBar";
 
 export default function TabLayout() {
@@ -15,7 +14,6 @@ export default function TabLayout() {
 
   return (
     <>
-      <StatusBar barStyle="light-content" />
       <Tabs
         tabBar={(props) => <TabBar {...props} />}
         screenOptions={{

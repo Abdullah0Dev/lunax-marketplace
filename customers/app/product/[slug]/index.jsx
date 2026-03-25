@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -21,72 +21,94 @@ const { width: screenWidth } = Dimensions.get("window");
 // import { SliderBox } from 'react-native-image-slider-box';
 import { FontAwesome5 } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { storeData } from "../../../constants";
-
+import { useProduct } from "../../../hooks/useProduct";
+import { useExplore } from "../../../hooks/useExplore";
+import { getRandomGradient } from "../../../constants/Colors";
+import SlidingBox from "../../../components/SlidingBox";
 const isTablet = screenWidth >= 768;
 
 export default function ProductPage() {
   const router = useRouter();
-  const { slug: productId } = useLocalSearchParams();
-  const productIdNumber = Number(productId); // Convert string to number
-  const parsedItem = storeData.find((prod) => prod.id === productIdNumber);
- 
-  // 🔹 main image zoom
-  const [visibleMain, setVisibleMain] = useState(false);
+  const { slug: productId, fromStore, storeData } = useLocalSearchParams();
+  const { toggleFavorite, favorites } = useProduct();
+  const isFavorite =
+    favorites.products.length > 0
+      ? favorites.products?.some((prod) => prod?.id === productId)
+      : false;
 
-  // 🔹 gallery zoom
-  const [visibleGallery, setVisibleGallery] = useState(false);
+  const parsedItem = {};
+  const productData = JSON.parse(storeData);
+  console.log("storeData: ", favorites.products);
+  const { store, refetchStore } = useExplore(
+    productData?.storeDetails?.id || null,
+  );
+
   const [index, setIndex] = useState(0);
-
-  // 🔹 local gallery images
-  const images1 = [
-    require("../../../assets/images/m920.webp"),
-    require("../../../assets/images/m920.webp"),
-    require("../../../assets/images/m920.webp"),
-    require("../../../assets/images/m920.webp"),
-  ];
-
-  // 🔑 main image convert
-  const mainImage = [{ uri: RNImage.resolveAssetSource(parsedItem.img).uri }];
+  const [viewedImageIndex, setViewedImageIndex] = useState(1);
   const [visible, setVisible] = useState(false);
-
   const [openIndex, setOpenIndex] = React.useState(null);
-
-  const specs = [
-    { title: "مارکە", value: "Dell" },
-    { title: "مۆدێل", value: "Inspiron 15" },
-    { title: "پرۆسێسەر", value: "Intel Core i7" },
-    { title: "خێرایی پرۆسێسەر", value: "3.2GHz" },
-    { title: "رام", value: "١٦ گب" },
-    { title: "جۆری رام", value: "DDR4" },
-    { title: "بیرگەی هەڵگرتن", value: "٥١٢ گب SSD" },
-    { title: "کارت گرافیک", value: "NVIDIA GTX 1650" },
-    { title: "قەبارەی شاشە", value: "١٥.٦ ئینچ" },
-    { title: "ڕوونی شاشە", value: "Full HD" },
-    { title: "سیستەمی کارپێکردن", value: "Windows 11" },
-    { title: "باتری", value: "٥–٧ کاتژمێر" },
-  ];
 
   // const dispatch = useDispatch();
   // const favoriteList = useSelector((state) => state.favorites.favoriteList);
-
-  const isFavorite = false; //favoriteList.some((favorite) => favorite.id === parsedItem.id);
-
-  const handleToggleFavorite = () => {
-    console.log("Data:", parsedItem);
-
-    // if (isFavorite) {
-    //   dispatch(removeFromFavorite(parsedItem));
-    // } else {
-    //   dispatch(addToFavorite(parsedItem));
-    // }
-  };
 
   const [selectedPercent, setSelectedPercent] = useState(0);
 
   const totalAmount = 200000;
   const finalAmount = (totalAmount * selectedPercent) / 100;
 
+  const itemData = {
+    gradient: getRandomGradient(),
+    title: productData?.name?.kurdish || productData?.name?.english,
+    mainImage: [{ uri: productData?.cover_image }],
+    price: productData?.price || 20000,
+    images: [productData?.cover_image, ...productData?.media],
+    discountPrice: productData?.discount_price || 20000,
+    storeDetails: {
+      id: productData?.storeDetails?.id,
+      location: productData?.storeDetails?.location,
+      number: `${productData?.storeDetails?.number}`,
+      name: productData?.storeDetails?.name,
+      subtitle:
+        productData?.storeDetails?.subtitle ||
+        productData?.storeDetails?.location,
+      description: productData?.storeDetails?.description,
+      logo: productData?.storeDetails?.logo,
+    },
+    specifications: productData?.specifications,
+  };
+  useEffect(() => {
+    const loadStore = async () => {
+      await refetchStore(itemData.storeDetails.id);
+    };
+    loadStore();
+  }, []);
+
+  const handleToggleFavorite = () => {
+    console.log("Data:", productData);
+    toggleFavorite(productData);
+    console.log("After Favorite:", favorites);
+    // if (isFavorite) {
+    //   dispatch(removeFromFavorite(parsedItem));
+    // } else {
+    //   dispatch(addToFavorite(parsedItem));
+    // }
+  };
+  const handleNavigateToStore = () => {
+    const stringifiedStore = JSON.stringify(store);
+    console.log("stringifiedStore: ", stringifiedStore);
+    console.log(itemData.gradient);
+    const url = `/store/${itemData.storeDetails.id}`;
+    const title = "";
+    router.navigate({
+      pathname: url,
+      params: {
+        store: stringifiedStore,
+        fromProduct: true,
+        gradient: itemData.gradient,
+        title,
+      },
+    });
+  };
   return (
     <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -109,7 +131,7 @@ export default function ProductPage() {
             ]}
             numberOfLines={1}
           >
-            {parsedItem.title}
+            {itemData.title}
           </Text>
 
           <TouchableOpacity onPress={handleToggleFavorite}>
@@ -144,85 +166,104 @@ export default function ProductPage() {
         </View>
 
         {/* MAIN IMAGE */}
-        {/* <View style={{ top: hp('2%') }}>
-          <SliderBox
-            images={images1}
-            autoplay
-            circleLoop
-            dotColor="orange"
-            inactiveDotColor="#90A4AE"
-            resizeMode="cover"
-            ImageComponentStyle={{
-              borderRadius: 15,
-              width: isTablet ? wp("90%") : wp("95.5%"),
-              height: isTablet ? hp("40%") : hp("43.3%"),
-              marginTop: 10,
-              alignSelf: 'center',
-            }}
-            dotStyle={{
-              width: 30,
-              height: 7,
-              borderRadius: 20,
-            }}
-            onCurrentImagePressed={(i) => {
-              setIndex(i);
-              setVisible(true);
-            }}
-          />
-          <ImageViewing
-            images={images1}
-            imageIndex={index}
-            visible={visible}
-            onRequestClose={() => setVisible(false)}
-          />
-        </View> */}
+        <SlidingBox
+          moreHeight
+          images={itemData.images}
+          handleImagePress={(i) => {
+            setIndex(i);
+            setVisible(true);
+            console.log("stuff: ", i);
+          }}
+        />
 
         {/* MAIN IMAGE VIEW */}
         <ImageViewing
-          images={mainImage}
-          imageIndex={0}
-          visible={visibleMain}
-          onRequestClose={() => setVisibleMain(false)}
+          images={itemData.images.map((img) => ({
+            uri: img,
+          }))}
+          onImageIndexChange={(i) => setViewedImageIndex(i)}
+          imageIndex={index}
+          visible={visible}
+          onRequestClose={() => setVisible(false)}
+          FooterComponent={() => (
+            <View
+              style={{
+                marginBottom: 32,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={{
+                  color: `rgb(255,255,255,0.7)`,
+                  fontSize: RFPercentage(1.9),
+                  fontFamily: "roboto",
+                  fontWeight: "bold",
+                }}
+              >
+                {viewedImageIndex + 1}/{itemData.images.length}{" "}
+              </Text>
+            </View>
+          )}
         />
 
-        <Text style={styles.title}>{parsedItem.title}</Text>
-
         {/* HORIZONTAL GALLERY */}
-        <TouchableOpacity>
-          <View style={{ marginTop: isTablet ? hp("4%") : hp("10%") }}>
-            <View style={styles.log}>
-              <View style={styles.logoview}>
+        {!fromStore && (
+          <TouchableOpacity
+            onPress={handleNavigateToStore}
+            style={styles.floatingCardContainer}
+          >
+            <View style={styles.infoCardContainer}>
+              <View style={styles.infoCardContainer2}>
+                <View style={styles.nameContainer}>
+                  <Text
+                    style={styles.nameText}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {" "}
+                    {itemData?.storeDetails?.name}
+                  </Text>
+                  <Image
+                    source={require("../../../assets/images/m501.png")}
+                    style={styles.logoa1}
+                  />
+                </View>
+                <View style={styles.nameContainer}>
+                  <Text
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                    style={styles.nameText}
+                  >
+                    {" "}
+                    {itemData?.storeDetails?.subtitle}
+                  </Text>
+                  <Image
+                    source={require("../../../assets/images/m503.webp")}
+                    style={styles.logoa1}
+                  />
+                </View>
+              </View>
+              <View style={styles.descContainer}>
                 <Image
-                  source={require("../../../assets/images/m202.png")}
+                  source={itemData?.storeDetails?.logo}
                   style={styles.logoImage}
                 />
               </View>
-              <View>
-                <Image
-                  source={require("../../../assets/images/m501.png")}
-                  style={styles.logoa}
-                />
-                <Text style={styles.logoText}>باشترین</Text>
-              </View>
-
-              <View style={styles.logoRow}>
-                <Text style={styles.logoText1}>پێشانگەها لاپتوپ دهۆک</Text>
-                <Image
-                  source={require("../../../assets/images/m503.webp")}
-                  style={styles.logoa1}
-                />
-              </View>
-
-              <View style={styles.logoRow1}>
-                <Text style={styles.logoText2}>
-                  پێشانگەها لاپتوپ دهۆک یا فروتنا هەمی جورێن کومپیوتەر و
-                  لاپتوپانە دگەل سەخبێریکرنێ ب باشترین شێواز و ئەرزانترین بها
-                </Text>
-              </View>
             </View>
-          </View>
-        </TouchableOpacity>
 
+            <View
+              style={[
+                styles.logoRow1,
+                { backgroundColor: itemData.gradient || "#333" },
+              ]}
+            >
+              <Text style={styles.logoText2}>
+                {itemData.storeDetails?.description}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        )}
         <View
           style={{
             width: isTablet ? wp("90%") : wp("90%"),
@@ -242,7 +283,8 @@ export default function ProductPage() {
               flexDirection: "row",
               justifyContent: "flex-end",
               alignItems: "center",
-              justifyContent: "center",
+              // justifyContent: "center",
+              paddingRight: 15,
             }}
           >
             <Text
@@ -254,9 +296,10 @@ export default function ProductPage() {
                 marginHorizontal: wp("1%"),
                 marginVertical: hp("2%"),
                 color: "black",
+                flex: 1,
               }}
             >
-              دهۆک - مالتا نێزیک نەخوشخانا شریان
+              {itemData.storeDetails?.location}
             </Text>
             <Image
               source={require("../../../assets/images/m700.webp")}
@@ -273,6 +316,7 @@ export default function ProductPage() {
             width: isTablet ? wp("90%") : wp("90%"),
             height: isTablet ? hp("7%") : hp("7%"),
             justifyContent: "center",
+            // alignItems: "flex-end",
             alignSelf: "center",
             marginTop: hp("2%"),
             backgroundColor: "#1FE1FF",
@@ -287,7 +331,8 @@ export default function ProductPage() {
               flexDirection: "row",
               justifyContent: "flex-end",
               alignItems: "center",
-              justifyContent: "center",
+              // justifyContent: "center",
+              paddingRight: 15,
             }}
           >
             <Text
@@ -298,9 +343,10 @@ export default function ProductPage() {
                 marginHorizontal: wp("1%"),
                 marginVertical: hp("2%"),
                 color: "black",
+                flex: 1,
               }}
             >
-              07507771177 - 07507771177
+              {itemData.storeDetails?.number}
             </Text>
             <Image
               source={require("../../../assets/images/m701.webp")}
@@ -321,7 +367,7 @@ export default function ProductPage() {
         </View>
 
         <View style={{ marginTop: hp("3%"), paddingHorizontal: wp("3%") }}>
-          {specs.map((item, index) => {
+          {itemData.specifications.map((item, index) => {
             const isOpen = openIndex === index;
 
             return (
@@ -353,7 +399,7 @@ export default function ProductPage() {
                       fontFamily: "k24",
                     }}
                   >
-                    {item.title}
+                    {item.key}
                   </Text>
 
                   <FontAwesome5
@@ -419,7 +465,24 @@ export default function ProductPage() {
                 color: "black",
               }}
             >
-              200,000 IDQ
+              {itemData.discountPrice ? (
+                <>
+                  {" "}
+                  <Text
+                    style={{
+                      fontSize: RFPercentage(1.7),
+                      textDecorationLine: "line-through",
+                      color: "#00000080",
+                    }}
+                  >
+                    {itemData.price.toLocaleString()}{" "}
+                  </Text>
+                  {itemData.discountPrice.toLocaleString()}
+                </>
+              ) : (
+                itemData.price.toLocaleString()
+              )}{" "}
+              IDQ
             </Text>
             <Image
               source={require("../../../assets/images/m750.png")}
@@ -430,21 +493,7 @@ export default function ProductPage() {
             />
           </View>
         </View>
-
-        <View style={{ marginTop: isTablet ? hp("2%") : hp("2%") }}>
-          <View style={styles.lineWithOr}>
-            <View style={styles.dashLine} />
-            <Text style={styles.textstudio}>تێبینی</Text>
-            <View style={styles.dashLine} />
-          </View>
-        </View>
-
-        <View style={styles.card1}>
-          <Text style={styles.text}>
-            ئەم لاپتوپە بە حالەت نوێ و بەردەستە و دەتوانرێت بۆ کارەکانى فەرمی و
-            گرافیکی بەکار بێت. بۆ زانیاری زیاتر پەیوەندی بکەن.
-          </Text>
-        </View>
+        <View style={{ height: 32 }} />
       </ScrollView>
     </View>
   );
@@ -453,6 +502,85 @@ export default function ProductPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  containerView: {
+    width: isTablet ? wp("100%") : wp("100%"),
+    height: isTablet ? hp("20%") : hp("25%"),
+    marginTop: isTablet ? hp("0%") : hp("0%"),
+    marginBottom: isTablet ? hp("0%") : hp("2%"),
+  },
+  floatingCardContainer: {
+    width: isTablet ? wp("90%") : wp("90%"),
+    minHeight: isTablet ? hp("22%") : hp("20%"),
+    backgroundColor: "#fff",
+    marginTop: 32,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    gap: 10,
+    alignSelf: "center",
+    borderRadius: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  arrowIcon: {
+    fontSize: RFPercentage(4),
+    color: "#fff",
+  },
+  storeTitle: {
+    fontSize: RFPercentage(4),
+    color: "white",
+    marginTop: isTablet ? wp("0%") : wp("3.5%"),
+    textAlign: "center",
+    fontWeight: "bold",
+    fontFamily: "lor",
+    left: isTablet ? wp("0%") : wp("4%"),
+  },
+  gradientContainer: {
+    width: isTablet ? hp("7%") : hp("5.5%"),
+    height: isTablet ? hp("7%") : hp("5.5%"),
+    borderRadius: isTablet ? hp("5%") : hp("2.75%"),
+    justifyContent: "center",
+    alignItems: "center",
+    top: isTablet ? hp("5%") : hp("6%"),
+    left: isTablet ? wp("2%") : wp("3%"),
+  },
+  nameContainer: {
+    display: "flex",
+    gap: 5,
+    alignItems: "center",
+    flexDirection: "row",
+  },
+  nameText: {
+    fontSize: RFPercentage(2),
+    color: "black",
+    fontWeight: "bold",
+    fontFamily: "k24",
+  },
+  infoCardContainer: {
+    display: "flex",
+    alignSelf: "flex-end",
+    flexDirection: "row",
+    gap: 20,
+    alignItems: "center",
+  },
+  descContainer: {
+    width: isTablet ? wp("13%") : wp("22%"),
+    height: isTablet ? hp("10%") : hp("10%"),
+    borderRadius: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  infoCardContainer2: {
+    display: "flex",
+    gap: 10,
+    alignItems: "flex-end",
+    maxWidth: isTablet ? wp("50%") : wp("50%"),
   },
   backBtn: {
     width: isTablet ? wp("7%") : wp("12%"),
@@ -640,7 +768,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   logoText2: {
-    fontSize: RFPercentage(1.7),
+    fontSize: RFPercentage(1.8),
     color: "white",
     textAlign: "center",
     fontWeight: "bold",

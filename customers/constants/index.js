@@ -79,6 +79,100 @@ export const categoriesData = [
       palette: "palette5"
     },
   ],
+  [
+    {
+      id: 11,
+      title: 'پێشانگەهێن موبیلیاتا',
+      image: require('../assets/images/m29.webp'),
+      screen: 'showroom',  // English: Showroom
+      palette: "palette3"
+    },
+    {
+      id: 12,
+      title: 'پێشانگەهێن موبایلا',
+      image: require('../assets/images/m54.gif'),
+      screen: 'phone',  // English: Showroom
+      palette: "palette2"
+    },
+    {
+      id: 13,
+      title: 'پێشانگەهێن Tv سمارت',
+      image: require('../assets/images/m60.png'),
+      screen: 'smart-tv',  // English: Showroom
+      palette: "palette1"
+    },
+    {
+      id: 14,
+      title: 'ستوديو',
+      image: require('../assets/images/m61.png'),
+      screen: 'studio',  // English: Showroom
+      palette: "palette5"
+    },
+    {
+      id: 15,
+      title: 'جوانکاریێن ئافرەتان',
+      image: require('../assets/images/m62.png'),
+      screen: 'beauty-salon',  // English: Showroom
+      palette: "palette2"
+    },
+    {
+      id: 16,
+      title: 'هۆڵێن شەهیانا',
+      image: require('../assets/images/m63.png'),
+      screen: 'wedding-hall',  // English: Showroom
+      palette: "palette3"
+    },
+    {
+      id: 17,
+      title: 'کراسێن بیکا',
+      image: require('../assets/images/m64.png'),
+      screen: 'wedding-dress',  // English: Showroom
+      palette: "palette2"
+    },
+    {
+      id: 18,
+      title: 'جيمينج',
+      image: require('../assets/images/m65.png'),
+      screen: 'gaming',  // English: Showroom
+      palette: "palette3"
+    },
+    {
+      id: 19,
+      title: 'جیهانا زاروکا',
+      image: require('../assets/images/m90.png'),
+      screen: 'kids',  // English: Showroom
+      palette: "palette4"
+    },
+    {
+      id: 20,
+      title: 'ترومبێل',
+      image: require('../assets/images/m108.png'),
+      screen: 'cars',  // English: Showroom
+      palette: "palette2"
+    },
+    {
+      id: 21,
+      title: 'ئەرد و خانی',
+      image: require('../assets/images/m106.png'),
+      screen: 'homes',  // English: Showroom
+      palette: "palette5"
+    },
+    {
+      id: 22,
+      title: 'جیهانا دەمژمێرا',
+      image: require('../assets/images/m102.png'),
+      screen: 'watches',  // English: Showroom
+      palette: "palette1"
+    },
+    {
+      id: 23,
+      title: 'ناف مالی',
+      image: require('../assets/images/m910.webp'),
+      screen: 'living',  // English: Showroom
+      palette: "palette2"
+    },
+
+  ]
 ];
 export const storeData = [
   {
@@ -142,3 +236,8 @@ export const storeData = [
     img1: require("../assets/images/m202.png"),
   },
 ];
+
+export const adImages = [
+  "https://live.staticflickr.com/1179/582854192_6135ac445e_b.jpg",
+  "https://hips.hearstapps.com/hmg-prod/images/apple-iphone-17-group-001-68cacd4eb0920.jpg",
+]

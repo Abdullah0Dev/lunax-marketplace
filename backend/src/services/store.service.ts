@@ -623,7 +623,8 @@ export class StoreService {
         .populate({
           path: "products",
           match: { category: { $regex: new RegExp(category, "i") } },
-          select: "name price cover_image discount_price category",
+          // select:
+          //   "name price cover_image discount_price category description quantity media specifications",
         })
         .populate({
           path: "reels",
@@ -636,6 +637,7 @@ export class StoreService {
           select: "amount product_id",
         })
         .lean();
+      // console.log("stores: ", stores[0].products);
 
       // 3. Calculate relevance score for each store
       const scoredStores = stores.map((store) => {
@@ -691,7 +693,16 @@ export class StoreService {
         .filter((item) => item.score >= minRelevance)
         .sort((a, b) => b.score - a.score)
         .slice(0, limit);
-
+      // console.log(
+      //   "stores:2 ",
+      //   relevantStores.map((item) => ({
+      //     ...item.store,
+      //     relevanceScore: item.score,
+      //     relevanceFactors: item.factors,
+      //     matchedProductsCount: item.matchedProducts?.length || 0,
+      //     hasActiveDiscounts: item.factors.productsWithDiscount > 0,
+      //   }))[0].products,
+      // );
       // 5. Return formatted response
       return {
         category,
@@ -740,12 +751,8 @@ export class StoreService {
       description: store.description,
       category: store.category,
       products: store.products?.map((p: any) => ({
+        ...p,
         id: p._id.toString(),
-        name: p.name,
-        price: p.price,
-        discount_price: p.discount_price,
-        cover_image: p.cover_image,
-        category: p.category,
       })),
       reels: store.reels?.map((r: any) => ({
         id: r._id.toString(),

@@ -15,406 +15,158 @@ import { FontAwesome6 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { categoriesData } from "../../../constants";
+import { adImages, categoriesData, isTablet } from "../../../constants";
 import { getPaletteByName } from "../../../constants/Colors";
 import VideoCard from "../../../components/VideoCard";
 import { useState } from "react";
-const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
-const isTablet = screenWidth >= 768;
+import SlidingBox from "../../../components/SlidingBox";
 
-const trsbadinii = [
-  {
-    id: "1",
-    play: require("../../../assets/images/vv.mp4"),
-    wene1: require("../../../assets/images/m202.png"),
-  },
-  {
-    id: "2",
-    play: require("../../../assets/images/vv.mp4"),
-    wene1: require("../../../assets/images/m202.png"),
-  },
-  {
-    id: "3",
-    play: require("../../../assets/images/vv.mp4"),
-    wene1: require("../../../assets/images/m202.png"),
-  },
-  {
-    id: "4",
-    play: require("../../../assets/images/vv.mp4"),
-    wene1: require("../../../assets/images/m202.png"),
-  },
-];
-
-const buttons = [
-  "لاپتوپ",
-  "کومپیوتەر",
-  "PC",
-  "HP",
-  "Dell",
-  "Mackbook",
-  "هارد",
-  "شاشە",
-];
-
-const data = {
-  لاپتوپ: [
-    {
-      id: 1,
-      title: "Laptop 1",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-    {
-      id: 2,
-      title: "Laptop 2",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-    {
-      id: 3,
-      title: "Laptop 3",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-    {
-      id: 4,
-      title: "Laptop 4",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-    {
-      id: 5,
-      title: "Laptop 5",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-    {
-      id: 6,
-      title: "Laptop 6",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-    {
-      id: 7,
-      title: "Laptop 7",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-    {
-      id: 8,
-      title: "Laptop 8",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-    {
-      id: 9,
-      title: "Laptop 9",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-    {
-      id: 10,
-      title: "Laptop 10",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-  ],
-
-  کومپیوتەر: [
-    {
-      id: 1,
-      title: "Computer 1",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-    {
-      id: 2,
-      title: "Computer 2",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-    {
-      id: 3,
-      title: "Computer 3",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-    {
-      id: 4,
-      title: "Computer 4",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-    {
-      id: 5,
-      title: "Computer 5",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-    {
-      id: 6,
-      title: "Computer 6",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-    {
-      id: 7,
-      title: "Computer 7",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-    {
-      id: 8,
-      title: "Computer 8",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-    {
-      id: 9,
-      title: "Computer 9",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-    {
-      id: 10,
-      title: "Computer 10",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-  ],
-  PC: [
-    { id: 1, title: "PC 1", img: require("../../../assets/images/m600.jpg") },
-    { id: 2, title: "PC 2", img: require("../../../assets/images/m600.jpg") },
-    { id: 3, title: "PC 3", img: require("../../../assets/images/m600.jpg") },
-    { id: 4, title: "PC 4", img: require("../../../assets/images/m600.jpg") },
-    { id: 5, title: "PC 5", img: require("../../../assets/images/m600.jpg") },
-    { id: 6, title: "PC 6", img: require("../../../assets/images/m600.jpg") },
-    { id: 7, title: "PC 7", img: require("../../../assets/images/m600.jpg") },
-    { id: 8, title: "PC 8", img: require("../../../assets/images/m600.jpg") },
-    { id: 9, title: "PC 9", img: require("../../../assets/images/m600.jpg") },
-    { id: 10, title: "PC 10", img: require("../../../assets/images/m600.jpg") },
-  ],
-
-  HP: [
-    { id: 1, title: "HP 1", img: require("../../../assets/images/m600.jpg") },
-    { id: 2, title: "HP 2", img: require("../../../assets/images/m600.jpg") },
-    { id: 3, title: "HP 3", img: require("../../../assets/images/m600.jpg") },
-    { id: 4, title: "HP 4", img: require("../../../assets/images/m600.jpg") },
-    { id: 5, title: "HP 5", img: require("../../../assets/images/m600.jpg") },
-    { id: 6, title: "HP 6", img: require("../../../assets/images/m600.jpg") },
-    { id: 7, title: "HP 7", img: require("../../../assets/images/m600.jpg") },
-    { id: 8, title: "HP 8", img: require("../../../assets/images/m600.jpg") },
-    { id: 9, title: "HP 9", img: require("../../../assets/images/m600.jpg") },
-    { id: 10, title: "HP 10", img: require("../../../assets/images/m600.jpg") },
-  ],
-
-  Dell: [
-    { id: 1, title: "Dell 1", img: require("../../../assets/images/m600.jpg") },
-    { id: 2, title: "Dell 2", img: require("../../../assets/images/m600.jpg") },
-    { id: 3, title: "Dell 3", img: require("../../../assets/images/m600.jpg") },
-    { id: 4, title: "Dell 4", img: require("../../../assets/images/m600.jpg") },
-    { id: 5, title: "Dell 5", img: require("../../../assets/images/m600.jpg") },
-    { id: 6, title: "Dell 6", img: require("../../../assets/images/m600.jpg") },
-    { id: 7, title: "Dell 7", img: require("../../../assets/images/m600.jpg") },
-    { id: 8, title: "Dell 8", img: require("../../../assets/images/m600.jpg") },
-    { id: 9, title: "Dell 9", img: require("../../../assets/images/m600.jpg") },
-    {
-      id: 10,
-      title: "Dell 10",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-  ],
-
-  Mackbook: [
-    {
-      id: 1,
-      title: "Mackbook 1",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-    {
-      id: 2,
-      title: "Mackbook 2",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-    {
-      id: 3,
-      title: "Mackbook 3",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-    {
-      id: 4,
-      title: "Mackbook 4",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-    {
-      id: 5,
-      title: "Mackbook 5",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-    {
-      id: 6,
-      title: "Mackbook 6",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-    {
-      id: 7,
-      title: "Mackbook 7",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-    {
-      id: 8,
-      title: "Mackbook 8",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-    {
-      id: 9,
-      title: "Mackbook 9",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-    {
-      id: 10,
-      title: "Mackbook 10",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-  ],
-
-  هارد: [
-    { id: 1, title: "هارد 1", img: require("../../../assets/images/m600.jpg") },
-    { id: 2, title: "هارد 2", img: require("../../../assets/images/m600.jpg") },
-    { id: 3, title: "هارد 3", img: require("../../../assets/images/m600.jpg") },
-    { id: 4, title: "هارد 4", img: require("../../../assets/images/m600.jpg") },
-    { id: 5, title: "هارد 5", img: require("../../../assets/images/m600.jpg") },
-    { id: 6, title: "هارد 6", img: require("../../../assets/images/m600.jpg") },
-    { id: 7, title: "هارد 7", img: require("../../../assets/images/m600.jpg") },
-    { id: 8, title: "هارد 8", img: require("../../../assets/images/m600.jpg") },
-    { id: 9, title: "هارد 9", img: require("../../../assets/images/m600.jpg") },
-    {
-      id: 10,
-      title: "هارد 10",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-  ],
-
-  شاشە: [
-    { id: 1, title: "شاشە 1", img: require("../../../assets/images/m600.jpg") },
-    { id: 2, title: "شاشە 2", img: require("../../../assets/images/m600.jpg") },
-    { id: 3, title: "شاشە 3", img: require("../../../assets/images/m600.jpg") },
-    { id: 4, title: "شاشە 4", img: require("../../../assets/images/m600.jpg") },
-    { id: 5, title: "شاشە 5", img: require("../../../assets/images/m600.jpg") },
-    { id: 6, title: "شاشە 6", img: require("../../../assets/images/m600.jpg") },
-    { id: 7, title: "شاشە 7", img: require("../../../assets/images/m600.jpg") },
-    { id: 8, title: "شاشە 8", img: require("../../../assets/images/m600.jpg") },
-    { id: 9, title: "شاشە 9", img: require("../../../assets/images/m600.jpg") },
-    {
-      id: 10,
-      title: "شاشەشاشە 10",
-      img: require("../../../assets/images/m600.jpg"),
-    },
-  ],
-  // بۆ هەموو button ـەکان هەمان شێواز
-};
 const StorePage = () => {
   const router = useRouter();
-  const { slug: storeId } = useLocalSearchParams();
-  const [activeIndex, setActiveIndex] = useState(0);
-  const categoryData = categoriesData
-    .flat()
-    .find((cat) => cat.screen === "computer");
-  const categoryPallette = getPaletteByName(categoryData?.palette || "pallette1");
-  const primaryColor = categoryPallette[1][0];
-  console.log("categoryData: ", categoryData?.palette);
-  const handleOpenReel = () => {
-    router.navigate("store", {
-      videos: trsbadinii,
-      // startIndex: index,
+  const { slug, gradient, title, store, fromProduct } = useLocalSearchParams();
+  const storeDetails = fromProduct ? JSON.parse(store) : JSON.parse(store)[0];
+  const storeProducts = storeDetails.products;
+  const [activeIndex, setActiveIndex] = useState("all");
+
+  const addAllCategories = storeDetails.products.length > 0 ? ["all"]: [];
+  const productCategories = [
+    ...new Set(storeDetails.products.map((prod) => prod.category)),
+    ...(addAllCategories),
+  ];
+  const filteredProducts =
+    activeIndex === "all"
+      ? storeProducts
+      : storeProducts?.filter((item) => item.category === activeIndex);
+  console.log("categoryData: ", productCategories);
+  const storeReels = storeDetails.reels.map((reel) => ({
+    id: reel.id,
+    url: reel.url || require("../../../assets/images/vv.mp4"),
+    thumbnail_url:
+      reel.thumbnail_url || require("../../../assets/images/m202.png"),
+  }));
+
+  const handleOpenReel = (id, url) => {
+    router.navigate({
+      pathname: "/(tabs)/reels",
+      params: {
+        video: url,
+        id,
+      },
     });
   };
-  const handleViewProduct = () => {
-    navigation.navigate("Homepaperdetails", {
-      // item: item,
+  const handleViewProduct = (productId, product) => {
+    const enhancedProduct = {
+      ...product, // Spread all existing product properties
+      storeDetails: {
+        // Add store details as a nested object
+        id: storeDetails.id,
+        number: storeDetails.phone_number.replace("+964", "0"),
+        name: storeDetails.name.kurdish || storeDetails.name.english,
+        location: storeDetails.address,
+        subtitle: "",
+        description: storeDetails.description,
+        logo: storeDetails.logo,
+      },
+    };
+    const stringifiedProduct = JSON.stringify(enhancedProduct);
+    console.log("stringifiedProduct: ", stringifiedProduct);
+    const url = `/product/${productId}`;
+    router.navigate({
+      pathname: url,
+      params: {
+        fromStore: true,
+        storeData: stringifiedProduct,
+      },
     });
   };
 
   // 🔥 THEN: data
-  const itemData = Array.from({ length: 20 }).map((_, i) => ({
-    id: i.toString(),
-    title: `Laptop Duhok ${i + 1}`,
-    subtitle: "Excellent Service",
-    iconImage: require("../../../assets/images/m202.png"),
-
-    // auto gradient per item
-    gradient: categoryPallette[i % categoryPallette.length],
-  }));
+  const itemData = {
+    id: storeDetails.id,
+    title: storeDetails?.name?.kurdish || storeDetails?.name?.english,
+    name: storeDetails?.name?.kurdish || storeDetails?.name?.english,
+    subtitle: storeDetails?.address,
+    description: storeDetails?.description,
+    logo: storeDetails?.logo || require("../../../assets/images/m202.png"),
+    gradient: gradient,
+  };
   return (
     <View style={{ marginBottom: isTablet ? hp("0%") : hp("0%") }}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View
-          style={{
-            backgroundColor: "rgb(103, 0, 143)",
-            width: isTablet ? wp("100%") : wp("100%"),
-            height: isTablet ? hp("20%") : hp("25%"),
-            marginTop: isTablet ? hp("0%") : hp("0%"),
-            marginBottom: isTablet ? hp("0%") : hp("2%"),
-          }}
+          style={[
+            styles.containerView,
+            {
+              backgroundColor: itemData.gradient,
+            },
+          ]}
         >
           <TouchableOpacity onPress={() => router.back()}>
             <LinearGradient
               colors={["black", "#444444"]}
               start={{ x: 1, y: 0 }}
               end={{ x: 1, y: 1 }}
-              style={{
-                width: isTablet ? hp("7%") : hp("5.5%"),
-                height: isTablet ? hp("7%") : hp("5.5%"),
-                borderRadius: isTablet ? hp("5%") : hp("2.75%"),
-                justifyContent: "center",
-                alignItems: "center",
-                top: isTablet ? hp("5%") : hp("6%"),
-                left: isTablet ? wp("2%") : wp("3%"),
-              }}
+              style={styles.gradientContainer}
             >
-              <FontAwesome6
-                name="angle-left"
-                style={{
-                  fontSize: RFPercentage(4),
-                  color: "#fff",
-                }}
-              />
+              <FontAwesome6 name="angle-left" style={styles.arrowIcon} />
             </LinearGradient>
-            <Text
-              style={{
-                fontSize: RFPercentage(4),
-                color: "white",
-                marginTop: isTablet ? wp("0%") : wp("3.5%"),
-                textAlign: "center",
-                fontWeight: "bold",
-                fontFamily: "lor",
-                left: isTablet ? wp("0%") : wp("4%"),
-              }}
-            >
-              {itemData.title}
-            </Text>
+            <Text style={styles.storeTitle}>{itemData.title}</Text>
           </TouchableOpacity>
         </View>
-
-        <View style={styles.log}>
-          <View style={styles.logoview}>
-            <Image source={itemData.iconImage} style={styles.logoImage} />
+        <View style={styles.floatingCardContainer}>
+          <View style={styles.infoCardContainer}>
+            <View style={styles.infoCardContainer2}>
+              <View style={styles.nameContainer}>
+                <Text
+                  style={styles.nameText}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  {" "}
+                  {itemData.name}
+                </Text>
+                <Image
+                  source={require("../../../assets/images/m501.png")}
+                  style={styles.logoa1}
+                />
+              </View>
+              <View style={styles.nameContainer}>
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={styles.nameText}
+                >
+                  {" "}
+                  {itemData.subtitle}
+                </Text>
+                <Image
+                  source={require("../../../assets/images/m503.webp")}
+                  style={styles.logoa1}
+                />
+              </View>
+            </View>
+            <View style={styles.descContainer}>
+              <Image source={itemData.logo} style={styles.logoImage} />
+            </View>
           </View>
-          <View>
-            <Image
-              source={require("../../../assets/images/m501.png")}
-              style={styles.logoa}
-            />
-            <Text style={styles.logoText}>باشترین</Text>
-          </View>
 
-          <View style={styles.logoRow}>
-            <Text style={styles.logoText1}>پێشانگەها لاپتوپ دهۆک</Text>
-            <Image
-              source={require("../../../assets/images/m503.webp")}
-              style={styles.logoa1}
-            />
-          </View>
-
-          <View style={styles.logoRow1}>
-            <Text style={styles.logoText2}>
-              پێشانگەها لاپتوپ دهۆک یا فروتنا هەمی جورێن کومپیوتەر و لاپتوپانە
-              دگەل سەخبێریکرنێ ب باشترین شێواز و ئەرزانترین بها
-            </Text>
+          <View
+            style={[styles.logoRow1, { backgroundColor: itemData.gradient }]}
+          >
+            <Text style={styles.logoText2}>{itemData.description}</Text>
           </View>
         </View>
-
         {/* Rells */}
         <View style={styles.wrapperTop}>
           <View style={styles.wrapperInner}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <View style={styles.row99}>
-                {trsbadinii.map((item, index) => (
+                {storeReels.map((item, index) => (
                   <VideoCard
                     key={item.id}
                     item={item}
                     index={index}
-                    onPress={(idx) => handleOpenReel}
+                    onPress={(idx) => handleOpenReel(item.id, item.url)}
                   />
                 ))}
               </View>
@@ -429,19 +181,25 @@ const StorePage = () => {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.scrollRow}
           >
-            {buttons.map((item, index) => (
+            {productCategories.map((item, index) => (
               <TouchableOpacity
-                key={index}
+                key={item}
                 style={[
                   styles.button,
-                  activeIndex === index && styles.activeButton,
+                  activeIndex === item && {
+                    backgroundColor: itemData.gradient,
+                  },
                 ]}
-                onPress={() => setActiveIndex(index)}
+                onPress={() => {
+                  console.log("active category: ", item, activeIndex);
+
+                  setActiveIndex(item);
+                }}
               >
                 <Text
                   style={[
                     styles.buttonText,
-                    activeIndex === index && styles.activeText,
+                    activeIndex === item && styles.activeText,
                   ]}
                 >
                   {item}
@@ -454,14 +212,15 @@ const StorePage = () => {
           <View style={styles.page}>
             <ScrollView>
               <View style={styles.grid}>
-                {data[buttons[activeIndex]]?.map((item) => (
+                {filteredProducts?.map((item) => (
                   <TouchableOpacity
                     key={item.id}
-                    style={styles.card1}
-                    onPress={handleViewProduct}
+                    onPress={() => handleViewProduct(item.id, item)}
                   >
-                    <Image source={item.img} style={styles.image} />
-                    <Text style={styles.title}>{item.title}</Text>
+                    <Image source={item.cover_image} style={styles.image} />
+                    <Text style={styles.title}>
+                      {item.name.kurdish || item.name.english}
+                    </Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -476,11 +235,90 @@ const StorePage = () => {
 export default StorePage;
 
 const styles = StyleSheet.create({
+  containerView: {
+    width: isTablet ? wp("100%") : wp("100%"),
+    height: isTablet ? hp("20%") : hp("25%"),
+    marginTop: isTablet ? hp("0%") : hp("0%"),
+    marginBottom: isTablet ? hp("0%") : hp("2%"),
+  },
   container: {
     flex: 1,
     backgroundColor: "black",
     alignItems: "center",
     justifyContent: "center",
+  },
+  floatingCardContainer: {
+    width: isTablet ? wp("90%") : wp("90%"),
+    minHeight: isTablet ? hp("22%") : hp("20%"),
+    backgroundColor: "#fff",
+    marginTop: -110,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    gap: 10,
+    alignSelf: "center",
+    borderRadius: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  arrowIcon: {
+    fontSize: RFPercentage(4),
+    color: "#fff",
+  },
+  storeTitle: {
+    fontSize: RFPercentage(4),
+    color: "white",
+    marginTop: isTablet ? wp("0%") : wp("3.5%"),
+    textAlign: "center",
+    fontWeight: "bold",
+    fontFamily: "lor",
+    left: isTablet ? wp("0%") : wp("4%"),
+  },
+  gradientContainer: {
+    width: isTablet ? hp("7%") : hp("5.5%"),
+    height: isTablet ? hp("7%") : hp("5.5%"),
+    borderRadius: isTablet ? hp("5%") : hp("2.75%"),
+    justifyContent: "center",
+    alignItems: "center",
+    top: isTablet ? hp("5%") : hp("6%"),
+    left: isTablet ? wp("2%") : wp("3%"),
+  },
+  nameContainer: {
+    display: "flex",
+    gap: 5,
+    alignItems: "center",
+    flexDirection: "row",
+  },
+  nameText: {
+    fontSize: RFPercentage(2),
+    color: "black",
+    fontWeight: "bold",
+    fontFamily: "k24",
+  },
+  infoCardContainer: {
+    display: "flex",
+    alignSelf: "flex-end",
+    flexDirection: "row",
+    gap: 20,
+    alignItems: "center",
+  },
+  descContainer: {
+    width: isTablet ? wp("13%") : wp("22%"),
+    height: isTablet ? hp("10%") : hp("10%"),
+    borderRadius: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  infoCardContainer2: {
+    display: "flex",
+    gap: 10,
+    alignItems: "flex-end",
+    maxWidth: isTablet ? wp("50%") : wp("50%"),
   },
   wrapperTop: {
     top: hp("-1%"),
@@ -556,7 +394,6 @@ const styles = StyleSheet.create({
     width: isTablet ? wp("10%") : wp("22%"),
     height: isTablet ? hp("8%") : hp("10%"),
     borderRadius: 15,
-    position: "absolute",
   },
   logoa: {
     width: isTablet ? wp("6%") : wp("7%"),
@@ -598,14 +435,10 @@ const styles = StyleSheet.create({
     marginTop: isTablet ? hp("0%") : hp("0.3%"),
   },
   logoRow1: {
-    position: "absolute",
-    backgroundColor: "rgb(103, 0, 143)",
-    width: isTablet ? wp("85%") : wp("85%"),
-    height: isTablet ? hp("7%") : hp("7%"),
+    minWidth: isTablet ? wp("85%") : wp("85%"),
+    minHeight: isTablet ? hp("7%") : hp("7%"),
     alignContent: "center",
     justifyContent: "center",
-    left: isTablet ? wp("2%") : wp("2%"),
-    top: isTablet ? hp("14%") : hp("12%"),
     borderRadius: 10,
   },
   logoText2: {
@@ -618,6 +451,8 @@ const styles = StyleSheet.create({
 
   scrollRow: {
     paddingHorizontal: 10,
+    justifyContent: "flex-end",
+    flex: 1,
   },
 
   button: {

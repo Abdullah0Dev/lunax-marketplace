@@ -6,6 +6,9 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { View } from "react-native";
 import "react-native-reanimated";
+import { Provider } from "react-redux";
+import { store } from "../services/store/store";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -47,22 +50,26 @@ export default function RootLayout() {
 function RootLayoutNav() {
   return (
     // <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <StatusBar backgroundColor="transparent" style="auto" />
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="store" options={{ headerShown: false }} />
-      <Stack.Screen name="category" options={{ headerShown: false }} />
-      <Stack.Screen
-        name="account"
-        options={{ headerShown: false, presentation: "modal" }}
-      />
-      <Stack.Screen name="product" options={{ headerShown: false }} />
-      <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-    </Stack>
+    <Provider store={store}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
+          <StatusBar backgroundColor="transparent" style="auto" />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="store" options={{ headerShown: false }} />
+          <Stack.Screen name="category" options={{ headerShown: false }} />
+          <Stack.Screen name="product" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="search"
+            options={{ headerShown: false, presentation: "modal" }}
+          />
+          <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+        </Stack>
+      </GestureHandlerRootView>
+    </Provider>
     // {/* </ThemeProvider> */}
   );
 }

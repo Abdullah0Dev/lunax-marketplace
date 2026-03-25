@@ -9,10 +9,19 @@ import {
 // Create this component outside your HomeScreen
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 const isTablet = screenWidth >= 768;
-const RADIUS = 20;
+const RADIUS = 20; 
 
 const VideoCard = ({ item, index, onPress }) => {
-  const player = useVideoPlayer(item.play, (player) => {
+  const vidUrl = item.url
+    ? item.url.replace(
+        "http://tools-openinary-8f358f-173-249-22-222.traefik.me",
+        "https://storage.dmsystem.dpdns.org", // t/1773263618182-test-vid.mp4
+      )
+    : item.play;
+    console.log("vidUrl: ", vidUrl, item.url);
+    
+  const vidThumbnail = item.thumbnail_url ? item.thumbnail_url : item.wene1;
+  const player = useVideoPlayer(vidUrl, (player) => {
     player.loop = true;
     player.play();
     player.muted = true;
@@ -21,9 +30,14 @@ const VideoCard = ({ item, index, onPress }) => {
   return (
     <TouchableOpacity onPress={() => onPress(index)}>
       <View style={styles.card}>
-        <VideoView player={player} style={styles.video} />
+        <VideoView
+          nativeControls={false}
+          contentFit="cover"
+          player={player}
+          style={styles.video}
+        />
         <View style={styles.ratingBox}>
-          <Image source={{ uri: item.wene1 }} style={styles.ratingIcon} />
+          <Image source={{ uri: vidThumbnail }} style={styles.ratingIcon} />
         </View>
       </View>
     </TouchableOpacity>

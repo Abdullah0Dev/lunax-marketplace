@@ -83,6 +83,7 @@ export default function Rellsrek({ navigation, route }) {
               <Video
                 ref={(ref) => (videoRefs.current[index] = ref)}
                 source={{ uri: item.play }}
+                isMuted
                 style={styles.video}
                 resizeMode={ResizeMode.COVER}
                 shouldPlay={index === currentIndex}

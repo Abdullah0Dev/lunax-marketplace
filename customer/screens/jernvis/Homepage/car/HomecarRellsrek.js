@@ -78,6 +78,7 @@ export default function HomecarRellsrek({ navigation, route }) {
 
               {/* VIDEO */}
               <Video
+                isMuted
                 ref={(ref) => (videoRefs.current[index] = ref)}
               source={require('../../../../assets/vv.mp4')}
                 style={styles.video}

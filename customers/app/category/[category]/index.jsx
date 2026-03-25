@@ -1,6 +1,5 @@
 import {
   StyleSheet,
-  StatusBar,
   Dimensions,
   Text,
   View,
@@ -8,6 +7,7 @@ import {
   TouchableOpacity,
   FlatList,
   Linking,
+  ActivityIndicator,
 } from "react-native";
 import {
   widthPercentageToDP as wp,
@@ -22,8 +22,10 @@ import { Image } from "expo-image";
 import { useState, useEffect, useRef } from "react";
 import CardItem from "../../../components/CardItem";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { categoriesData } from "../../../constants";
+import { adImages, categoriesData } from "../../../constants";
 import { getPaletteByName } from "../../../constants/Colors";
+import { useExplore } from "../../../hooks/useExplore";
+import SlidingBox from "../../../components/SlidingBox";
 const { width: screenWidth } = Dimensions.get("window");
 const isTablet = screenWidth >= 768;
 
@@ -33,40 +35,70 @@ const CategoryPage = () => {
   const categoryData = categoriesData
     .flat()
     .find((cat) => cat.screen === category);
-  const categoryPallette = getPaletteByName(categoryData.palette);
-  const primaryColor = categoryPallette[1][0];
-  console.log("categoryData: ", categoryData.palette);
+  const categoryPallette = getPaletteByName(categoryData.palette || "computer");
+  // Data is already cached from pre-fetch, so this will be instant
+  const { storesByCategory, isLoading } = useExplore(null, category);
+  console.log("categoryData: ", storesByCategory, categoryData.palette);
 
-  const [images, setImages] = useState([]);
-  const [links, setLinks] = useState([]);
-
+  // Log when data loads (should be instant from cache)
   useEffect(() => {
-    fetch("https://amedbaz.github.io/lunabalav/lunabalav.json")
-      .then((response) => response.json())
-      .then((data) => {
-        const lunabalav = data.lunabalav || [];
-        setLinks(lunabalav.map((item) => item.link));
-      })
-      .catch((error) => {
-        console.error("Error loading images:", error);
-      });
-  }, []);
+    if (storesByCategory && storesByCategory.length > 0) {
+      console.log(
+        `📦 ${category} category: ${storesByCategory.length} stores loaded from cache`,
+      );
+    }
+  }, [storesByCategory, category]);
 
-  const handleStorePressed = (index) => {
+  // Show loading only on first load (should be instant due to cache)
+  if (isLoading && !storesByCategory.length) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#007AFF" />
+        <Text>Loading stores...</Text>
+      </View>
+    );
+  }
+  const primaryColor = categoryPallette[1][0];
+  const handleStorePressed = (index, gradient, title) => {
+    const selectedStore = storesByCategory.filter(
+      (store) => store.id === index,
+    );
+    const stringifiedStore = JSON.stringify(selectedStore);
+    console.log("stringifiedStore: ", stringifiedStore);
     const url = `/store/${index}`;
-    router.push(url);
+    // return;
+    router.navigate({
+      pathname: url,
+      params: {
+        store: stringifiedStore,
+        gradient: gradient,
+        title,
+      },
+    });
   };
+  const DATA = storesByCategory.map((store) => {
+    const randomNumber = Math.floor(Math.random() % categoryPallette.length);
 
+    return {
+      id: store.id,
+      title: store.name.kurdish || store.name.english,
+      subtitle: store.description,
+      iconImage: store.logo || require("../../../assets/images/m202.png"),
+
+      // auto gradient per item
+      gradient: categoryPallette[randomNumber],
+    };
+  });
   // 🔥 THEN: data
-  const DATA = Array.from({ length: 20 }).map((_, i) => ({
-    id: i.toString(),
-    title: `Laptop Duhok ${i + 1}`,
-    subtitle: "Excellent Service",
-    iconImage: require("../../../assets/images/m202.png"),
+  // const DATA = Array.from({ length: 20 }).map((_, i) => ({
+  //   id: i.toString(),
+  //   title: `Laptop Duhok ${i + 1}`,
+  //   subtitle: "Excellent Service",
+  //   iconImage: require("../../../assets/images/m202.png"),
 
-    // auto gradient per item
-    gradient: categoryPallette[i % categoryPallette.length],
-  }));
+  //   // auto gradient per item
+  //   gradient: categoryPallette[i % categoryPallette.length],
+  // }));
 
   return (
     <View style={styles.container}>
@@ -107,7 +139,7 @@ const CategoryPage = () => {
             {categoryData.title}
           </Text>
         </TouchableOpacity>
-
+        <SlidingBox images={adImages} handleImagePress={() => {}} />
         {/* belavbun */}
         {/* <View style={{ top: hp("2%") }}>
           <SliderBox
@@ -144,7 +176,11 @@ const CategoryPage = () => {
               style={styles.vm}
             >
               <View style={styles.rowContainer00}>
-                <Image source={categoryData.image} style={styles.iconImage} />
+                <Image
+                  source={categoryData.image}
+                  contentFit="contain"
+                  style={styles.iconImage}
+                />
                 <Text style={styles.text}>
                   باشترین دێ ب {categoryData.title}
                 </Text>
@@ -159,7 +195,12 @@ const CategoryPage = () => {
             data={DATA}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
-              <CardItem item={item} onPress={handleStorePressed(item.id)} />
+              <CardItem
+                item={item}
+                onPress={() =>
+                  handleStorePressed(item.id, item.gradient[0], item.title)
+                }
+              />
             )}
             showsVerticalScrollIndicator={false}
             ListHeaderComponent={
@@ -178,7 +219,6 @@ const CategoryPage = () => {
 
         {/* jh */}
       </ScrollView>
-      <StatusBar backgroundColor="black" barStyle="white" />
     </View>
   );
 };
@@ -198,7 +238,6 @@ const styles = StyleSheet.create({
   iconImage: {
     width: isTablet ? wp("10%") : wp("12.5%"),
     height: isTablet ? hp("7%") : hp("8%"),
-    resizeMode: "contain",
   },
   text: {
     fontSize: RFPercentage(2.2),

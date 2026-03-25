@@ -13,8 +13,8 @@ export interface CreateReelInput {
 
 export interface ReelResponse {
   id: string;
-  store_id: string;
-  public_id: string;
+  store_id?: string;
+  public_id?: string;
   url: string;
   thumbnail_url: string;
   title: {
