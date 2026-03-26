@@ -140,7 +140,7 @@ export class ProductService {
     }
 
     const products = await Product.find(filter)
-      .populate("store_id", "name logo address")
+      .populate("store_id", "name logo address phone_number description")
       .sort({ createdAt: -1 })
       .lean();
 
@@ -153,6 +153,9 @@ export class ProductService {
             id: (product.store_id as any)._id.toString(),
             name: (product.store_id as any).name,
             logo: (product.store_id as any).logo,
+            address: (product.store_id as any).address,
+            phone_number: (product.store_id as any).phone_number,
+            description: (product.store_id as any).description,
           }
         : null,
     }));

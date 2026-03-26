@@ -19,6 +19,8 @@ import {
 } from "react-native-responsive-screen";
 import { RFPercentage } from "react-native-responsive-fontsize";
 import { useRouter } from "expo-router";
+import { useSearchProductsQuery } from "../../../services/api/product.api";
+import { useProduct } from "../../../hooks/useProduct";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = (width - wp("10%")) / 2;
@@ -26,11 +28,50 @@ const CARD_WIDTH = (width - wp("10%")) / 2;
 export default function SearchPage() {
   const router = useRouter();
   const [query, setQuery] = useState("");
+  const { toggleFavorite, favorites } = useProduct();
+
+  // Use the search query hook
+  const {
+    data: searchResults,
+    isLoading,
+    error,
+    isFetching,
+  } = useSearchProductsQuery(
+    { q: query },
+    { skip: !query.trim() }, // Skip if query is empty
+  );
+
   const [isSearching, setIsSearching] = useState(false);
   const searchInputRef = useRef(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.95)).current;
+  const products = searchResults?.products || [];
+  const totalResults = searchResults?.total || 0;
 
+  const productData = products.map((item) => {
+    const discountPercentage = item.discount_price
+      ? ((item.price - item.discount_price) / item.price) * 100
+      : 0;
+    console.log("item: ", item);
+
+    return {
+      id: item.id,
+      name: item.name.kurdish || item.name.english,
+      image: { uri: item.cover_image },
+      price: item.price,
+      discount_price: item.discount_price,
+      category: item.category,
+      discount: discountPercentage,
+      // later
+      description: item.description,
+      quantity: item.quantity,
+      media: item.media,
+      store: item.store,
+      cover_image: item.cover_image,
+      quantity: item.quantity,
+      specifications: item.specifications,
+    };
+  });
   // Sample data with local assets and discount info
   const data = [
     {
@@ -117,11 +158,11 @@ export default function SearchPage() {
   }, []);
 
   // Handle search with debounce
-  const handleSearch = useCallback((text) => {
+  const handleSearch = useCallback(async (text) => {
     setQuery(text);
     setIsSearching(true);
-
     setTimeout(() => {
+      console.log("searchResults: ", productData, "products", products);
       setIsSearching(false);
     }, 300);
   }, []);
@@ -129,6 +170,26 @@ export default function SearchPage() {
   // Handle product press with animation
   const handleProductPress = useCallback(
     (item) => {
+      const storeDetails = item.store;
+      console.log("storeDetails: ", storeDetails);
+
+      const enhancedProduct = {
+        ...item, // Spread all existing product properties
+        storeDetails: {
+          // Add store details as a nested object
+          id: storeDetails.id,
+          number: storeDetails.phone_number.replace("+964", "0"),
+          name: storeDetails.name.kurdish || storeDetails.name.english,
+          location: storeDetails.address,
+          subtitle: "",
+          description: storeDetails.description,
+          logo: storeDetails.logo,
+        },
+      };
+      const stringifiedProduct = JSON.stringify(enhancedProduct);
+      console.log("stringifiedProduct: ", stringifiedProduct);
+      const url = `/product/${item.id}`;
+
       Animated.sequence([
         Animated.timing(scaleAnim, {
           toValue: 0.95,
@@ -141,10 +202,11 @@ export default function SearchPage() {
           useNativeDriver: true,
         }),
       ]).start();
-
-      router.push({
-        pathname: "/product/[id]",
-        params: { id: item.id, name: item.name },
+      router.navigate({
+        pathname: url,
+        params: {
+          storeData: stringifiedProduct,
+        },
       });
     },
     [router],
@@ -164,8 +226,11 @@ export default function SearchPage() {
   const renderItem = useCallback(
     ({ item, index }) => {
       const hasDiscount = item.discount > 0;
-      const discountPercentage = item.discount;
-
+      const discountPercentage = item.discount.toFixed(0);
+      const isFavorite =
+        favorites.products.length > 0
+          ? favorites.products?.some((prod) => prod?.id === item.id)
+          : false;
       return (
         <Animated.View
           style={[
@@ -182,23 +247,30 @@ export default function SearchPage() {
           >
             <View style={styles.imageContainer}>
               <Image source={item.image} style={styles.image} />
-              
+
               {/* Discount Badge */}
               {hasDiscount && (
                 <View style={styles.discountBadge}>
-                  <Text style={styles.discountText}>-{discountPercentage}%</Text>
+                  <Text style={styles.discountText}>
+                    -{discountPercentage}%
+                  </Text>
                 </View>
               )}
-              
+
               {/* Price Tag with Discount Highlight */}
-              <View style={[styles.priceTag, hasDiscount && styles.priceTagDiscounted]}>
+              <View
+                style={[
+                  styles.priceTag,
+                  hasDiscount && styles.priceTagDiscounted,
+                ]}
+              >
                 {hasDiscount ? (
                   <>
                     <Text style={styles.discountedPriceText}>
-                      {formatPrice(item.price)}
+                      {formatPrice(item.discount_price)}
                     </Text>
                     <Text style={styles.originalPriceText}>
-                      {formatPrice(item.originalPrice)}
+                      {formatPrice(item.price)}
                     </Text>
                   </>
                 ) : (
@@ -219,10 +291,14 @@ export default function SearchPage() {
             <TouchableOpacity
               style={styles.favoriteButton}
               onPress={() => {
-                /* Add to favorites logic */
+                toggleFavorite(item);
               }}
             >
-              <Ionicons name="heart-outline" size={20} color="#ff6b6b" />
+              <Ionicons
+                name={isFavorite ? "heart" : "heart-outline"}
+                size={20}
+                color="#ff6b6b"
+              />
             </TouchableOpacity>
           </TouchableOpacity>
         </Animated.View>
@@ -299,18 +375,18 @@ export default function SearchPage() {
       </Animated.View>
 
       {/* Results Count */}
-      {filteredData.length > 0 && (
+      {productData.length > 0 && (
         <View style={styles.resultsHeader}>
           <Text style={styles.resultsText}>
-            {filteredData.length}{" "}
-            {filteredData.length === 1 ? "result" : "results"} found
+            {productData.length}{" "}
+            {productData.length === 1 ? "result" : "results"} found
           </Text>
         </View>
       )}
 
       {/* Grid */}
       <FlatList
-        data={filteredData}
+        data={productData}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         numColumns={2}

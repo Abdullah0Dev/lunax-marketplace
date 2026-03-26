@@ -25,13 +25,10 @@ export const productApi = api.injectEndpoints({
 
     // Search products
     searchProducts: builder.query({
-      query: ({ q, category, minPrice, maxPrice, sortBy = 'relevance' }) => {
+      query: ({ q, category }) => {
         const params = new URLSearchParams();
         if (q) params.append('q', q);
         if (category) params.append('category', category);
-        if (minPrice) params.append('minPrice', minPrice);
-        if (maxPrice) params.append('maxPrice', maxPrice);
-        if (sortBy) params.append('sortBy', sortBy);
 
         return `/products/search?${params.toString()}`;
       },

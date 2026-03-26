@@ -1,1 +1,7 @@
-npm install @expo/vector-icons @react-navigation/native axios expo expo-blur expo-constants expo-font expo-image expo-linear-gradient expo-linking expo-router expo-splash-screen expo-status-bar expo-video expo-web-browser react react-dom react-native react-native-image-slider-box react-native-reanimated react-native-responsive-fontsize react-native-responsive-screen react-native-safe-area-context react-native-screens react-native-web react-native-worklets
+
+1. Add Loading When reaching to the bottom of products a loading indicator
+2. same for reels feed
+
+
+`ID	User	Password	Active Date	Expire Date	Place	Business	Number	Delegate	Price	Status	Control	Edit	Delete
+`
