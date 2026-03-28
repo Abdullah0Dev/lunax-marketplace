@@ -25,7 +25,7 @@ import { BlurView } from 'expo-blur';
 import { useGetMyReelsQuery } from "../../../../services/api/reel.api";
 import { useReelManagement } from "../../../../hooks/useStore";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { STORE_ID } from "../../../../utils";
+import { useSelector } from "react-redux";
 
 // API Hooks
 
@@ -46,7 +46,8 @@ export default function ReelManagement({ navigation }) {
     uploadLimit,
     canUploadToday
   } = useReelManagement();
-
+  const { user } = useSelector((state) => state.auth);
+  const STORE_ID = user.id || ""
   // State
   const [modalVisible, setModalVisible] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
@@ -363,7 +364,7 @@ export default function ReelManagement({ navigation }) {
   );
 
   return (
-    <SafeAreaView style={{flex: 1}}>
+    <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
         <StatusBar style="dark" />
 

@@ -4,13 +4,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
 import { offlineActions } from '../store/slices/offline.slice';
 
-const BASE_URL = 'https://lunax-marketplace.dmsystem.dpdns.org/api';
-
+export const BASE_URL = "http://localhost:4000/api" //'https://lunax-marketplace.dmsystem.dpdns.org/api';
+// http://localhost:4000/api/stores/69c6fe739ba19787f70b3539
 // Base query with auth
 const baseQuery = fetchBaseQuery({
   baseUrl: BASE_URL,
   prepareHeaders: async (headers) => {
-    const token = await AsyncStorage.getItem('seller_token');
+    const token = await AsyncStorage.getItem('token');
     if (token) {
       headers.set('Authorization', `Bearer ${token}`);
     }
@@ -23,30 +23,30 @@ const baseQuery = fetchBaseQuery({
 // Custom base query with offline support
 const baseQueryWithOffline = async (args, api, extraOptions) => {
   const { dispatch } = api;
-  
+
   // Check network status
   const netInfo = await NetInfo.fetch();
   const isConnected = netInfo.isConnected;
-  
+
   // Update network status in store
   dispatch(offlineActions.setNetworkStatus(isConnected ? 'online' : 'offline'));
 
   // If online, proceed with request
   if (isConnected) {
     try {
+      console.log("Making request to:", args);
       const result = await baseQuery(args, api, extraOptions);
-      
+
       if (result.error) {
         console.error('API Error:', result.error);
       }
-      
       return result;
     } catch (error) {
       console.error('Request failed:', error);
       return { error: { status: 'FETCH_ERROR', error: error.message } };
     }
   }
-  
+
   // If offline and it's a mutation (POST, PUT, DELETE, PATCH)
   if (!isConnected && args.method && args.method !== 'GET') {
     // Queue the mutation
@@ -56,7 +56,7 @@ const baseQueryWithOffline = async (args, api, extraOptions) => {
       body: args.body,
       timestamp: Date.now(),
     }));
-    
+
     return {
       data: {
         queued: true,
@@ -64,7 +64,7 @@ const baseQueryWithOffline = async (args, api, extraOptions) => {
       },
     };
   }
-  
+
   // If offline GET request
   return {
     error: {

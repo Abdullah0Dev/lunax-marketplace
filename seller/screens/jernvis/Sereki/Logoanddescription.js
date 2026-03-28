@@ -19,14 +19,16 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-nat
 import { RFPercentage } from "react-native-responsive-fontsize";
 import { useGetMyStoreQuery, useUpdateStoreMutation } from '../../../services/api/store.api';
 import { LinearGradient } from 'expo-linear-gradient';
-import { STORE_ID } from "../../../utils";
 import { uploadImage } from "../../../services/api/upload.api";
+import { useSelector } from "react-redux";
 
 const { width: screenWidth } = Dimensions.get("window");
 const isTablet = screenWidth >= 768;
 
 export default function Logoanddescription() {
   const navigation = useNavigation();
+  const { user } = useSelector((state) => state.auth);
+  const STORE_ID = user.id || ""
 
   // Fetch existing store data
   const { data: storeData, isLoading: isFetchingStore } = useGetMyStoreQuery();

@@ -9,9 +9,35 @@ import { useGetMyStoreQuery } from '../../../services/api/store.api';
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 const isTablet = screenWidth >= 768;
 import { capitalizeFirstLetter } from '../../../utils'
+import { useDispatch, useSelector } from 'react-redux';
+import { logoutUser } from '../../../services/api/auth.api';
+import { CommonActions } from '@react-navigation/native';
 export default function Serekij({ navigation }) {
   const { data: storeData, isLoading: isFetchingStore } = useGetMyStoreQuery();
+  const dispatch = useDispatch();
+  const { loading, error, isAuthenticated } = useSelector((state) => state.auth);
+  console.log("storeData: ", storeData);
 
+  const handleLogout = async () => {
+    console.log("logging out... ");
+    if (!isAuthenticated) {
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'Signin1' }],
+        })
+      );
+      return;
+    }
+    await dispatch(logoutUser())
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: 'Signin1' }],
+      })
+    );
+
+  }
   return (
     <View style={styles.container}>
       <View style={{ top: isTablet ? hp("0%") : hp("4%"), }}>
@@ -20,14 +46,14 @@ export default function Serekij({ navigation }) {
             <Image
               source={require('../../../assets/b.png')}
               style={styles.logo}
-              resizeMode="contain"
+              contentFit="contain"
             />
             {/* Bottom row */}
             <View style={styles.row}>
               <TouchableOpacity>
                 <Text style={styles.showAll}> {storeData && capitalizeFirstLetter(storeData.category)}</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.logout}>
+              <TouchableOpacity onPress={handleLogout} style={styles.logout}>
                 <Ionicons name="log-out-outline" size={26} color="red" />
               </TouchableOpacity>
             </View>

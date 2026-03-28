@@ -25,15 +25,15 @@ import {
   useProductManagement,
 } from '../../../../hooks/useStore';
 import { useGetMyProductsQuery } from "../../../../services/api/product.api";
-import { STORE_ID } from "../../../../utils";
 import { uploadImages } from "../../../../services/api/upload.api";
-
-const { width: screenWidth } = Dimensions.get("window");
-const isTablet = screenWidth >= 768;
+import { useSelector } from "react-redux";
 
 export default function ProductManagement() {
   const navigation = useNavigation();
   const [isSaving, setIsSaving] = useState(false)
+  const { user } = useSelector((state) => state.auth);
+  const STORE_ID = user.id || ""
+
   // API Hooks
   const { data: products = [], isLoading: isLoadingProducts, refetch } = useGetMyProductsQuery();
   const isUpdating = false
@@ -635,7 +635,7 @@ export default function ProductManagement() {
                     onPress={handleSaveProduct}
                     disabled={isCreating || isUpdating}
                   >
-                    {(isCreating || isUpdating) ? (
+                    {(isCreating || isUpdating || isSaving) ? (
                       <ActivityIndicator size="small" color="#fff" />
                     ) : (
                       <Text style={styles.modalSaveText}>

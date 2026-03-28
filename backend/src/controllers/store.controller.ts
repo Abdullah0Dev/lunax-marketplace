@@ -1,7 +1,9 @@
 import { Request, Response } from "express";
 import { StoreService } from "../services";
 import { Types } from "mongoose";
-
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+import { Store } from "../models";
 export class StoreController {
   static async getAll(req: Request, res: Response) {
     try {
@@ -13,6 +15,55 @@ export class StoreController {
         error:
           error instanceof Error ? error.message : "Failed to fetch stores",
       });
+    }
+  }
+  static async login(req: Request, res: Response) {
+    const { username, password } = req.body;
+
+    try {
+      // Search for user in database
+      const user = await Store.findOne({ username });
+
+      // Check if user exists
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Compare password
+      // if (password !== user.password) {
+      //   return res.status(401).json({ message: "Invalid password" });
+      // }
+      const isPasswordValid = password === user.password;
+      console.log(
+        "isPasswordValid: ",
+        isPasswordValid,
+        password,
+        user.password,
+      );
+
+      if (!isPasswordValid) {
+        return res.status(401).json({ message: "Invalid password" });
+      }
+
+      // Generate token (JWT example)
+      const token = jwt.sign(
+        { userId: user.id, username: user.username },
+        process.env.JWT_SECRET,
+        { expiresIn: "90d" },
+      );
+
+      // Return success response
+      res.json({
+        token,
+        user: {
+          id: user.id,
+          username: user.username,
+        },
+        store: { id: user._id, name: user.name },
+      });
+    } catch (error) {
+      console.log("server error: ", error);
+      res.status(500).json({ message: "Server error" });
     }
   }
   static async getRelevantStoresByCategory(req: Request, res: Response) {

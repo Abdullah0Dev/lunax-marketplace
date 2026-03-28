@@ -19,6 +19,7 @@ import NetInfo from '@react-native-community/netinfo';
 import { useColorScheme } from "./hooks/useColorScheme";
 import { tokenCache } from "./utils/cache";
 import { PersistGate } from "redux-persist/integration/react";
+import { offlineActions } from "./services/store/slices/offline.slice";
 
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
@@ -67,11 +68,11 @@ export default function App() {
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-            {/* <GestureHandlerRootView style={styles.container}></GestureHandlerRootView> */}
+        {/* <GestureHandlerRootView style={styles.container}></GestureHandlerRootView> */}
         <NavigationContainer>
           <AppNavigator />
         </NavigationContainer>
-      </PersistGate> 
+      </PersistGate>
       <StatusBar style="auto" />
     </Provider>
   );

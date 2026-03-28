@@ -1,12 +1,33 @@
 // services/api/reel.api.js
-import { STORE_ID } from '../../utils';
+import { getStoreId } from '../../utils';
 import { api } from './client';
 
 export const reelApi = api.injectEndpoints({
   endpoints: (builder) => ({
     // Get seller's reels
     getMyReels: builder.query({
-      query: () => `/reels/store/${STORE_ID}`,
+      // query: async () => {
+      //   const storeId = await getStoreId();
+      //   return `/reels/store/${storeId}`;
+      // },
+      queryFn: async (arg, queryApi, extraOptions, baseQuery) => {
+        try {
+          const storeId = await getStoreId();
+          console.log("storeId:", storeId);
+
+          if (!storeId) {
+            return { error: { status: 404, data: "Store ID not found" } };
+          }
+
+          // Make the actual request
+          const result = await baseQuery(`/reels/store/${storeId}`, queryApi, extraOptions);
+          console.log("Result:", result);
+
+          return result;
+        } catch (error) {
+          return { error: { status: 500, data: error.message } };
+        }
+      },
       providesTags: (result) =>
         result
           ? [
@@ -18,7 +39,28 @@ export const reelApi = api.injectEndpoints({
 
     // Check upload limit
     getUploadLimit: builder.query({
-      query: () => `/reels/limit/${STORE_ID}`,
+      // query: async () => {
+      //   const storeId = await getStoreId();
+      //   return `/reels/limit/${storeId}`;
+      // },
+      queryFn: async (arg, queryApi, extraOptions, baseQuery) => {
+        try {
+          const storeId = await getStoreId();
+          console.log("storeId:", storeId);
+
+          if (!storeId) {
+            return { error: { status: 404, data: "Store ID not found" } };
+          }
+
+          // Make the actual request
+          const result = await baseQuery(`/reels/limit/${storeId}`, queryApi, extraOptions);
+          console.log("Result:", result);
+
+          return result;
+        } catch (error) {
+          return { error: { status: 500, data: error.message } };
+        }
+      },
       providesTags: ['Reel'],
     }),
 

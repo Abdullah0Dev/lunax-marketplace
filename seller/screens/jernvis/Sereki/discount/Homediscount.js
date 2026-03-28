@@ -25,7 +25,7 @@ import { useDiscountManagement } from "../../../../hooks/useStore";
 import { useGetMyDiscountsQuery } from "../../../../services/api/discount.api";
 import { useGetMyProductsQuery } from "../../../../services/api/product.api";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { STORE_ID } from "../../../../utils";
+import { useSelector } from "react-redux";
 
 const { width: screenWidth } = Dimensions.get("window");
 const isTablet = screenWidth >= 768;
@@ -36,6 +36,9 @@ const DISCOUNT_OPTIONS = [10, 15, 20, 25, 30, 35, 40, 50];
 export default function DiscountManagement({ navigation }) {
   // Get products for selection
   const { data: products = [], isLoading: loadingProducts } = useGetMyProductsQuery();
+  const { user } = useSelector((state) => state.auth);
+  const STORE_ID = user.id || ""
+
   const { data: discounts = [], refetch } = useGetMyDiscountsQuery();
   const creating = false
   const { createDiscount, toggleDiscount } = useDiscountManagement()

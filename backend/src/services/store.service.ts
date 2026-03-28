@@ -1,5 +1,12 @@
 import { Store, IStore, Product, Reel, Discount } from "../models";
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
+import {
+  IPaymentHistory,
+  ISubscription,
+  PaymentMethod,
+  StoreStatus,
+  SubscriptionPlan,
+} from "../models/store.model";
 interface RelevanceScore {
   store: any;
   score: number;
@@ -23,6 +30,288 @@ export class StoreService {
         .lean();
 
       return stores.map((store) => ({
+        ...store,
+        id: store._id.toString(), // rewrite _id => id
+        _id: undefined,
+        products: store.products?.map((p: any) => ({
+          ...p,
+          id: p._id.toString(),
+          _id: undefined,
+        })),
+        reels: store.reels?.map((r: any) => ({
+          ...r,
+          id: r._id.toString(),
+          _id: undefined,
+        })),
+        discounts: store.discounts?.map((d: any) => ({
+          ...d,
+          id: d._id.toString(),
+          _id: undefined,
+        })),
+      }));
+    } catch (error) {
+      throw new Error(`Failed to fetch stores: ${error}`);
+    }
+  }
+  // process payment
+  /**
+   * Process payment for a store and update subscription
+   */
+  static async processPayment(
+    storeId: string,
+    paymentData: {
+      amount: number;
+      paymentMethod: PaymentMethod;
+      plan: SubscriptionPlan;
+      paymentDate: Date;
+      transactionId?: string;
+    },
+  ): Promise<IStore> {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const { amount, paymentMethod, plan, paymentDate, transactionId } =
+        paymentData;
+
+      // Validate required fields
+      if (!storeId) {
+        throw new Error("Store ID is required");
+      }
+
+      if (!amount || amount <= 0) {
+        throw new Error("Valid payment amount is required");
+      }
+
+      if (!paymentMethod) {
+        throw new Error("Payment method is required");
+      }
+
+      if (!plan) {
+        throw new Error("Subscription plan is required");
+      }
+
+      if (!paymentDate) {
+        throw new Error("Payment date is required");
+      }
+
+      // Validate plan - only premium should be paid
+      if (plan !== "premium") {
+        throw new Error("Only premium plan requires payment. Trial is free.");
+      }
+
+      // Find the store
+      const store = await Store.findById(storeId).session(session);
+      if (!store) {
+        throw new Error("Store not found");
+      }
+
+      const now = new Date();
+      let startDate: Date;
+      let endDate: Date;
+
+      // Determine the scenario based on current store status and subscription
+      const currentStatus = store.status;
+      const currentSubscription = store.subscription;
+      const isExpired = currentSubscription?.endDate < now;
+      const isTrial =
+        currentSubscription?.plan === "trial" && !currentSubscription?.isPaid;
+      const isActivePremium =
+        currentSubscription?.plan === "premium" && currentSubscription?.isPaid;
+
+      // Scenario 1: Upgrade from Trial to Premium (first payment)
+      if (isTrial) {
+        // If paying during trial, start from payment date
+        startDate = paymentDate;
+        endDate = new Date(paymentDate);
+        endDate.setMonth(endDate.getMonth() + 1); // Premium: 1 month
+
+        // Add note to payment history
+        console.log(`Upgrading store ${storeId} from trial to premium`);
+      }
+      // Scenario 2: Renew Active Premium Subscription (monthly renewal)
+      else if (isActivePremium && !isExpired) {
+        // If renewing before expiry, start from next day after current subscription ends
+        startDate = new Date(currentSubscription.endDate);
+        startDate.setDate(startDate.getDate() + 1);
+        endDate = new Date(startDate);
+        endDate.setMonth(endDate.getMonth() + 1); // Premium: 1 month
+
+        console.log(`Renewing premium subscription for store ${storeId}`);
+      }
+      // Scenario 3: Reactivate Expired Premium Store
+      else if (isActivePremium && isExpired) {
+        // If expired, start from payment date
+        startDate = paymentDate;
+        endDate = new Date(paymentDate);
+        endDate.setMonth(endDate.getMonth() + 1); // Premium: 1 month
+
+        console.log(`Reactivating expired premium store ${storeId}`);
+      }
+      // Scenario 4: Expired Trial (should upgrade to premium)
+      else if (
+        currentStatus === "expired" &&
+        currentSubscription?.plan === "trial"
+      ) {
+        // Trial expired without payment, now paying to become premium
+        startDate = paymentDate;
+        endDate = new Date(paymentDate);
+        endDate.setMonth(endDate.getMonth() + 1); // Premium: 1 month
+
+        console.log(`Converting expired trial to premium for store ${storeId}`);
+      }
+      // Scenario 5: Default (new or unexpected case)
+      else {
+        startDate = paymentDate;
+        endDate = new Date(paymentDate);
+        endDate.setMonth(endDate.getMonth() + 1); // Premium: 1 month
+
+        console.log(
+          `Processing payment for store ${storeId} (default scenario)`,
+        );
+      }
+
+      // Prepare payment history record
+      const paymentHistoryRecord: IPaymentHistory = {
+        amount: amount,
+        paymentDate: paymentDate,
+        paymentMethod: paymentMethod,
+        plan: plan,
+        startDate: startDate,
+        endDate: endDate,
+        transactionId: transactionId,
+      };
+
+      // Store previous subscription in history if exists
+      const paymentHistory =
+        (store.subscription?.paymentHistory as IPaymentHistory[]) || [];
+
+      if (store.subscription && store.subscription.isPaid) {
+        paymentHistory.push({
+          amount: store.subscription.paidAmount || 0,
+          paymentDate: store.subscription.paymentDate || new Date(),
+          paymentMethod: store.subscription.paymentMethod || "cash",
+          plan: store.subscription.plan,
+          startDate: store.subscription.startDate,
+          endDate: store.subscription.endDate,
+          transactionId: store.subscription.transactionId,
+        });
+      }
+
+      // Add the new payment record
+      paymentHistory.push(paymentHistoryRecord);
+
+      // Update store subscription
+      const updatedSubscription: Partial<ISubscription> = {
+        plan: plan,
+        startDate: startDate,
+        endDate: endDate,
+        isPaid: true,
+        paidAmount: amount,
+        paymentDate: paymentDate,
+        paymentMethod: paymentMethod,
+        paymentHistory: paymentHistory,
+        transactionId: transactionId,
+      };
+
+      // Determine new status based on subscription dates
+      let newStatus: StoreStatus = "active";
+      if (endDate < now) {
+        newStatus = "expired";
+      }
+
+      // Update store with new subscription and status
+      const updatedStore = await Store.findByIdAndUpdate(
+        storeId,
+        {
+          $set: {
+            subscription: updatedSubscription,
+            status: newStatus,
+          },
+        },
+        { new: true, session },
+      ).populate("products reels discounts");
+
+      await session.commitTransaction();
+      session.endSession();
+
+      return updatedStore!;
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      throw error;
+    }
+  }
+
+  /**
+   * Get store subscription details
+   */
+  static async getStoreSubscription(
+    storeId: string,
+  ): Promise<ISubscription | null> {
+    const store = await Store.findById(storeId).select("subscription");
+    if (!store) {
+      throw new Error("Store not found");
+    }
+    return store.subscription;
+  }
+  /**
+   * Update store status (manual override)
+   */
+  static async updateStoreStatus(
+    storeId: string,
+    status: string,
+  ): Promise<IStore> {
+    const validStatuses = ["active", "expired", "trial", "suspended"];
+    if (!validStatuses.includes(status)) {
+      throw new Error("Invalid status");
+    }
+
+    const store = await Store.findByIdAndUpdate(
+      storeId,
+      { status },
+      { new: true },
+    );
+
+    if (!store) {
+      throw new Error("Store not found");
+    }
+
+    return store;
+  }
+  // Get all stores with populated data
+  static async getAllStoresStats() {
+    try {
+      const stores = await Store.find()
+        .populate("products", "name price cover_image") // get data instead of id
+        .populate("reels", "title url duration") // get data instead of id
+        .populate("discounts", "amount product_id") // get data instead of id
+        .sort({ createdAt: -1 })
+        .lean();
+
+      return stores.map((store) => ({
+        logo: store.logo,
+        name: store.name,
+        ownerName: store.owner_name || "",
+        contact: {
+          phone_number: store.phone_number,
+          username: store.username,
+          password: store.password,
+        },
+        subscription: {
+          paidAmount: store?.subscription?.paidAmount || 0,
+          endDate: store?.subscription?.endDate || "2026-4-5",
+          startDate: store?.subscription?.startDate || "2026-3-5",
+          isPaid: store?.subscription?.isPaid  || false,
+          paymentDate: store?.subscription?.paymentDate || "2026-3-5",
+          plan: store?.subscription?.plan || "trial",
+          paymentMethod: store?.subscription?.paymentMethod || "cash",
+        },
+        status: store.status || "",
+        stats: {
+          productsCount: store.products.length,
+          reelsCount: store.reels.length,
+        },
         ...store,
         id: store._id.toString(), // rewrite _id => id
         _id: undefined,
@@ -403,7 +692,7 @@ export class StoreService {
   /**
    * Get all categories with store and product counts
    * Returns categories sorted by popularity (most stores first)
-   */
+   **/
   static async getCategoriesWithCounts(): Promise<
     Array<{
       id: string;
@@ -974,12 +1263,11 @@ export class StoreService {
 
   // Create new store
   static async createStore(data: Partial<IStore>) {
-    const { name, description, logo, address, phone_number } = data;
+    const { name, logo, address, phone_number } = data;
 
     if (
       !name?.kurdish ||
       !name?.english ||
-      !description ||
       !logo ||
       !address ||
       !phone_number
@@ -988,18 +1276,59 @@ export class StoreService {
     }
 
     const store = await Store.create({
-      logo,
-      name,
-      address,
-      phone_number,
-      description,
-      category: data.category,
+      ...data,
       products: [],
       reels: [],
       discounts: [],
     });
 
     return store;
+  }
+  /**
+   * Create a new store with trial subscription
+   */
+  static async createStoreWithTrial(
+    storeData: Partial<IStore>,
+  ): Promise<{ store: IStore; password: string }> {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      // Set trial subscription (30 days)
+      const startDate = new Date();
+      const endDate = new Date();
+      endDate.setDate(endDate.getDate() + 30);
+
+      const trialSubscription: ISubscription = {
+        plan: "trial",
+        startDate: startDate,
+        endDate: endDate,
+        isPaid: false,
+        paidAmount: 0,
+        paymentHistory: [],
+      };
+
+      // Create store with trial subscription
+      const store = await Store.create(
+        [
+          {
+            ...storeData,
+            subscription: trialSubscription,
+            status: "trial",
+          },
+        ],
+        { session },
+      ); // <-- Notice { session } here
+
+      await session.commitTransaction();
+      session.endSession();
+
+      return { store: store[0], password: storeData.password };
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      throw error;
+    }
   }
 
   // Update store

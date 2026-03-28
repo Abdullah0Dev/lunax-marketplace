@@ -1,18 +1,40 @@
 // services/api/discount.api.js
-import { STORE_ID } from '../../utils';
+import { getStoreId } from '../../utils';
 import { api } from './client';
 
 export const discountApi = api.injectEndpoints({
-endpoints: (builder) => ({
+  endpoints: (builder) => ({
     // Get seller's discounts
     getMyDiscounts: builder.query({
-      query: () => `/discounts/store/${STORE_ID}`,
+      // query: async () => {
+      //   const storeId = await getStoreId();
+      //   return `/discounts/store/${storeId}`;
+      // },
+      queryFn: async (arg, queryApi, extraOptions, baseQuery) => {
+        try {
+          const storeId = await getStoreId();
+          console.log("storeId:", storeId);
+
+          if (!storeId) {
+            return { error: { status: 404, data: "Store ID not found" } };
+          }
+
+          // Make the actual request
+          const result = await baseQuery(`/discounts/store/${storeId}`, queryApi, extraOptions);
+          console.log("Result:", result);
+
+          return result;
+        } catch (error) {
+          return { error: { status: 500, data: error.message } };
+        }
+      },
+
       providesTags: (result) =>
         result
           ? [
-              ...result.map(({ id }) => ({ type: 'Discount', id })),
-              { type: 'Discount', id: 'LIST' },
-            ]
+            ...result.map(({ id }) => ({ type: 'Discount', id })),
+            { type: 'Discount', id: 'LIST' },
+          ]
           : [{ type: 'Discount', id: 'LIST' }],
     }),
 

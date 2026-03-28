@@ -7,6 +7,7 @@ router.get("/", StoreController.getAll);
 router.get("/:id", StoreController.getOne);
 router.get("/category/:category", StoreController.getRelevantStoresByCategory);
 router.post("/", StoreController.create);
+router.post("/login", StoreController.login);
 router.put("/:id", StoreController.update);
 router.delete("/:id", StoreController.delete);
  

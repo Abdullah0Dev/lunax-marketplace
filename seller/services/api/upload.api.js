@@ -1,5 +1,4 @@
 import apiConfig from '../../config/api.config';
-import { STORE_ID } from '../../utils';
 
 // Upload image first (can happen early)
 export const uploadImage = async (storeId, file) => {
@@ -41,7 +40,7 @@ export const uploadImages = async (storeId, files) => {
     try {
         const response = await fetch(`http://localhost:4000/api/upload/images`, {
             method: 'POST',
-            body: formData, 
+            body: formData,
         });
         console.log("response: ", response);
 
