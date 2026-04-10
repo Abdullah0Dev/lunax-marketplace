@@ -911,7 +911,7 @@ export class StoreService {
       })
         .populate({
           path: "products",
-          match: { category: { $regex: new RegExp(category, "i") } },
+         // match: { category: { $regex: new RegExp(category, "i") } },
           // select:
           //   "name price cover_image discount_price category description quantity media specifications",
         })
