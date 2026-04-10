@@ -911,14 +911,14 @@ export class StoreService {
       })
         .populate({
           path: "products",
-          match: { category: { $regex: new RegExp(category, "i") } },
+          // match: { category: { $regex: new RegExp(category, "i") } },
           // select:
           //   "name price cover_image discount_price category description quantity media specifications",
         })
         .populate({
           path: "reels",
           options: { sort: { createdAt: -1 }, limit: 5 },
-          select: "title url duration thumbnail_url",
+          select: "title url duration thumbnail_url description",
         })
         .populate({
           path: "discounts",
