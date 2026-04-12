@@ -705,8 +705,6 @@ export default function Serekij({ navigation }) {
                         </TouchableOpacity>
                       </View>
 
-
-
                     </View>
 
                   </ScrollView>

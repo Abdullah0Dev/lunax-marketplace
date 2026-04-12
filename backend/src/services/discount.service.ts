@@ -26,6 +26,48 @@ export class DiscountService {
         : null,
     }));
   }
+  // In DiscountService.ts
+  static async getProductsWithDiscount() {
+    try {
+      // Calculate the original price based on discount percentage
+      // If a product has discount_price, we can calculate what percentage discount that represents
+      // Formula: discount_percentage = ((price - discount_price) / price) * 100
+
+      const products = await Product.find({
+        discount_price: {
+          $exists: true,
+          $ne: null,
+          $gt: 0,
+        },
+        
+        // quantity: { $gt: 0 }, // Only products in stock
+        // You might also want to check if discount is still valid based on date
+        // Add a discount_expiry_date field if you have one
+      })
+        .populate("store_id", "name logo id") // Populate store info
+        .lean(); // Use lean() for better performance if you don't need Mongoose documents
+
+      // Calculate effective price after discount for each product
+      const productsWithDetails = products.map((product) => ({
+        ...product,
+        discount_percentage: Math.round(
+          ((product.price - product.discount_price!) / product.price) * 100,
+        ),
+        effective_price: product.discount_price,
+        original_price: product.price,
+        savings: product.price - product.discount_price!,
+      }));
+
+      if (!productsWithDetails.length) {
+        throw new Error(`No products found with discounts`);
+      }
+
+      return productsWithDetails;
+    } catch (error) {
+      console.error("Error in getProductsByDiscount:", error);
+      throw error;
+    }
+  }
   // Clean up duplicate discounts (utility method)
   static async cleanupDuplicateDiscounts() {
     // Find all products that have multiple discounts

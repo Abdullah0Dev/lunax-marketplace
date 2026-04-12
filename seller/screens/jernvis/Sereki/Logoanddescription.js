@@ -9,6 +9,9 @@ import {
   TextInput,
   Modal,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   ActivityIndicator
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
@@ -21,13 +24,14 @@ import { useGetMyStoreQuery, useUpdateStoreMutation } from '../../../services/ap
 import { LinearGradient } from 'expo-linear-gradient';
 import { uploadImage } from "../../../services/api/upload.api";
 import { useSelector } from "react-redux";
-
+import { SafeAreaView } from 'react-native-safe-area-context'
 const { width: screenWidth } = Dimensions.get("window");
 const isTablet = screenWidth >= 768;
 
 export default function Logoanddescription() {
   const navigation = useNavigation();
   const { user } = useSelector((state) => state.auth);
+
   const STORE_ID = user.id || ""
 
   // Fetch existing store data
@@ -195,8 +199,8 @@ export default function Logoanddescription() {
   }
 
   return (
-    <View style={styles.container}>
-      <StatusBar style="dark" />
+    <SafeAreaView style={styles.container}>
+      {/* <StatusBar style="dark" /> */}
 
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
         <Ionicons name="arrow-back" size={26} color="#111" />
@@ -319,46 +323,57 @@ export default function Logoanddescription() {
 
       {/* MODAL */}
       <Modal visible={modalVisible} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>{getModalTitle()}</Text>
+        <SafeAreaView style={styles.modalOverlay}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{ flex: 1 }}
+          >
+            <ScrollView
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={styles.modalScrollContent}>
 
-            <TextInput
-              style={[styles.modalInput, fieldType === "description" && { height: 120 }]}
-              value={tempValue}
-              onChangeText={(t) => {
-                if (fieldType === "description" && t.length > 100) return;
-                setTempValue(t);
-              }}
-              multiline={fieldType === "description"}
-              autoFocus
-              placeholder={`Enter ${fieldType === "description" ? "description" : "name"}...`}
-              maxLength={fieldType === "description" ? 100 : 50}
-            />
 
-            {fieldType === "description" && (
-              <Text style={styles.modalCounter}>
-                {tempValue.length}/100
-              </Text>
-            )}
+              <View style={styles.modalBox}>
+                <Text style={styles.modalTitle}>{getModalTitle()}</Text>
 
-            <View style={styles.modalActions}>
-              <TouchableOpacity
-                style={styles.modalCancelButton}
-                onPress={() => setModalVisible(false)}
-              >
-                <Text style={styles.modalCancelText}>Cancel</Text>
-              </TouchableOpacity>
+                <TextInput
+                  style={[styles.modalInput, fieldType === "description" && { height: 120 }]}
+                  value={tempValue}
+                  onChangeText={(t) => {
+                    if (fieldType === "description" && t.length > 100) return;
+                    setTempValue(t);
+                  }}
+                  multiline={fieldType === "description"}
+                  autoFocus
+                  placeholder={`Enter ${fieldType === "description" ? "description" : "name"}...`}
+                  maxLength={fieldType === "description" ? 100 : 50}
+                />
 
-              <TouchableOpacity
-                style={styles.modalSaveButton}
-                onPress={saveValue}
-              >
-                <Text style={styles.modalSaveText}>Save</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
+                {fieldType === "description" && (
+                  <Text style={styles.modalCounter}>
+                    {tempValue.length}/100
+                  </Text>
+                )}
+
+                <View style={styles.modalActions}>
+                  <TouchableOpacity
+                    style={styles.modalCancelButton}
+                    onPress={() => setModalVisible(false)}
+                  >
+                    <Text style={styles.modalCancelText}>Cancel</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.modalSaveButton}
+                    onPress={saveValue}
+                  >
+                    <Text style={styles.modalSaveText}>Save</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </ScrollView>
+          </KeyboardAvoidingView>
+        </SafeAreaView>
       </Modal>
 
       {/* Changes indicator */}
@@ -368,7 +383,7 @@ export default function Logoanddescription() {
           <Text style={styles.changesText}>You have unsaved changes</Text>
         </View>
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -584,7 +599,21 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center"
   },
+  modalScrollContent: {
+    padding: wp('4%'),
+    marginTop: hp("8%")
+  },
 
+  modalContent: {
+    backgroundColor: "#fff",
+    borderRadius: 24,
+    padding: wp('5%'),
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
+    elevation: 10,
+  },
   modalBox: {
     width: wp("85%"),
     backgroundColor: "#fff",

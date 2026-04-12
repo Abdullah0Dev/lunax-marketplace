@@ -24,7 +24,7 @@ import { useProduct } from "../../hooks/useProduct";
 
 const FavoritesTab = () => {
   const dispatch = useDispatch();
-  const { favorites, toggleFavorite  } = useProduct();
+  const { favorites, toggleFavorite } = useProduct();
   const router = useRouter();
   const [refreshing, setRefreshing] = React.useState(false);
 
@@ -65,7 +65,7 @@ const FavoritesTab = () => {
     [dispatch],
   );
 
-  const handleNavigateToDetails = () => {}
+  const handleNavigateToDetails = () => {};
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -91,11 +91,15 @@ const FavoritesTab = () => {
   const renderItem = useCallback(
     ({ item }) => {
       const itemName =
-        item.name?.english ||
-        item.name?.kurdish ||
-        item.title?.english ||
-        item.title ||
-        "Item";
+        typeof item.name === "object"
+          ? item.name.kurdish || item.name.english
+          : item.name;
+      // const itemName =
+      //   item.name?.english ||
+      //   item.name?.kurdish ||
+      //   item.title?.english ||
+      //   item.title ||
+      //   "Item";
       const imageUrl = item.cover_image || item.logo || item.thumbnail_url;
       const itemPrice = item.discount_price || item.price;
 

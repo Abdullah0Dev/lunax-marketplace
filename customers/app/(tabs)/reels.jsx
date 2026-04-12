@@ -7,6 +7,7 @@ import {
   FlatList,
   Text,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { FontAwesome6, MaterialCommunityIcons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
@@ -14,19 +15,19 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useVideoPlayer, VideoView } from "expo-video";
 import { useExplore } from "../../hooks/useExplore";
 import { getRandomGradient } from "../../constants/Colors";
 const { height, width } = Dimensions.get("window");
 const isTablet = width >= 768;
 import { useLazyGetStoreByIdQuery } from "../../services/api/store.api";
- 
+
 // Individual Video Component with its own player
 const VideoItem = ({ item, isActive, onTogglePlay, paused }) => {
   const player = useVideoPlayer(item.url, (player) => {
     player.loop = true;
-    player.muted = true;
+    // player.muted = true;
   });
 
   // Control playback based on active state and paused state
@@ -52,37 +53,57 @@ const VideoItem = ({ item, isActive, onTogglePlay, paused }) => {
 
 const ReelsTab = () => {
   const router = useRouter();
-  const { reels,  } = useExplore();
-  const [fetchStore, { data: store, isLoading }] = useLazyGetStoreByIdQuery();
+  const { reels, loadMoreReels, hasMore, reelsLoading, refreshReels } =
+    useExplore();
+  const [fetchStore, { data: store, isLoading: storeLoading }] =
+    useLazyGetStoreByIdQuery();
+  const { feedVideo: reelVideo } = useLocalSearchParams();
+  const feedVideo = reelVideo ? JSON.parse(reelVideo) : []
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const flatListRef = useRef(null);
-  const feedVideos = reels.map((item, index) => ({
-    id: item?.id,
-    url: item?.url.replace(
-      "http://tools-openinary-8f358f-173-249-22-222.traefik.me",
-      "https://storage.dmsystem.dpdns.org", // t/1773263618182-test-vid.mp4
-    ),
-    thumbnail_url: item?.thumbnail_url,
-    title:
-      `${item?.title?.kurdish}\n${item?.description}` ||
-      `${item?.title?.english}\n${item?.description}`,
-    store: {
-      id: item?.store?.id,
-      name: item?.store?.name?.kurdish || item?.store?.name?.english || "",
-      logo: item?.store?.logo
-        ? { uri: item?.store?.logo }
-        : require("../../assets/images/m202.png"),
-    },
-  }));
+  const isFetchingRef = useRef(false);
 
-  // Handle viewable items change
+  const feedVideos = reels.map((item, index) => {
+    return {
+      id: item?.id,
+      url: item?.url?.replace(
+        "http://tools-openinary-8f358f-173-249-22-222.traefik.me",
+        "https://storage.dmsystem.dpdns.org",
+      ),
+      thumbnail_url: item?.thumbnail_url,
+      title:
+        `${item?.title?.kurdish}\n${item?.description}` ||
+        `${item?.title?.english}\n${item?.description}`,
+      store: {
+        id: item?.store?.id,
+        name: item?.store?.name?.kurdish || item?.store?.name?.english || "",
+        logo: item?.store?.logo
+          ? { uri: item?.store?.logo }
+          : require("../../assets/images/m202.png"),
+      },
+    };
+  });
+
+  // Handle viewable items change and trigger pagination
   const onViewableItemsChanged = useRef(({ viewableItems }) => {
     if (!viewableItems.length) return;
     const index = viewableItems[0].index;
     setCurrentIndex(index);
     setPaused(false);
+
+    // Check if we're near the end of the list (last 2 items)
+    const isNearEnd = index >= feedVideos.length - 2;
+
+    // Load more reels if we're near the end, have more content, and not already loading
+    if (isNearEnd && hasMore && !reelsLoading && !isFetchingRef.current) {
+      isFetchingRef.current = true;
+      loadMoreReels().finally(() => {
+        isFetchingRef.current = false;
+      });
+    }
   }).current;
 
   const viewabilityConfig = {
@@ -103,14 +124,18 @@ const ReelsTab = () => {
     }, []),
   );
 
+  // Pull to refresh handler
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await refreshReels();
+    setRefreshing(false);
+  };
+
   const handleViewStore = async (item) => {
     const storeId = item.store.id;
     const results = await fetchStore(storeId);
     const store = results.data;
-    console.log("item", item);
     const stringifiedStore = JSON.stringify(store);
-    console.log("stringifiedStore: ", stringifiedStore);
-    console.log(getRandomGradient());
     const url = `/store/${item.id}`;
     const title = "";
     router.navigate({
@@ -125,16 +150,32 @@ const ReelsTab = () => {
     return;
   };
 
+  // Footer loading indicator
+  const ListFooterComponent = () => {
+    if (!reelsLoading) return null;
+    return (
+      <View style={styles.loadingFooter}>
+        <ActivityIndicator size="large" color="#ffffff" />
+        <Text style={styles.loadingText}>بارکردنی ڤیدیۆی تر...</Text>
+      </View>
+    );
+  };
+  const reelsFeed = feedVideo ? [feedVideo, ...feedVideos] : feedVideos ?? [];
+  console.log("reelsFeed: ", reelsFeed.flat());
+  
   return (
     <View style={styles.container}>
       <FlatList
         ref={flatListRef}
-        data={feedVideos}
-        keyExtractor={(item) => item.id.toString()}
+        data={reelsFeed.flat()}
+        keyExtractor={(item, index) => index.toString()}
         pagingEnabled
         showsVerticalScrollIndicator={false}
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={viewabilityConfig}
+        onRefresh={handleRefresh}
+        refreshing={refreshing}
+        ListFooterComponent={ListFooterComponent}
         renderItem={({ item, index }) => (
           <View style={styles.videoContainer}>
             {/* 🎥 VIDEO with expo-video */}
@@ -171,9 +212,9 @@ const ReelsTab = () => {
                   gap: 8,
                 }}
               >
-                <Image source={item.store.logo} style={styles.avatar} />
+                <Image source={item?.store?.logo} style={styles.avatar} />
                 <View style={styles.nameRow}>
-                  <Text style={styles.username}>{item.store.name}</Text>
+                  <Text style={styles.username}>{item?.store?.name}</Text>
                   <MaterialCommunityIcons
                     name="check-decagram"
                     size={20}
@@ -184,7 +225,7 @@ const ReelsTab = () => {
               </TouchableOpacity>
 
               <View style={styles.userTextBox}>
-                <Text style={styles.subText}>{item.title}</Text>
+                <Text style={styles.subText}>{item?.title}</Text>
               </View>
             </BlurView>
           </View>
@@ -226,7 +267,6 @@ const styles = StyleSheet.create({
     bottom: isTablet ? hp("15%") : hp("12%"),
     width: isTablet ? wp("60%") : wp("94%"),
     left: isTablet ? wp("20%") : wp("3%"),
-    // flexDirection: "row",
     paddingHorizontal: wp("4%"),
     paddingVertical: hp("1.6%"),
     borderRadius: 22,
@@ -263,6 +303,18 @@ const styles = StyleSheet.create({
     marginTop: 6,
     textAlign: "right",
     writingDirection: "ltr",
+    fontFamily: "k24",
+  },
+  loadingFooter: {
+    height: height * 0.5,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "black",
+  },
+  loadingText: {
+    color: "#fff",
+    marginTop: 10,
+    fontSize: 14,
     fontFamily: "k24",
   },
 });

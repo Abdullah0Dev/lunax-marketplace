@@ -31,6 +31,7 @@ export default function ProductPage() {
   const router = useRouter();
   const { slug: productId, fromStore, storeData } = useLocalSearchParams();
   const { toggleFavorite, favorites } = useProduct();
+  const [gradient, setGradient] = useState(getRandomGradient());
   const isFavorite =
     favorites.products.length > 0
       ? favorites.products?.some((prod) => prod?.id === productId)
@@ -51,18 +52,14 @@ export default function ProductPage() {
   // const dispatch = useDispatch();
   // const favoriteList = useSelector((state) => state.favorites.favoriteList);
 
-  const [selectedPercent, setSelectedPercent] = useState(0);
-
-  const totalAmount = 200000;
-  const finalAmount = (totalAmount * selectedPercent) / 100;
-
   const itemData = {
-    gradient: getRandomGradient(),
+    gradient,
     title: productData?.name?.kurdish || productData?.name?.english,
     mainImage: [{ uri: productData?.cover_image }],
     price: productData?.price || 20000,
-    images: [productData?.cover_image, ...productData?.media],
-    discountPrice: productData?.discount_price || 20000,
+    images: productData?.media,
+    description: productData?.description,
+    discountPrice: productData?.discount_price,
     storeDetails: {
       id: productData?.storeDetails?.id,
       location: productData?.storeDetails?.location,
@@ -258,9 +255,7 @@ export default function ProductPage() {
                 { backgroundColor: itemData.gradient || "#333" },
               ]}
             >
-              <Text style={styles.logoText2}>
-                {itemData.storeDetails?.description}
-              </Text>
+              <Text style={styles.logoText2}>{itemData?.description}</Text>
             </View>
           </TouchableOpacity>
         )}

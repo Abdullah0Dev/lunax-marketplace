@@ -18,7 +18,21 @@ export class DiscountController {
       res.status(500).json({ error: "Failed to fetch discounts" });
     }
   }
-
+  static async getProductsWithDiscount(req: Request, res: Response) {
+    try { 
+      const products =
+        await DiscountService.getProductsWithDiscount();
+      res.json(products);
+    } catch (error) {
+      console.error("Error fetching products by discount:", error);
+      if (error instanceof Error) {
+        if (error.message === "No products found with this discount") {
+          return res.status(404).json({ error: error.message });
+        }
+      }
+      res.status(500).json({ error: "Failed to fetch products by discount" });
+    }
+  }
   static async getActive(req: Request, res: Response) {
     try {
       // First expire any passed discounts

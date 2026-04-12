@@ -11,7 +11,8 @@ import {
   ActivityIndicator,
   TextInput,
   ScrollView,
-  Platform
+  Platform,
+  KeyboardAvoidingView
 } from "react-native";
 import { Image } from 'expo-image';
 import { Video } from 'expo-av';
@@ -199,13 +200,14 @@ export default function ReelManagement({ navigation }) {
     // Add video file
     if (videoAsset) {
       const filename = videoAsset.split('/').pop() || 'video.mp4';
-      const mimeType = `video/${videoInfo.format || 'mp4'}`;
+      // Fix: Get mime type properly
+      const mimeType = videoInfo?.format ? `video/${videoInfo.format}` : 'video/mp4';
 
       formData.append('video', {
         uri: videoAsset,
         name: filename,
         type: mimeType,
-      });
+      }); // Type assertion for React Native
     }
 
     // Add thumbnail if exists
@@ -218,26 +220,38 @@ export default function ReelManagement({ navigation }) {
       });
     }
 
-    // Add all fields
+    // Add all fields as strings
     formData.append('storeId', storeId);
     formData.append('titleKurdish', kurdishTitle);
     formData.append('titleEnglish', englishTitle);
     if (description) {
       formData.append('description', description);
     }
-    formData.append('duration', duration);
-    // formData.append('width', videoInfo.width);
-    // formData.append('height', videoInfo.height);
+    formData.append('duration', String(duration));
 
     return formData;
   };
+  const debugFormData = (formData) => {
+    // @ts-ignore - Access internal parts for debugging only
+    const parts = formData._parts;
+    console.log('FormData contents:');
+    parts?.forEach(([key, value]) => {
+      if (typeof value === 'object' && value.uri) {
+        console.log(`${key}: File(${value.name}, ${value.type})`);
+      } else {
+        console.log(`${key}: ${value}`);
+      }
+    });
+  };
 
   const handleUploadReel = async () => {
+    console.log("upload reels: ", user.id);
     if (!validateForm()) return;
 
     setLoading(true);
     try {
       const formData = await createReelFormData();
+      debugFormData(formData);
       const updateData = {
         title: {
           kurdish: kurdishTitle,
@@ -353,7 +367,7 @@ export default function ReelManagement({ navigation }) {
           </Text>
         )}
       </View>
-
+      <Text>test s</Text>
       <TouchableOpacity
         style={styles.deleteReelButton}
         onPress={() => confirmDelete(item)}
@@ -449,158 +463,165 @@ export default function ReelManagement({ navigation }) {
 
         {/* Upload/Edit Modal */}
         <Modal visible={modalVisible} animationType="slide" transparent>
-          <View style={styles.modalOverlay}>
-            <ScrollView contentContainerStyle={styles.modalScroll}>
-              <View style={styles.modalContent}>
-                <View style={styles.modalHeader}>
-                  <Text style={styles.modalTitle}>
-                    {selectedReel ? 'Edit Reel' : 'Upload New Reel'}
-                  </Text>
-                  <TouchableOpacity onPress={() => {
-                    setModalVisible(false);
-                    resetForm();
-                  }}>
-                    <Ionicons name="close" size={24} color="#6b7280" />
-                  </TouchableOpacity>
-                </View>
+          <SafeAreaView style={styles.modalOverlay}>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              style={{ flex: 1 }}
+            >
+              <ScrollView
+                keyboardShouldPersistTaps="handled"
+                contentContainerStyle={styles.modalScrollContent}>
+                <View style={styles.modalContent}>
+                  <View style={styles.modalHeader}>
+                    <Text style={styles.modalTitle}>
+                      {selectedReel ? 'Edit Reel' : 'Upload New Reel'}
+                    </Text>
+                    <TouchableOpacity onPress={() => {
+                      setModalVisible(false);
+                      resetForm();
+                    }}>
+                      <Ionicons name="close" size={24} color="#6b7280" />
+                    </TouchableOpacity>
+                  </View>
 
-                {/* Video Picker */}
-                {!selectedReel && (
-                  <TouchableOpacity
-                    style={styles.videoPicker}
-                    onPress={pickVideo}
-                  >
-                    {videoAsset ? (
-                      <View style={styles.videoPreview}>
-                        <Video
-                          source={{ uri: videoAsset }}
-                          style={styles.previewVideo}
-                          useNativeControls
-                          resizeMode="cover"
-                          isLooping
-                        />
-                        <View style={styles.changeVideoBadge}>
-                          <Ionicons name="camera-reverse" size={20} color="#fff" />
+                  {/* Video Picker */}
+                  {!selectedReel && (
+                    <TouchableOpacity
+                      style={styles.videoPicker}
+                      onPress={pickVideo}
+                    >
+                      {videoAsset ? (
+                        <View style={styles.videoPreview}>
+                          <Video
+                            source={{ uri: videoAsset }}
+                            style={styles.previewVideo}
+                            useNativeControls
+                            resizeMode="cover"
+                            isLooping
+                          />
+                          <View style={styles.changeVideoBadge}>
+                            <Ionicons name="camera-reverse" size={20} color="#fff" />
+                          </View>
                         </View>
-                      </View>
-                    ) : (
-                      <View style={styles.videoPlaceholder}>
-                        <Ionicons name="cloud-upload" size={40} color="#9ca3af" />
-                        <Text style={styles.placeholderTitle}>Tap to select video</Text>
-                        <Text style={styles.placeholderSubtitle}>
-                          Max duration: {MAX_DURATION / 60} minutes
-                        </Text>
-                      </View>
-                    )}
-                  </TouchableOpacity>
-                )}
-
-                {/* Thumbnail Picker */}
-                <TouchableOpacity
-                  style={styles.thumbnailPicker}
-                  onPress={pickThumbnail}
-                >
-                  {thumbnail ? (
-                    <View style={styles.thumbnailPreview}>
-                      <Image source={{ uri: thumbnail }} style={styles.previewThumbnail} />
-                      <View style={styles.changeThumbnailBadge}>
-                        <Ionicons name="image" size={16} color="#fff" />
-                      </View>
-                    </View>
-                  ) : (
-                    <View style={styles.thumbnailPlaceholder}>
-                      <Ionicons name="image-outline" size={24} color="#9ca3af" />
-                      <Text style={styles.thumbnailPlaceholderText}>
-                        {selectedReel ? 'Change thumbnail' : 'Add thumbnail (optional)'}
-                      </Text>
-                    </View>
-                  )}
-                </TouchableOpacity>
-
-                {/* Form Fields */}
-                <View style={styles.form}>
-                  <Text style={styles.label}>Kurdish Title *</Text>
-                  <TextInput
-                    style={styles.input}
-                    value={kurdishTitle}
-                    onChangeText={setKurdishTitle}
-                    placeholder="ناونیشانی ڤیدیۆ"
-                    placeholderTextColor="#9ca3af"
-                  />
-
-                  <Text style={styles.label}>English Title *</Text>
-                  <TextInput
-                    style={styles.input}
-                    value={englishTitle}
-                    onChangeText={setEnglishTitle}
-                    placeholder="Video title"
-                    placeholderTextColor="#9ca3af"
-                  />
-
-                  <Text style={styles.label}>Description</Text>
-                  <TextInput
-                    style={[styles.input, styles.textArea]}
-                    value={description}
-                    onChangeText={setDescription}
-                    placeholder="Describe your reel..."
-                    placeholderTextColor="#9ca3af"
-                    multiline
-                    numberOfLines={3}
-                  />
-                  {/* Video Info */}
-                  {videoInfo.format && (
-                    <View style={styles.videoInfo}>
-                      <View style={styles.infoRow}>
-                        <Text style={styles.infoLabel}>Format:</Text>
-                        <Text style={styles.infoValue}>{videoInfo.format}</Text>
-                      </View>
-                      <View style={styles.infoRow}>
-                        <Text style={styles.infoLabel}>Resolution:</Text>
-                        <Text style={styles.infoValue}>
-                          {videoInfo.width} x {videoInfo.height}
-                        </Text>
-                      </View>
-                      {videoInfo.size > 0 && (
-                        <View style={styles.infoRow}>
-                          <Text style={styles.infoLabel}>Size:</Text>
-                          <Text style={styles.infoValue}>
-                            {formatFileSize(videoInfo.size)}
+                      ) : (
+                        <View style={styles.videoPlaceholder}>
+                          <Ionicons name="cloud-upload" size={40} color="#9ca3af" />
+                          <Text style={styles.placeholderTitle}>Tap to select video</Text>
+                          <Text style={styles.placeholderSubtitle}>
+                            Max duration: {MAX_DURATION / 60} minutes
                           </Text>
                         </View>
                       )}
-                    </View>
+                    </TouchableOpacity>
                   )}
-                </View>
 
-                {/* Actions */}
-                <View style={styles.modalActions}>
+                  {/* Thumbnail Picker */}
                   <TouchableOpacity
-                    style={styles.cancelButton}
-                    onPress={() => {
-                      setModalVisible(false);
-                      resetForm();
-                    }}
+                    style={styles.thumbnailPicker}
+                    onPress={pickThumbnail}
                   >
-                    <Text style={styles.cancelText}>Cancel</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={styles.uploadConfirmButton}
-                    onPress={handleUploadReel}
-                    disabled={loading}
-                  >
-                    {loading ? (
-                      <ActivityIndicator size="small" color="#fff" />
+                    {thumbnail ? (
+                      <View style={styles.thumbnailPreview}>
+                        <Image source={{ uri: thumbnail }} style={styles.previewThumbnail} />
+                        <View style={styles.changeThumbnailBadge}>
+                          <Ionicons name="image" size={16} color="#fff" />
+                        </View>
+                      </View>
                     ) : (
-                      <Text style={styles.uploadConfirmText}>
-                        {selectedReel ? 'Update' : 'Upload'}
-                      </Text>
+                      <View style={styles.thumbnailPlaceholder}>
+                        <Ionicons name="image-outline" size={24} color="#9ca3af" />
+                        <Text style={styles.thumbnailPlaceholderText}>
+                          {selectedReel ? 'Change thumbnail' : 'Add thumbnail (optional)'}
+                        </Text>
+                      </View>
                     )}
                   </TouchableOpacity>
+
+                  {/* Form Fields */}
+                  <View style={styles.form}>
+                    <Text style={styles.label}>Kurdish Title *</Text>
+                    <TextInput
+                      style={styles.input}
+                      value={kurdishTitle}
+                      onChangeText={setKurdishTitle}
+                      placeholder="ناونیشانی ڤیدیۆ"
+                      placeholderTextColor="#9ca3af"
+                    />
+
+                    <Text style={styles.label}>English Title *</Text>
+                    <TextInput
+                      style={styles.input}
+                      value={englishTitle}
+                      onChangeText={setEnglishTitle}
+                      placeholder="Video title"
+                      placeholderTextColor="#9ca3af"
+                    />
+
+                    <Text style={styles.label}>Description</Text>
+                    <TextInput
+                      style={[styles.input, styles.textArea]}
+                      value={description}
+                      onChangeText={setDescription}
+                      placeholder="Describe your reel..."
+                      placeholderTextColor="#9ca3af"
+                      multiline
+                      numberOfLines={3}
+                    />
+                    {/* Video Info */}
+                    {videoInfo.format && (
+                      <View style={styles.videoInfo}>
+                        <View style={styles.infoRow}>
+                          <Text style={styles.infoLabel}>Format:</Text>
+                          <Text style={styles.infoValue}>{videoInfo.format}</Text>
+                        </View>
+                        <View style={styles.infoRow}>
+                          <Text style={styles.infoLabel}>Resolution:</Text>
+                          <Text style={styles.infoValue}>
+                            {videoInfo.width} x {videoInfo.height}
+                          </Text>
+                        </View>
+                        {videoInfo.size > 0 && (
+                          <View style={styles.infoRow}>
+                            <Text style={styles.infoLabel}>Size:</Text>
+                            <Text style={styles.infoValue}>
+                              {formatFileSize(videoInfo.size)}
+                            </Text>
+                          </View>
+                        )}
+                      </View>
+                    )}
+                  </View>
+
+                  {/* Actions */}
+                  <View style={styles.modalActions}>
+                    <TouchableOpacity
+                      style={styles.cancelButton}
+                      onPress={() => {
+                        setModalVisible(false);
+                        resetForm();
+                      }}
+                    >
+                      <Text style={styles.cancelText}>Cancel</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.uploadConfirmButton}
+                      onPress={handleUploadReel}
+                      disabled={loading}
+                    >
+                      {loading ? (
+                        <ActivityIndicator size="small" color="#fff" />
+                      ) : (
+                        <Text style={styles.uploadConfirmText}>
+                          {selectedReel ? 'Update' : 'Upload'}
+                        </Text>
+                      )}
+                    </TouchableOpacity>
+                  </View>
                 </View>
-              </View>
-            </ScrollView>
-          </View>
+              </ScrollView>
+            </KeyboardAvoidingView>
+          </SafeAreaView>
         </Modal>
 
         {/* Delete Confirmation Modal */}
@@ -892,7 +913,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
-  modalScroll: {
+  modalScrollContent: {
     padding: wp('4%'),
   },
 

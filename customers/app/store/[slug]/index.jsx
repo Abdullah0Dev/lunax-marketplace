@@ -18,8 +18,10 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { adImages, categoriesData, isTablet } from "../../../constants";
 import { getPaletteByName } from "../../../constants/Colors";
 import VideoCard from "../../../components/VideoCard";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import SlidingBox from "../../../components/SlidingBox";
+import { FlashList } from "@shopify/flash-list";
+import { defaultStyles } from "../../../constants/style";
 
 const StorePage = () => {
   const router = useRouter();
@@ -27,30 +29,51 @@ const StorePage = () => {
   const storeDetails = fromProduct ? JSON.parse(store) : JSON.parse(store)[0];
   const storeProducts = storeDetails.products;
   const [activeIndex, setActiveIndex] = useState("all");
+  console.log("storeDetails: ", storeDetails); 
 
-  const addAllCategories = storeDetails.products.length > 0 ? ["all"]: [];
+  const addAllCategories = storeDetails.products.length > 0 ? ["all"] : [];
   const productCategories = [
     ...new Set(storeDetails.products.map((prod) => prod.category)),
-    ...(addAllCategories),
+    ...addAllCategories,
   ];
   const filteredProducts =
     activeIndex === "all"
       ? storeProducts
       : storeProducts?.filter((item) => item.category === activeIndex);
-  console.log("categoryData: ", productCategories);
+  // console.log("categoryData: ", productCategories);
   const storeReels = storeDetails.reels.map((reel) => ({
+    ...reel,
     id: reel.id,
     url: reel.url || require("../../../assets/images/vv.mp4"),
     thumbnail_url:
       reel.thumbnail_url || require("../../../assets/images/m202.png"),
   }));
 
-  const handleOpenReel = (id, url) => {
+  const handleOpenReel = (item) => {
+    // console.log("data item: ", item);
+    const feedVideo = JSON.stringify({
+      id: item?.id,
+      url: item?.url?.replace(
+        "http://tools-openinary-8f358f-173-249-22-222.traefik.me",
+        "https://storage.dmsystem.dpdns.org",
+      ),
+      thumbnail_url: item?.thumbnail_url,
+      title:
+        `${item?.title?.kurdish}\n${item?.description ? item?.description : ""}` ||
+        `${item?.title?.english}\n${item?.description ? item?.description : ""}`,
+      store: {
+        id: storeDetails?.id,
+        name: storeDetails?.name?.kurdish || storeDetails?.name?.english || "",
+        logo: storeDetails?.logo
+          ? { uri: storeDetails?.logo }
+          : require("../../../assets/images/m202.png"),
+      },
+    });
+
     router.navigate({
       pathname: "/(tabs)/reels",
       params: {
-        video: url,
-        id,
+        feedVideo,
       },
     });
   };
@@ -69,7 +92,7 @@ const StorePage = () => {
       },
     };
     const stringifiedProduct = JSON.stringify(enhancedProduct);
-    console.log("stringifiedProduct: ", stringifiedProduct);
+    // console.log("stringifiedProduct: ", stringifiedProduct);
     const url = `/product/${productId}`;
     router.navigate({
       pathname: url,
@@ -90,6 +113,73 @@ const StorePage = () => {
     logo: storeDetails?.logo || require("../../../assets/images/m202.png"),
     gradient: gradient,
   };
+
+  // Render category button
+  const renderCategoryButton = useCallback(
+    ({ item, index }) => (
+      <TouchableOpacity
+        key={index}
+        style={[
+          styles.categoryButton,
+          activeIndex === item && {
+            backgroundColor: itemData.gradient,
+            borderColor: itemData.gradient,
+          },
+        ]}
+        onPress={() => setActiveIndex(item)}
+      >
+        <Text
+          style={[
+            styles.categoryButtonText,
+            activeIndex === item && styles.activeCategoryText,
+          ]}
+        >
+          {item === "all" ? "هەموو" : item}
+        </Text>
+      </TouchableOpacity>
+    ),
+    [activeIndex, itemData.gradient],
+  );
+  // Empty state component
+  const ListEmptyComponent = () => (
+    <View style={styles.emptyContainer}>
+      <Image
+        source={require("../../../assets/images/m202.png")}
+        style={styles.emptyImage}
+      />
+      <Text style={styles.emptyText}>هیچ بەرهەمێک نەدۆزرایەوە</Text>
+    </View>
+  );
+  // Render product item
+  const renderProductItem = useCallback(({ item }) => {
+    const productName = item.name?.kurdish || item.name?.english || item.name;
+
+    return (
+      <TouchableOpacity
+        style={styles.productCard}
+        onPress={() => handleViewProduct(item.id, item)}
+        activeOpacity={0.8}
+      >
+        <Image
+          source={item.cover_image}
+          style={styles.productImage}
+          contentFit="cover"
+        />
+        <View style={styles.productInfo}>
+          <Text style={styles.productTitle} numberOfLines={2}>
+            {productName}
+          </Text>
+          <View style={styles.priceContainer}>
+            <Text style={styles.productPrice}>IQD{item.discount_price || item.price}</Text>
+            {item.discount_price && (
+              <Text style={styles.oldPrice}>IQD{item.price}</Text>
+            )}
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  }, []);
+
   return (
     <View style={{ marginBottom: isTablet ? hp("0%") : hp("0%") }}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -157,76 +247,88 @@ const StorePage = () => {
           </View>
         </View>
         {/* Rells */}
-        <View style={styles.wrapperTop}>
-          <View style={styles.wrapperInner}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View style={styles.row99}>
-                {storeReels.map((item, index) => (
-                  <VideoCard
-                    key={item.id}
-                    item={item}
-                    index={index}
-                    onPress={(idx) => handleOpenReel(item.id, item.url)}
-                  />
-                ))}
-              </View>
-            </ScrollView>
+
+        <FlashList
+          data={storeReels}
+          renderItem={({ item, index }) => (
+            <VideoCard
+              key={index}
+              item={item}
+              index={index}
+              onPress={(idx) => handleOpenReel(item)}
+            />
+          )}
+          ItemSeparatorComponent={() => <View style={{ width: 5 }} />}
+          keyExtractor={(item, index) => `${item}-${index}`}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          estimatedItemSize={80}
+          contentContainerStyle={[styles.categoriesList, { marginTop: 12 }]}
+          inverted={false}
+          renderReverse={true}
+        />
+
+        {/* Rells */}
+        <View style={{ marginTop: isTablet ? hp("7%") : hp("5%") }}>
+          <View style={defaultStyles.lineWithOr}>
+            <View style={defaultStyles.dashLine} />
+            <Text style={defaultStyles.textstudio}>products</Text>
+            <View style={defaultStyles.dashLine} />
           </View>
         </View>
-        {/* Rells */}
 
-        <View style={{ marginTop: hp("5%"), marginBottom: hp("10%") }}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.scrollRow}
-          >
-            {productCategories.map((item, index) => (
-              <TouchableOpacity
-                key={item}
-                style={[
-                  styles.button,
-                  activeIndex === item && {
-                    backgroundColor: itemData.gradient,
-                  },
-                ]}
-                onPress={() => {
-                  console.log("active category: ", item, activeIndex);
-
-                  setActiveIndex(item);
-                }}
-              >
-                <Text
-                  style={[
-                    styles.buttonText,
-                    activeIndex === item && styles.activeText,
-                  ]}
-                >
-                  {item}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-
-          {/* Pages */}
-          <View style={styles.page}>
-            <ScrollView>
+        <FlashList
+          data={productCategories.reverse()}
+          renderItem={renderCategoryButton}
+          ItemSeparatorComponent={() => <View style={{ width: 5 }} />}
+          keyExtractor={(item, index) => `${item}-${index}`}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          estimatedItemSize={80}
+          contentContainerStyle={[
+            styles.categoriesList,
+            { flexDirection: "row-reverse" },
+          ]}
+          inverted={true}
+          // renderReverse={true}
+        />
+        {/* Pages */}
+        {/* <View style={styles.page}> */}
+        {/* <ScrollView>
               <View style={styles.grid}>
-                {filteredProducts?.map((item) => (
+                {filteredProducts?.map((item, index) => (
                   <TouchableOpacity
-                    key={item.id}
+                    key={index}
                     onPress={() => handleViewProduct(item.id, item)}
                   >
                     <Image source={item.cover_image} style={styles.image} />
-                    <Text style={styles.title}>
+                    <Text style={[styles.title, { maxWidth: wp("50%") }]}>
                       {item.name.kurdish || item.name.english}
                     </Text>
                   </TouchableOpacity>
                 ))}
               </View>
-            </ScrollView>
-          </View>
-        </View>
+            </ScrollView> */}
+        <FlashList
+          // ref={flashListRef}
+          data={filteredProducts}
+          renderItem={renderProductItem}
+          keyExtractor={(item, index) => `${item.id}-${index}`}
+          numColumns={2}
+          estimatedItemSize={isTablet ? 350 : 300}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.productsList}
+          // ListHeaderComponent={ListHeaderComponent}
+          ListEmptyComponent={ListEmptyComponent}
+          // ListFooterComponent={ListFooterComponent}
+          // onRefresh={handleRefresh}
+          // refreshing={refreshing}
+          removeClippedSubviews={true}
+          initialNumToRender={6}
+          maxToRenderPerBatch={10}
+          windowSize={10}
+        />
+        {/* </View> */}
       </ScrollView>
     </View>
   );
@@ -241,6 +343,152 @@ const styles = StyleSheet.create({
     marginTop: isTablet ? hp("0%") : hp("0%"),
     marginBottom: isTablet ? hp("0%") : hp("2%"),
   },
+  productsTitle: {
+    fontSize: RFPercentage(2.5),
+    fontWeight: "bold",
+    color: "#333",
+    fontFamily: "k24",
+  },
+
+  productsCount: {
+    fontSize: RFPercentage(1.8),
+    color: "#999",
+    fontFamily: "k24",
+  },
+
+  productsList: {
+    paddingBottom: hp("10%"),
+  },
+
+  productCard: {
+    flex: 1,
+    margin: wp("2%"),
+    backgroundColor: "#fff",
+    borderRadius: 15,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+
+  productImage: {
+    width: "100%",
+    height: isTablet ? hp("25%") : hp("20%"),
+    backgroundColor: "#f5f5f5",
+  },
+
+  productInfo: {
+    padding: wp("3%"),
+  },
+
+  productTitle: {
+    fontSize: RFPercentage(1.8),
+    color: "#333",
+    fontFamily: "k24",
+    marginBottom: hp("0.5%"),
+    lineHeight: hp("2.5%"),
+  },
+
+  priceContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: wp("2%"),
+  },
+
+  productPrice: {
+    fontSize: RFPercentage(2),
+    fontWeight: "bold",
+    color: "#0ABAF4",
+    fontFamily: "k24",
+  },
+
+  oldPrice: {
+    fontSize: RFPercentage(1.6),
+    color: "#999",
+    textDecorationLine: "line-through",
+    fontFamily: "k24",
+  },
+
+  emptyContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: hp("10%"),
+  },
+
+  emptyImage: {
+    width: wp("30%"),
+    height: wp("30%"),
+    marginBottom: hp("2%"),
+    opacity: 0.5,
+  },
+  contentContainer: {
+    paddingBottom: isTablet ? wp("10%") : wp("23%"),
+  },
+  categoriesList: {
+    paddingVertical: hp("1%"),
+    paddingHorizontal: 12,
+  },
+
+  categoryButton: {
+    paddingVertical: hp("1.2%"),
+    paddingHorizontal: wp("5%"),
+    backgroundColor: "#fff",
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+
+  categoryButtonText: {
+    color: "#666",
+    fontSize: RFPercentage(1.8),
+    fontWeight: "600",
+    fontFamily: "k24",
+  },
+
+  activeCategoryText: {
+    color: "#fff",
+  },
+
+  productsHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "baseline",
+    marginHorizontal: wp("5%"),
+    marginTop: hp("4%"),
+    marginBottom: hp("2%"),
+  },
+  card: {
+    flex: 1,
+    // margin: wp("2%"),
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    overflow: "hidden",
+  },
+  image: {
+    width: isTablet ? wp("40%") : wp("44%"),
+    height: isTablet ? hp("30%") : hp("25%"),
+    borderRadius: 10,
+    backgroundColor: "rgba(0,0,0,0.05)",
+  },
+  storeImage: {
+    width: isTablet ? wp("13%") : wp("12%"),
+    height: isTablet ? hp("10%") : hp("6%"),
+    marginLeft: isTablet ? wp("26%") : wp("30%"),
+    marginTop: wp("2%"),
+    borderRadius: 10,
+    position: "absolute",
+    top: 0,
+    right: 0,
+  },
+
   container: {
     flex: 1,
     backgroundColor: "black",
@@ -487,6 +735,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-around",
+    display: "flex",
   },
 
   image: {

@@ -13,17 +13,18 @@ export const useReelUpload = () => {
     setError(null);
 
     try {
-      // Simulate progress (since fetch doesn't provide progress)
+      // Simulate progress
       const progressInterval = setInterval(() => {
         setProgress(prev => Math.min(prev + 10, 90));
       }, 500);
 
-      const result = await reelService.uploadReel(params);
-      
+      // params is already FormData, pass it directly
+      const result = await uploadReelMutation(params).unwrap();
+
       clearInterval(progressInterval);
       setProgress(100);
       setUploading(false);
-      
+
       return result;
     } catch (err) {
       setError(err.message);

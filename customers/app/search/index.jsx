@@ -19,8 +19,8 @@ import {
 } from "react-native-responsive-screen";
 import { RFPercentage } from "react-native-responsive-fontsize";
 import { useRouter } from "expo-router";
-import { useSearchProductsQuery } from "../../../services/api/product.api";
-import { useProduct } from "../../../hooks/useProduct";
+import { useSearchProductsQuery } from "../../services/api/product.api";
+import { useProduct } from "../../hooks/useProduct";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = (width - wp("10%")) / 2;
@@ -71,74 +71,7 @@ export default function SearchPage() {
       quantity: item.quantity,
       specifications: item.specifications,
     };
-  });
-  // Sample data with local assets and discount info
-  const data = [
-    {
-      id: "1",
-      name: "MacBook Pro",
-      originalPrice: 1299,
-      price: 1099,
-      discount: 15,
-      category: "Laptops",
-      image: require("../../../assets/images/m920.webp"),
-    },
-    {
-      id: "2",
-      name: "Dell XPS",
-      originalPrice: 1199,
-      price: 1199,
-      discount: 0,
-      category: "Laptops",
-      image: require("../../../assets/images/m920.webp"),
-    },
-    {
-      id: "3",
-      name: "HP Spectre",
-      originalPrice: 1099,
-      price: 899,
-      discount: 18,
-      category: "Laptops",
-      image: require("../../../assets/images/m920.webp"),
-    },
-    {
-      id: "4",
-      name: "Lenovo ThinkPad",
-      originalPrice: 999,
-      price: 999,
-      discount: 0,
-      category: "Laptops",
-      image: require("../../../assets/images/m920.webp"),
-    },
-    {
-      id: "5",
-      name: "Asus ROG",
-      originalPrice: 1499,
-      price: 1299,
-      discount: 13,
-      category: "Gaming",
-      image: require("../../../assets/images/m920.webp"),
-    },
-    {
-      id: "6",
-      name: "Acer Swift",
-      originalPrice: 799,
-      price: 699,
-      discount: 12,
-      category: "Laptops",
-      image: require("../../../assets/images/m920.webp"),
-    },
-  ];
-
-  // Filter data based on search query
-  const filteredData = useMemo(() => {
-    if (!query.trim()) return [];
-    return data.filter(
-      (item) =>
-        item.name.toLowerCase().includes(query.toLowerCase()) ||
-        item.category.toLowerCase().includes(query.toLowerCase()),
-    );
-  }, [query]);
+  }); 
 
   // Animate on mount
   React.useEffect(() => {

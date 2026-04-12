@@ -65,29 +65,37 @@ export const reelApi = api.injectEndpoints({
     }),
 
     // Upload reel
+    // Update your mutation to properly handle FormData
     uploadReel: builder.mutation({
-      query: ({ id, ...formData }) => ({
-        url: `/reels/upload/${id}`,
-        method: 'POST',
-        body: formData instanceof FormData ? formData : JSON.stringify(formData),
-        headers: formData instanceof FormData
-          ? { 'Accept': 'application/json' } // Don't set Content-Type for FormData
-          : { 'Content-Type': 'application/json' },
-      }),
-      invalidatesTags: (result, error, { id }) => [
-        { type: 'Reel', id },
+      query: (formData) => {
+        // formData is already a FormData object
+        return {
+          url: `/reels/upload`,
+          method: 'POST',
+          body: formData,
+          headers: {
+            // Don't set Content-Type - let browser/RN set it with boundary
+            'Accept': 'application/json',
+          },
+        };
+      },
+      invalidatesTags: (result, error, formData) => [
         { type: 'Reel', id: 'LIST' },
       ],
 
-      // Track upload progress
+      // Remove onQueryStarted if it's causing issues, or fix it:
       async onQueryStarted(formData, { dispatch, queryFulfilled }) {
-        // Optimistic add with loading state
+        // Don't try to parse formData._parts - it's internal
+        // Instead, either remove optimistic update or create a simpler one
+
         const tempId = 'temp-' + Date.now();
+
+        // Simple optimistic update without parsing formData
         dispatch(
           reelApi.util.updateQueryData('getMyReels', undefined, (draft) => {
             draft.unshift({
               id: tempId,
-              title: JSON.parse(formData._parts.find(p => p[0] === 'metadata')?.[1])?.title,
+              title: { english: 'Uploading...', kurdish: '...' },
               uploading: true,
               progress: 0,
             });
@@ -101,11 +109,11 @@ export const reelApi = api.injectEndpoints({
             reelApi.util.updateQueryData('getMyReels', undefined, (draft) => {
               const index = draft.findIndex(r => r.id === tempId);
               if (index !== -1) {
-                draft[index] = { ...data, uploading: false };
+                draft[index] = { ...data.reel, uploading: false };
               }
             })
           );
-        } catch {
+        } catch (error) {
           // Remove temp on error
           dispatch(
             reelApi.util.updateQueryData('getMyReels', undefined, (draft) => {

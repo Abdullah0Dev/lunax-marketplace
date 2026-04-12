@@ -11,7 +11,9 @@ import {
   Image,
   Alert,
   ActivityIndicator,
-  ScrollView
+  ScrollView,
+  Platform,
+  KeyboardAvoidingView,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
@@ -20,7 +22,7 @@ import { RFPercentage } from "react-native-responsive-fontsize";
 import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { LinearGradient } from 'expo-linear-gradient';
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   useProductManagement,
 } from '../../../../hooks/useStore';
@@ -31,6 +33,7 @@ import { useSelector } from "react-redux";
 export default function ProductManagement() {
   const navigation = useNavigation();
   const [isSaving, setIsSaving] = useState(false)
+  const { top } = useSafeAreaInsets()
   const { user } = useSelector((state) => state.auth);
   const STORE_ID = user.id || ""
 
@@ -45,6 +48,7 @@ export default function ProductManagement() {
     deleteProduct,
     updateQuantity
   } = useProductManagement()
+  // mongodb://db_lunax:4xHSDlSZks80qK4UxCd6@lunax-marketplace-db-wsqmms:27017
   // State
   const [modalVisible, setModalVisible] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
@@ -197,6 +201,7 @@ export default function ProductManagement() {
     return true;
   };
 
+  const isRemoteUrl = (uri) => uri?.startsWith('http://') || uri?.startsWith('https://');
   const handleSaveProduct = async () => {
     if (!validateForm()) return;
 
@@ -209,7 +214,7 @@ export default function ProductManagement() {
 
       // Collect all new images to upload
       // Check cover image (only if it's a local file, not existing URL)
-      if (coverImage && !coverImage.isExisting) {
+      if (coverImage && !coverImage.isExisting && !isRemoteUrl(coverImage.uri)) {
         imagesToUpload.push({
           uri: coverImage.uri,
           name: coverImage.name || `cover-${Date.now()}.jpg`,
@@ -220,7 +225,7 @@ export default function ProductManagement() {
       // Collect all new media images
       if (media && media.length > 0) {
         media.forEach(img => {
-          if (!img.isExisting) {
+          if (!img.isExisting && !isRemoteUrl(img.uri)) {
             imagesToUpload.push({
               uri: img.uri,
               name: img.name || `media-${Date.now()}-${Math.random()}.jpg`,
@@ -241,10 +246,10 @@ export default function ProductManagement() {
         let uploadIndex = 0;
 
         // Handle cover image
-        if (coverImage && !coverImage.isExisting) {
+        if (coverImage && !coverImage.isExisting && !isRemoteUrl(coverImage.uri)) {
           coverImageUrl = uploadedImages[uploadIndex]?.url || uploadedImages[uploadIndex];
           uploadIndex++;
-        } else if (coverImage?.isExisting) {
+        } else if (coverImage?.isExisting || isRemoteUrl(coverImage?.uri)) {
           // Keep existing URL
           coverImageUrl = coverImage.uri;
         }
@@ -252,7 +257,7 @@ export default function ProductManagement() {
         // Handle media images
         if (media && media.length > 0) {
           mediaUrls = media.map(img => {
-            if (img.isExisting) {
+            if (img.isExisting || isRemoteUrl(img.uri)) {
               return img.uri; // Keep existing URL
             } else {
               return uploadedImages[uploadIndex++]?.url || uploadedImages[uploadIndex - 1];
@@ -350,12 +355,16 @@ export default function ProductManagement() {
         <View style={styles.productMeta}>
           <View style={styles.metaItem}>
             <Ionicons name="pricetag-outline" size={14} color="#16a34a" />
-            <Text style={styles.metaText}>
-              ${item.price?.toFixed(2)}
-              {item.discount_price && (
-                <Text style={styles.discountPrice}> ${item.discount_price.toFixed(2)}</Text>
-              )}
-            </Text>
+            {item.discount_price ? (
+              <Text style={styles.metaText}>
+                IQD{Math.floor(item.discount_price).toLocaleString()}
+                <Text style={styles.discountPrice}> IQD{Math.floor(item.price).toLocaleString()}</Text>
+              </Text>
+            ) : (
+              <Text style={styles.metaText}>
+                IQD{Math.floor(item.price)?.toLocaleString()}
+              </Text>
+            )}
           </View>
           {
             item.quantity > 0 && (
@@ -408,7 +417,7 @@ export default function ProductManagement() {
           colors={['#f59e0b', '#d97706']}
           style={styles.statCard}
         >
-          <Text style={styles.statValue}>${totalValue.toFixed(0)}</Text>
+          <Text style={styles.statValue}>IQD{Math.floor(totalValue).toLocaleString()}</Text>
           <Text style={styles.statLabel}>Inventory Value</Text>
         </LinearGradient>
       </View>
@@ -435,7 +444,8 @@ export default function ProductManagement() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <View
+      style={{ flex: 1, backgroundColor: "#11a1a1", paddingTop: top }}>
       <View style={styles.container}>
         <StatusBar style="dark" />
         {/* Header */}
@@ -472,181 +482,190 @@ export default function ProductManagement() {
 
         {/* Add/Edit Modal */}
         <Modal transparent visible={modalVisible}>
-          <View style={styles.modalOverlay}>
-            <ScrollView contentContainerStyle={styles.modalScrollContent}>
-              <View style={styles.modalContent}>
-                <View style={styles.modalHeader}>
-                  <Text style={styles.modalTitle}>
-                    {selectedProduct ? 'Edit Product' : 'Add New Product'}
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() => {
-                      setModalVisible(false);
-                      resetForm();
-                    }}
-                  >
-                    <Ionicons name="close" size={24} color="#6b7280" />
-                  </TouchableOpacity>
-                </View>
-
-                {/* Cover Image */}
-                <Text style={styles.sectionLabel}>Cover Image *</Text>
-                <TouchableOpacity style={styles.imagePicker} onPress={() => pickImage(true)}>
-                  {coverImage ? (
-                    <Image source={{ uri: coverImage.uri }} style={styles.pickedImage} />
-                  ) : (
-                    <View style={styles.imagePlaceholder}>
-                      <Ionicons name="camera-outline" size={32} color="#9ca3af" />
-                      <Text style={styles.imagePlaceholderText}>Tap to add cover</Text>
-                    </View>
-                  )}
-                </TouchableOpacity>
-
-                {/* Product Names */}
-                <View style={styles.form}>
-                  <Text style={styles.inputLabel}>Kurdish Name *</Text>
-                  <TextInput
-                    style={styles.input}
-                    value={kurdishName}
-                    onChangeText={setKurdishName}
-                    placeholder="ناوی بەرهەم"
-                    placeholderTextColor="#9ca3af"
-                  />
-
-                  <Text style={styles.inputLabel}>English Name *</Text>
-                  <TextInput
-                    style={styles.input}
-                    value={englishName}
-                    onChangeText={setEnglishName}
-                    placeholder="Product name"
-                    placeholderTextColor="#9ca3af"
-                  />
-
-                  <View style={styles.rowInputs}>
-                    <View style={styles.halfInput}>
-                      <Text style={styles.inputLabel}>Price (IQD) *</Text>
-                      <TextInput
-                        style={styles.input}
-                        value={price}
-                        onChangeText={setPrice}
-                        placeholder="0.00"
-                        keyboardType="decimal-pad"
-                        placeholderTextColor="#9ca3af"
-                      />
-                    </View>
-
-                    <View style={styles.halfInput}>
-                      <Text style={styles.inputLabel}>Category *</Text>
-                      <TextInput
-                        style={styles.input}
-                        value={category}
-                        onChangeText={setCategory}
-                        placeholder="e.g. Electronics"
-                        placeholderTextColor="#9ca3af"
-                      />
-                    </View>
-                  </View>
-
-                  <Text style={styles.inputLabel}>Description *</Text>
-                  <TextInput
-                    style={[styles.input, styles.textArea]}
-                    value={description}
-                    onChangeText={setDescription}
-                    placeholder="Product description..."
-                    placeholderTextColor="#9ca3af"
-                    multiline
-                    numberOfLines={4}
-                  />
-
-                  {/* Additional Images */}
-                  <View style={styles.sectionHeader}>
-                    <Text style={styles.sectionLabel}>Additional Images</Text>
-                    <TouchableOpacity onPress={() => pickImage(false)}>
-                      <Ionicons name="add-circle" size={24} color="#16a34a" />
+          <SafeAreaView style={styles.modalOverlay}>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              style={{ flex: 1 }}
+            >
+              <ScrollView
+                keyboardShouldPersistTaps="handled"
+                contentContainerStyle={styles.modalScrollContent}>
+                <View style={styles.modalContent}>
+                  <View style={styles.modalHeader}>
+                    <Text style={styles.modalTitle}>
+                      {selectedProduct ? 'Edit Product' : 'Add New Product'}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setModalVisible(false);
+                        resetForm();
+                      }}
+                    >
+                      <Ionicons name="close" size={24} color="#6b7280" />
                     </TouchableOpacity>
                   </View>
 
-                  {media.length > 0 && (
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.mediaList}>
-                      {media.map((img, index) => {
-
-                        return (
-                          <View key={index} style={styles.mediaItem}>
-                            <Image source={{ uri: img.uri }} style={styles.mediaImage} />
-                            <TouchableOpacity
-                              style={styles.removeMedia}
-                              onPress={() => setMedia(media.filter((_, i) => i !== index))}
-                            >
-                              <Ionicons name="close-circle" size={20} color="#ef4444" />
-                            </TouchableOpacity>
-                          </View>
-                        )
-                      })}
-                    </ScrollView>
-                  )}
-
-                  {/* Specifications */}
-                  <View style={styles.sectionHeader}>
-                    <Text style={styles.sectionLabel}>Specifications</Text>
-                    <TouchableOpacity onPress={addSpecification}>
-                      <Ionicons name="add-circle" size={24} color="#16a34a" />
-                    </TouchableOpacity>
-                  </View>
-
-                  {specifications.map((spec, index) => (
-                    <View key={index} style={styles.specRow}>
-                      <TextInput
-                        style={[styles.input, styles.specInput]}
-                        value={spec.key}
-                        onChangeText={(text) => updateSpecification(index, 'key', text)}
-                        placeholder="Key (e.g. Color)"
-                        placeholderTextColor="#9ca3af"
-                      />
-                      <TextInput
-                        style={[styles.input, styles.specInput]}
-                        value={spec.value}
-                        onChangeText={(text) => updateSpecification(index, 'value', text)}
-                        placeholder="Value (e.g. Red)"
-                        placeholderTextColor="#9ca3af"
-                      />
-                      {specifications.length > 1 && (
-                        <TouchableOpacity onPress={() => removeSpecification(index)}>
-                          <Ionicons name="close-circle" size={20} color="#ef4444" />
-                        </TouchableOpacity>
-                      )}
-                    </View>
-                  ))}
-                </View>
-
-                {/* Actions */}
-                <View style={styles.modalActions}>
-                  <TouchableOpacity
-                    style={styles.modalCancelButton}
-                    onPress={() => {
-                      setModalVisible(false);
-                      resetForm();
-                    }}
-                  >
-                    <Text style={styles.modalCancelText}>Cancel</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={styles.modalSaveButton}
-                    onPress={handleSaveProduct}
-                    disabled={isCreating || isUpdating}
-                  >
-                    {(isCreating || isUpdating || isSaving) ? (
-                      <ActivityIndicator size="small" color="#fff" />
+                  {/* Cover Image */}
+                  <Text style={styles.sectionLabel}>Cover Image *</Text>
+                  <TouchableOpacity style={styles.imagePicker} onPress={() => pickImage(true)}>
+                    {coverImage ? (
+                      <Image source={{ uri: coverImage.uri }} style={styles.pickedImage} />
                     ) : (
-                      <Text style={styles.modalSaveText}>
-                        {selectedProduct ? 'Update' : 'Save'}
-                      </Text>
+                      <View style={styles.imagePlaceholder}>
+                        <Ionicons name="camera-outline" size={32} color="#9ca3af" />
+                        <Text style={styles.imagePlaceholderText}>Tap to add cover</Text>
+                      </View>
                     )}
                   </TouchableOpacity>
+
+                  {/* Product Names */}
+                  <View style={styles.form}>
+                    <Text style={styles.inputLabel}>Kurdish Name *</Text>
+                    <TextInput
+                      style={styles.input}
+                      value={kurdishName}
+                      onChangeText={setKurdishName}
+                      placeholder="ناوی بەرهەم"
+                      placeholderTextColor="#9ca3af"
+                    />
+
+                    <Text style={styles.inputLabel}>English Name *</Text>
+                    <TextInput
+                      style={styles.input}
+                      value={englishName}
+                      onChangeText={setEnglishName}
+                      placeholder="Product name"
+                      placeholderTextColor="#9ca3af"
+                    />
+
+                    <View style={styles.rowInputs}>
+                      <View style={styles.halfInput}>
+                        <Text style={styles.inputLabel}>Price (IQD) *</Text>
+                        <TextInput
+                          style={styles.input}
+                          value={price}
+                          onChangeText={setPrice}
+                          placeholder="0.00"
+                          keyboardType="decimal-pad"
+                          placeholderTextColor="#9ca3af"
+                        />
+                      </View>
+
+                      <View style={styles.halfInput}>
+                        <Text style={styles.inputLabel}>Category *</Text>
+                        <TextInput
+                          style={styles.input}
+                          value={category}
+                          onChangeText={setCategory}
+                          placeholder="e.g. Electronics"
+                          placeholderTextColor="#9ca3af"
+                        />
+                      </View>
+                    </View>
+
+                    <Text style={styles.inputLabel}>Description *</Text>
+                    <TextInput
+                      style={[styles.input, styles.textArea]}
+                      value={description}
+                      onChangeText={setDescription}
+                      placeholder="Product description..."
+                      placeholderTextColor="#9ca3af"
+                      multiline
+                      numberOfLines={4}
+                    />
+
+                    {/* Additional Images */}
+                    <View style={styles.sectionHeader}>
+                      <Text style={styles.sectionLabel}>Additional Images</Text>
+                      <TouchableOpacity onPress={() => pickImage(false)}>
+                        <Ionicons name="add-circle" size={24} color="#16a34a" />
+                      </TouchableOpacity>
+                    </View>
+
+                    {media.length > 0 && (
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.mediaList}>
+                        {media.map((img, index) => {
+                          const isObject = typeof img === "object"
+                          console.log("images: ", isObject, img);
+                          return (
+                            <View key={index} style={styles.mediaItem}>
+                              <Image source={
+                                !isObject ? { uri: img } : img} style={styles.mediaImage} />
+                              <TouchableOpacity
+                                style={styles.removeMedia}
+                                onPress={() => setMedia(media.filter((_, i) => i !== index))}
+                              >
+                                <Ionicons name="close-circle" size={20} color="#ef4444" />
+                              </TouchableOpacity>
+                            </View>
+                          )
+                        })}
+                      </ScrollView>
+                    )}
+
+                    {/* Specifications */}
+                    <View style={styles.sectionHeader}>
+                      <Text style={styles.sectionLabel}>Specifications</Text>
+                      <TouchableOpacity onPress={addSpecification}>
+                        <Ionicons name="add-circle" size={24} color="#16a34a" />
+                      </TouchableOpacity>
+                    </View>
+
+                    {specifications.map((spec, index) => (
+                      <View key={index} style={styles.specRow}>
+                        <TextInput
+                          style={[styles.input, styles.specInput]}
+                          value={spec.key}
+                          onChangeText={(text) => updateSpecification(index, 'key', text)}
+                          placeholder="Key (e.g. Color)"
+                          placeholderTextColor="#9ca3af"
+                        />
+                        <TextInput
+                          style={[styles.input, styles.specInput]}
+                          value={spec.value}
+                          onChangeText={(text) => updateSpecification(index, 'value', text)}
+                          placeholder="Value (e.g. Red)"
+                          placeholderTextColor="#9ca3af"
+                        />
+                        {specifications.length > 1 && (
+                          <TouchableOpacity onPress={() => removeSpecification(index)}>
+                            <Ionicons name="close-circle" size={20} color="#ef4444" />
+                          </TouchableOpacity>
+                        )}
+                      </View>
+                    ))}
+                  </View>
+
+                  {/* Actions */}
+                  <View style={styles.modalActions}>
+                    <TouchableOpacity
+                      style={styles.modalCancelButton}
+                      onPress={() => {
+                        setModalVisible(false);
+                        resetForm();
+                      }}
+                    >
+                      <Text style={styles.modalCancelText}>Cancel</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.modalSaveButton}
+                      onPress={handleSaveProduct}
+                      disabled={isCreating || isUpdating}
+                    >
+                      {(isCreating || isUpdating || isSaving) ? (
+                        <ActivityIndicator size="small" color="#fff" />
+                      ) : (
+                        <Text style={styles.modalSaveText}>
+                          {selectedProduct ? 'Update' : 'Save'}
+                        </Text>
+                      )}
+                    </TouchableOpacity>
+                  </View>
                 </View>
-              </View>
-            </ScrollView>
-          </View>
+              </ScrollView>
+            </KeyboardAvoidingView>
+          </SafeAreaView>
         </Modal>
 
         {/* Delete Confirmation Modal */}
@@ -684,7 +703,7 @@ export default function ProductManagement() {
           </View>
         </Modal>
       </View>
-    </SafeAreaView>
+    </View>
 
   );
 }
@@ -907,6 +926,8 @@ const styles = StyleSheet.create({
 
   modalScrollContent: {
     padding: wp('4%'),
+    flex: 1,
+    justifyContent: 'center',
   },
 
   modalContent: {

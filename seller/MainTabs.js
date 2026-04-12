@@ -25,7 +25,7 @@ export default function MainTab() {
 
   return (
     <>
-      <StatusBar barStyle="light-content" />
+      {/* <StatusBar barStyle="light-content" /> */}
 
       <Tab.Navigator
         initialRouteName="Jer"

@@ -21,10 +21,11 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import VideoCard from "../../components/VideoCard";
-import { adImages, categoriesData } from "../../constants";
+import { adImages, categoriesData, discountData } from "../../constants";
 import { useExplore } from "../../hooks/useExplore";
 import { useDispatch } from "react-redux";
 import SlidingBox from "../../components/SlidingBox";
+import { FlashList } from "@shopify/flash-list";
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 const isTablet = screenWidth >= 768;
 const RADIUS = 20;
@@ -35,13 +36,8 @@ const HomeScreen = () => {
   const router = useRouter();
   const { width } = Dimensions.get("window");
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
-  const {
-    reels,
-    refetchReels,
-    isLoading,
-    getStoresByCategory,
-    preFetchAllCategories,
-  } = useExplore();
+  const { isLoading, getStoresByCategory, preFetchAllCategories } =
+    useExplore();
   ////////////////////////////////////////////////////
   const [images, setImages] = useState([]);
   const [links, setLinks] = useState([]);
@@ -57,7 +53,6 @@ const HomeScreen = () => {
   //   };
   //   fetchReels();
   // }, []); // Empty dependency array means run once on mount
- 
 
   const handleImagePress = (index) => {
     const url = links[index];
@@ -78,6 +73,29 @@ const HomeScreen = () => {
         const lunabalav1 = data.lunabalav1 || [];
         setImages1(lunabalav1.map((item) => item.image));
         setLinks1(lunabalav1.map((item) => item.link));
+      })
+      .catch((error) => {
+        console.error("Error loading images:", error);
+      });
+    fetch("https://amedbaz.github.io/rellsrek/rellsrek.json")
+      .then((response) => response.json())
+      .then((data) => {
+        const reels =
+          data.rellsrek.map((item) => ({
+            id: item.id,
+            thumbnail_url: item.wene1,
+            logo: item.wene1,
+            url: item.play,
+          })) || [];
+        console.log("reels: ", reels);
+
+        /**
+         * 
+         // id => id
+// wene1 => thumbnail_url 
+// play => url
+         */
+        setLocalReels(reels.map((item) => item));
       })
       .catch((error) => {
         console.error("Error loading images:", error);
@@ -143,6 +161,65 @@ const HomeScreen = () => {
     },
   ];
 
+  const handleOpenReel = (item) => {
+    console.log("data items: ", item);
+    const feedVideo = JSON.stringify({
+      id: item?.id,
+      url: item?.url?.replace(
+        "http://tools-openinary-8f358f-173-249-22-222.traefik.me",
+        "https://storage.dmsystem.dpdns.org",
+      ),
+      thumbnail_url: item?.thumbnail_url,
+      title:
+        `${item?.title?.kurdish}\n${item?.description ? item?.description : ""}` ||
+        `${item?.title?.english}\n${item?.description ? item?.description : ""}`,
+      store: {
+        id: item?.store?.id,
+        name: item?.store?.name?.kurdish || item?.store?.name?.english || "",
+        logo: item?.store?.logo
+          ? { uri: item?.store?.logo }
+          : require("../../assets/images/m202.png"),
+      },
+    });
+
+    // return;
+    router.navigate({
+      pathname: `/video/${item.id}`,
+      params: {
+        feedVideo,
+      },
+    });
+  };
+  const handleOpenProductsDiscounts = (item) => {
+    console.log("data items: ", item.discountValue.replace("%", ''));
+    const percentage = item.discountValue.replace("%", '') ?? "all"
+    // return;
+    const feedVideo = JSON.stringify({
+      id: item?.id,
+      url: item?.url?.replace(
+        "http://tools-openinary-8f358f-173-249-22-222.traefik.me",
+        "https://storage.dmsystem.dpdns.org",
+      ),
+      thumbnail_url: item?.thumbnail_url,
+      title:
+        `${item?.title?.kurdish}\n${item?.description ? item?.description : ""}` ||
+        `${item?.title?.english}\n${item?.description ? item?.description : ""}`,
+      store: {
+        id: item?.store?.id,
+        name: item?.store?.name?.kurdish || item?.store?.name?.english || "",
+        logo: item?.store?.logo
+          ? { uri: item?.store?.logo }
+          : require("../../assets/images/m202.png"),
+      },
+    });
+    // return;
+    router.navigate({
+      pathname: `/discount/${percentage}`,
+      params: {
+        percentage,
+      },
+    });
+  };
   return (
     <View style={styles.container}>
       {isLoading ? (
@@ -166,11 +243,12 @@ const HomeScreen = () => {
                   resizeMode="contain"
                 />
 
-                <TouchableOpacity onPress={() => {
-                  console.log("search: ", router); 
-                  router.navigate("/_sitemap")
-                  
-                }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    console.log("search: ", router);
+                    router.navigate("/search");
+                  }}
+                >
                   <Image
                     source={require("../../assets/images/m2.webp")}
                     style={styles.icon8}
@@ -192,6 +270,7 @@ const HomeScreen = () => {
                 {/* discount */}
                 <View style={{ marginTop: isTablet ? hp("0%") : hp("-4%") }}>
                   <View>
+                    {/* Your background images */}
                     <Image
                       source={require("../../assets/images/m3.png")}
                       style={styles.reklam}
@@ -206,118 +285,62 @@ const HomeScreen = () => {
                       style={styles.reklam2}
                     />
 
+                    {/* Dynamic discount items - Row 1 */}
                     <View style={styles.flex}>
-                      <LinearGradient
-                        colors={["rgb(45, 97, 80)", "rgb(150, 182, 176)"]}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
-                        style={styles.fancyBorderRadius}
-                      >
-                        <Image
-                          source={{
-                            uri: "https://static.vecteezy.com/system/resources/thumbnails/024/326/134/small/promotion-3d-render-png.png",
-                          }}
-                          style={styles.iconImage}
-                        />
-                      </LinearGradient>
-
-                      <LinearGradient
-                        colors={["rgb(45, 97, 80)", "rgb(150, 182, 176)"]}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
-                        style={styles.fancyBorderRadius}
-                      >
-                        <Image
-                          source={{
-                            uri: "https://static.vecteezy.com/system/resources/thumbnails/011/297/609/small/promotion-number-20-percent-3d-png.png",
-                          }}
-                          style={styles.iconImage}
-                        />
-                      </LinearGradient>
-
-                      <LinearGradient
-                        colors={["rgb(45, 97, 80)", "rgb(150, 182, 176)"]}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
-                        style={styles.fancyBorderRadius}
-                      >
-                        <Image
-                          source={{
-                            uri: "https://static.vecteezy.com/system/resources/previews/035/116/431/non_2x/discount-15-percent-luxury-gold-and-red-offer-in-3d-suitable-for-promotions-for-christmas-chinese-new-years-and-ramadhan-sale-free-png.png",
-                          }}
-                          style={styles.iconImage}
-                        />
-                      </LinearGradient>
-
-                      <LinearGradient
-                        colors={["rgb(45, 97, 80)", "rgb(150, 182, 176)"]}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
-                        style={styles.fancyBorderRadius}
-                      >
-                        <Image
-                          source={{
-                            uri: "https://cdn3d.iconscout.com/3d/premium/thumb/10-percent-discount-3d-icon-png-download-5522836.png",
-                          }}
-                          style={styles.iconImage}
-                        />
-                      </LinearGradient>
+                      {discountData
+                        .filter((item) => item.row === 1)
+                        .map((item) => (
+                          <TouchableOpacity
+                            onPress={() => handleOpenProductsDiscounts(item)}
+                          >
+                            <LinearGradient
+                              key={item.id}
+                              colors={["rgb(45, 97, 80)", "rgb(150, 182, 176)"]}
+                              start={{ x: 0, y: 0 }}
+                              end={{ x: 1, y: 0 }}
+                              style={styles.fancyBorderRadius}
+                            >
+                              <Image
+                                source={
+                                  item.imageType === "url"
+                                    ? { uri: item.source }
+                                    : item.source
+                                }
+                                style={styles.iconImage}
+                              />
+                            </LinearGradient>
+                          </TouchableOpacity>
+                        ))}
                     </View>
                   </View>
 
                   <View style={{ marginTop: isTablet ? hp("0%") : hp("22%") }}>
+                    {/* Dynamic discount items - Row 2 */}
                     <View style={styles.flex}>
-                      <LinearGradient
-                        colors={["rgb(45, 97, 80)", "rgb(150, 182, 176)"]}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
-                        style={styles.fancyBorderRadius}
-                      >
-                        <Image
-                          source={require("../../assets/images/m8.png")}
-                          style={styles.iconImage}
-                        />
-                      </LinearGradient>
-
-                      <LinearGradient
-                        colors={["rgb(45, 97, 80)", "rgb(150, 182, 176)"]}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
-                        style={styles.fancyBorderRadius}
-                      >
-                        <Image
-                          source={require("../../assets/images/m10.png")}
-                          style={styles.iconImage}
-                        />
-                      </LinearGradient>
-
-                      <LinearGradient
-                        colors={["rgb(45, 97, 80)", "rgb(150, 182, 176)"]}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
-                        style={styles.fancyBorderRadius}
-                      >
-                        <Image
-                          source={{
-                            uri: "https://cdn3d.iconscout.com/3d/premium/thumb/35-percentage-off-3d-icon-png-download-5873628.png",
-                          }}
-                          style={styles.iconImage}
-                        />
-                      </LinearGradient>
-
-                      <LinearGradient
-                        colors={["rgb(45, 97, 80)", "rgb(150, 182, 176)"]}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
-                        style={styles.fancyBorderRadius}
-                      >
-                        <Image
-                          source={{
-                            uri: "https://www.pngall.com/wp-content/uploads/13/30-Discount.png",
-                          }}
-                          style={styles.iconImage}
-                        />
-                      </LinearGradient>
+                      {discountData
+                        .filter((item) => item.row === 2)
+                        .map((item) => (
+                          <TouchableOpacity
+                            onPress={() => handleOpenProductsDiscounts(item)}
+                          >
+                            <LinearGradient
+                              key={item.id}
+                              colors={["rgb(45, 97, 80)", "rgb(150, 182, 176)"]}
+                              start={{ x: 0, y: 0 }}
+                              end={{ x: 1, y: 0 }}
+                              style={styles.fancyBorderRadius}
+                            >
+                              <Image
+                                source={
+                                  item.imageType === "url"
+                                    ? { uri: item.source }
+                                    : item.source
+                                }
+                                style={styles.iconImage}
+                              />
+                            </LinearGradient>
+                          </TouchableOpacity>
+                        ))}
                     </View>
                   </View>
                 </View>
@@ -647,27 +670,28 @@ const HomeScreen = () => {
                 {/* gaming */}
 
                 {/* rells */}
-                <View style={styles.wrapperTop}>
-                  <View style={styles.wrapperInner}>
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                    >
-                      <View style={styles.row99}>
-                        {reels.map((item, index) => (
-                          <VideoCard
-                            key={item.id}
-                            item={item}
-                            index={index}
-                            onPress={(idx) => navigateToRellsrek(item, idx)}
-                          />
-                        ))}
-                      </View>
-                    </ScrollView>
-                  </View>
-                </View>
-                {/* rells */}
 
+                <FlashList
+                  data={localReels}
+                  renderItem={({ item, index }) => (
+                    <VideoCard
+                      key={index}
+                      item={item}
+                      logo
+                      index={index}
+                      onPress={(idx) => handleOpenReel(item)}
+                    />
+                  )}
+                  ItemSeparatorComponent={() => <View style={{ width: 5 }} />}
+                  keyExtractor={(item, index) => `${item}-${index}`}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  estimatedItemSize={80}
+                  contentContainerStyle={[
+                    styles.categoriesList,
+                    { marginTop: 12 },
+                  ]}
+                />
                 {/* zarok */}
                 <TouchableOpacity onPress={() => navigateTo("kids")}>
                   <View>
@@ -701,7 +725,10 @@ const HomeScreen = () => {
                   >
                     {quickCategories.map((item) => {
                       return (
-                        <TouchableOpacity onPress={() => navigateTo("cars")}>
+                        <TouchableOpacity
+                          key={item.link}
+                          onPress={() => navigateTo("cars")}
+                        >
                           <LinearGradient
                             colors={item.gradient}
                             start={{ x: 0, y: 0 }}
@@ -734,6 +761,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+  },
+  categoriesList: {
+    paddingVertical: hp("1%"),
+    paddingHorizontal: 12,
   },
   wene27: {
     width: wp("27%"),

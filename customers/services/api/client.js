@@ -3,8 +3,8 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
 
-const BASE_URL = 'http://localhost:4000/api/customer';
-// const BASE_URL = 'https://lunax-marketplace.dmsystem.dpdns.org/api/customer';
+// const BASE_URL = 'http://localhost:4000/api/customer';
+const BASE_URL = 'https://lunax-marketplace.dmsystem.dpdns.org/api/customer';
 
 // Cache keys for offline data
 const CACHE_KEYS = {

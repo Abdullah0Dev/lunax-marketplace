@@ -57,11 +57,12 @@ function RootLayoutNav() {
             headerShown: false,
           }}
         >
-          <StatusBar backgroundColor="transparent" style="auto" />
+          <StatusBar backgroundColor="transparent" style="auto" /> 
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="store" options={{ headerShown: false }} />
           <Stack.Screen name="category" options={{ headerShown: false }} />
           <Stack.Screen name="product" options={{ headerShown: false }} />
+          <Stack.Screen name="discount" options={{ headerShown: false }} />
           <Stack.Screen
             name="search"
             options={{ headerShown: false, presentation: "modal" }}

@@ -236,6 +236,67 @@ export const storeData = [
     img1: require("../assets/images/m202.png"),
   },
 ];
+// Create this array outside your component or in a separate file
+export const discountData = [
+  // First row
+  {
+    id: 1,
+    imageType: "url",
+    source: "https://static.vecteezy.com/system/resources/thumbnails/024/326/134/small/promotion-3d-render-png.png",
+    discountValue: "25%",
+    row: 1
+  },
+  {
+    id: 2,
+    imageType: "url",
+    source: "https://static.vecteezy.com/system/resources/thumbnails/011/297/609/small/promotion-number-20-percent-3d-png.png",
+    discountValue: "20%",
+    row: 1
+  },
+  {
+    id: 3,
+    imageType: "url",
+    source: "https://static.vecteezy.com/system/resources/previews/035/116/431/non_2x/discount-15-percent-luxury-gold-and-red-offer-in-3d-suitable-for-promotions-for-christmas-chinese-new-years-and-ramadhan-sale-free-png.png",
+    discountValue: "15%",
+    row: 1
+  },
+  {
+    id: 4,
+    imageType: "url",
+    source: "https://cdn3d.iconscout.com/3d/premium/thumb/10-percent-discount-3d-icon-png-download-5522836.png",
+    discountValue: "10%",
+    row: 1
+  },
+  // Second row
+  {
+    id: 5,
+    imageType: "local",
+    source: require("../assets/images/m8.png"),
+    discountValue: "50%",
+    row: 2
+  },
+  {
+    id: 6,
+    imageType: "local",
+    source: require("../assets/images/m10.png"),
+    discountValue: "40%",
+    row: 2
+  },
+  {
+    id: 7,
+    imageType: "url",
+    source: "https://cdn3d.iconscout.com/3d/premium/thumb/35-percentage-off-3d-icon-png-download-5873628.png",
+    discountValue: "35%",
+    row: 2
+  },
+  {
+    id: 8,
+    imageType: "url",
+    source: "https://www.pngall.com/wp-content/uploads/13/30-Discount.png",
+    discountValue: "30%",
+    row: 2
+  }
+]; 
 
 export const adImages = [
   "https://live.staticflickr.com/1179/582854192_6135ac445e_b.jpg",

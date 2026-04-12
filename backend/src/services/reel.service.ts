@@ -2,38 +2,7 @@ import { IReel, Store, Reel } from "../models";
 import { Types } from "mongoose";
 import { startOfDay, endOfDay } from "date-fns";
 import { ReelResponse, CreateReelInput } from "../types";
-import { OpeninaryService } from "./openinary.service";
-import ffmpeg from "fluent-ffmpeg";
-import fs from "fs/promises";
-import path from "path";
-import os from "os";
-
-// In your ReelService, before uploading to Openinary
-async function getVideoMetadata(
-  buffer: Buffer,
-): Promise<{ duration: number; width: number; height: number }> {
-  // Save buffer to temp file
-  const tempPath = `/tmp/${Date.now()}.mp4`;
-  await fs.writeFile(tempPath, buffer);
-
-  return new Promise((resolve, reject) => {
-    ffmpeg.ffprobe(tempPath, (err, metadata) => {
-      if (err) reject(err);
-
-      const videoStream = metadata.streams.find(
-        (s) => s.codec_type === "video",
-      );
-      resolve({
-        duration: Math.round(metadata.format.duration || 0),
-        width: videoStream?.width || 0,
-        height: videoStream?.height || 0,
-      });
-
-      // Clean up temp file
-      fs.unlink(tempPath); //, () => {}
-    });
-  });
-}
+import { OpeninaryService } from "./openinary.service"; 
 export class ReelService {
   // Get reels by store ID
   static async getReelsByStore(storeId: string): Promise<ReelResponse[]> {

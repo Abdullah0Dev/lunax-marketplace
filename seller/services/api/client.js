@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
 import { offlineActions } from '../store/slices/offline.slice';
 
-export const BASE_URL = "http://localhost:4000/api" //'https://lunax-marketplace.dmsystem.dpdns.org/api';
+export const BASE_URL = 'https://lunax-marketplace.dmsystem.dpdns.org/api';
 // http://localhost:4000/api/stores/69c6fe739ba19787f70b3539
 // Base query with auth
 const baseQuery = fetchBaseQuery({

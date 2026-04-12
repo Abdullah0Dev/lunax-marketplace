@@ -1,4 +1,5 @@
 import apiConfig from '../../config/api.config';
+import { BASE_URL } from './client';
 
 // Upload image first (can happen early)
 export const uploadImage = async (storeId, file) => {
@@ -8,7 +9,7 @@ export const uploadImage = async (storeId, file) => {
     formData.append('storeId', storeId || 'temp'); // If you have it
 
     try {
-        const res = await fetch(`http://localhost:4000/api/upload/image`, {
+        const res = await fetch(`${BASE_URL}/upload/image`, {
             method: 'POST',
             body: formData,
             headers: {
@@ -25,29 +26,40 @@ export const uploadImage = async (storeId, file) => {
     }
 };
 export const uploadImages = async (storeId, files) => {
-    const formData = new FormData();
-    console.log("files: ", files);
+  const formData = new FormData();
 
-    // Append each file to the form data
-    files.forEach((file, index) => {
-        formData.append('images', file); // 'images' matches backend field name
+  // Append each file correctly for React Native
+  files.forEach((file) => {
+    formData.append('images', {
+      uri: file.uri,
+      name: file.name,
+      type: file.type,
+    });
+  });
+
+  // Optional metadata (check what your backend expects)
+  formData.append('folder', 'store');
+  formData.append('storeId', storeId || 'temp');
+
+  try {
+    const response = await fetch(`${BASE_URL}/upload/images`, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        // Do NOT set Content-Type manually; fetch will set it with boundary
+        Accept: 'application/json',
+      },
     });
 
-    // Optional: Add metadata
-    formData.append('folder', 'store');
-    formData.append('storeId', storeId || 'temp'); // If you have it
-
-    try {
-        const response = await fetch(`http://localhost:4000/api/upload/images`, {
-            method: 'POST',
-            body: formData,
-        });
-        console.log("response: ", response);
-
-        // Assuming your backend returns array of uploaded images
-        return response.data.images; // { success: true, images: [{ url, publicId, thumbnailUrl }] }
-    } catch (error) {
-        console.log("error uploading images: ", error);
-        throw error;
+    if (!response.ok) {
+      throw new Error(`Upload failed: ${response.status}`);
     }
+
+    const result = await response.json(); // Parse JSON
+    console.log('Upload success:', result);
+    return result.images; // Adjust based on your backend response
+  } catch (error) {
+    console.error('Error uploading images:', error);
+    throw error;
+  }
 };

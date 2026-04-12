@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
+  Platform,
+  KeyboardAvoidingView,
   Text,
   View,
   TouchableOpacity,
@@ -26,6 +28,7 @@ import { useGetMyDiscountsQuery } from "../../../../services/api/discount.api";
 import { useGetMyProductsQuery } from "../../../../services/api/product.api";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
+import { BlurView } from "expo-blur";
 
 const { width: screenWidth } = Dimensions.get("window");
 const isTablet = screenWidth >= 768;
@@ -38,12 +41,17 @@ export default function DiscountManagement({ navigation }) {
   const { data: products = [], isLoading: loadingProducts } = useGetMyProductsQuery();
   const { user } = useSelector((state) => state.auth);
   const STORE_ID = user.id || ""
-
+  const {
+    deleteDiscount,
+  } = useDiscountManagement();
   const { data: discounts = [], refetch } = useGetMyDiscountsQuery();
   const creating = false
   const { createDiscount, toggleDiscount } = useDiscountManagement()
   // State
   const [selectedDiscount, setSelectedDiscount] = useState(null);
+  const [selectedDiscountId, setSelectedDiscountId] = useState(null);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [amount, setAmount] = useState("");
@@ -129,6 +137,12 @@ export default function DiscountManagement({ navigation }) {
     });
   };
 
+  const confirmDelete = (discount) => {
+    // console.log("discount: ", discount.id);
+    // return;
+    setSelectedDiscountId(discount.id);
+    setDeleteModal(true);
+  };
   const renderDiscountCard = ({ item }) => {
     const product = products.find(p => p.id === item.product.id);
 
@@ -154,7 +168,7 @@ export default function DiscountManagement({ navigation }) {
           </View>
         </View>
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={[
             styles.statusButton,
             item.isActive ? styles.activeButton : styles.inactiveButton
@@ -164,6 +178,12 @@ export default function DiscountManagement({ navigation }) {
           <Text style={styles.statusText}>
             {item.isActive ? 'Active' : 'Inactive'}
           </Text>
+        </TouchableOpacity> */}
+        <TouchableOpacity
+          style={styles.deleteReelButton}
+          onPress={() => confirmDelete(item)}
+        >
+          <Ionicons name="trash-outline" size={20} color="#ef4444" />
         </TouchableOpacity>
       </View>
     );
@@ -180,14 +200,26 @@ export default function DiscountManagement({ navigation }) {
       <Image source={{ uri: item.cover_image }} style={styles.productThumb} />
       <View style={styles.productDetails}>
         <Text style={styles.productItemName}>{item.name?.english}</Text>
-        <Text style={styles.productItemPrice}>${item.price}</Text>
+        <Text style={styles.productItemPrice}>IQD{item.price}</Text>
       </View>
       {selectedProduct?.id === item.id && (
         <Ionicons name="checkmark-circle" size={24} color="#16a34a" />
       )}
     </TouchableOpacity>
   );
-
+  const handleDeleteDiscount = async () => {
+    setLoading(true);
+    try {
+      await deleteDiscount(selectedDiscountId).unwrap();
+      setDeleteModal(false);
+      Alert.alert("Success", "discount deleted successfully");
+      refetch();
+    } catch (error) {
+      Alert.alert("Error", "Failed to delete discount");
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
@@ -246,124 +278,168 @@ export default function DiscountManagement({ navigation }) {
             </View>
           )}
         </View>
+        {/* Delete Confirmation Modal */}
+        <Modal visible={deleteModal} transparent animationType="fade">
+          <View style={[styles.modalOverlay]}>
+            <BlurView intensity={3} tint="dark" style={styles.deleteModal}>
+              <Ionicons name="warning-outline" size={48} color="#ef4444" />
+              <Text style={styles.deleteTitle}>Delete Reel?</Text>
+              <Text style={styles.deleteMessage}>
+                Are you sure you want to delete this product?
+                This action cannot be undone.
+              </Text>
 
-        {/* Create Discount Modal */}
-        <Modal visible={modalVisible} animationType="slide" transparent>
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Create {selectedDiscount}% Discount</Text>
-                <TouchableOpacity onPress={() => setModalVisible(false)}>
-                  <Ionicons name="close" size={24} color="#6b7280" />
-                </TouchableOpacity>
-              </View>
-
-              {/* Product Search */}
-              <Text style={styles.label}>Select Product</Text>
-              <View style={styles.searchContainer}>
-                <Ionicons name="search" size={20} color="#9ca3af" />
-                <TextInput
-                  style={styles.searchInput}
-                  placeholder="Search products..."
-                  value={productSearch}
-                  onChangeText={setProductSearch}
-                  placeholderTextColor="#9ca3af"
-                />
-              </View>
-
-              {/* Products List */}
-              {loadingProducts ? (
-                <ActivityIndicator size="large" color="#16a34a" style={styles.loader} />
-              ) : (
-                <FlatList
-                  data={filteredProducts}
-                  renderItem={renderProductItem}
-                  keyExtractor={item => item.id}
-                  style={styles.productList}
-                  showsVerticalScrollIndicator={false}
-                  ListEmptyComponent={
-                    <Text style={styles.noProducts}>No products found</Text>
-                  }
-                />
-              )}
-
-              {/* Discount Amount */}
-              <Text style={styles.label}>Discount Amount (%)</Text>
-              <TextInput
-                style={styles.input}
-                value={amount}
-                onChangeText={setAmount}
-                keyboardType="numeric"
-                placeholder="Enter discount percentage"
-                maxLength={3}
-              />
-
-              {/* Expiration Date */}
-              <Text style={styles.label}>Expiration Date</Text>
-              <TouchableOpacity
-                style={styles.datePicker}
-                onPress={() => setShowDatePicker(true)}
-              >
-                <Ionicons name="calendar" size={20} color="#6b7280" />
-                <Text style={styles.dateText}>
-                  {endDate.toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                </Text>
-              </TouchableOpacity>
-
-              {showDatePicker && (
-                <DateTimePicker
-                  value={endDate}
-                  mode="date"
-                  display="default"
-                  minimumDate={new Date()}
-                  onChange={(event, selectedDate) => {
-                    setShowDatePicker(false);
-                    if (selectedDate) setEndDate(selectedDate);
-                  }}
-                />
-              )}
-
-              {/* Selected Product Summary */}
-              {selectedProduct && (
-                <View style={styles.selectedSummary}>
-                  <Image source={{ uri: selectedProduct.cover_image }} style={styles.summaryImage} />
-                  <View style={styles.summaryDetails}>
-                    <Text style={styles.summaryName}>{selectedProduct.name?.english}</Text>
-                    <Text style={styles.summaryPrice}>${selectedProduct.price}</Text>
-                  </View>
-                </View>
-              )}
-
-              {/* Actions */}
-              <View style={styles.modalActions}>
+              <View style={styles.deleteActions}>
                 <TouchableOpacity
-                  style={styles.cancelButton}
-                  onPress={() => {
-                    setModalVisible(false);
-                    resetForm();
-                  }}
+                  style={styles.deleteCancel}
+                  onPress={() => setDeleteModal(false)}
                 >
-                  <Text style={styles.cancelText}>Cancel</Text>
+                  <Text style={styles.deleteCancelText}>Cancel</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={styles.createButton}
-                  onPress={handleCreateDiscount}
-                  disabled={creating}
+                  style={styles.deleteConfirm}
+                  onPress={handleDeleteDiscount}
+                  disabled={loading}
                 >
-                  {creating ? (
+                  {loading ? (
                     <ActivityIndicator size="small" color="#fff" />
                   ) : (
-                    <Text style={styles.createText}>Create Discount</Text>
+                    <Text style={styles.deleteConfirmText}>Delete</Text>
                   )}
                 </TouchableOpacity>
               </View>
-            </View>
+            </BlurView>
           </View>
+        </Modal>
+        {/* Create Discount Modal */}
+        <Modal visible={modalVisible} animationType="slide" transparent>
+          <SafeAreaView style={styles.modalOverlay}>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              style={{ flex: 1 }}
+            >
+              <View
+                // keyboardShouldPersistTaps="handled"
+                style={styles.modalScrollContent}>
+                <View style={styles.modalContent}>
+
+
+                  <View style={styles.modalHeader}>
+                    <Text style={styles.modalTitle}>Create {selectedDiscount}% Discount</Text>
+                    <TouchableOpacity onPress={() => setModalVisible(false)}>
+                      <Ionicons name="close" size={24} color="#6b7280" />
+                    </TouchableOpacity>
+                  </View>
+
+                  {/* Product Search */}
+                  <Text style={styles.label}>Select Product</Text>
+                  <View style={styles.searchContainer}>
+                    <Ionicons name="search" size={20} color="#9ca3af" />
+                    <TextInput
+                      style={styles.searchInput}
+                      placeholder="Search products..."
+                      value={productSearch}
+                      onChangeText={setProductSearch}
+                      placeholderTextColor="#9ca3af"
+                    />
+                  </View>
+
+                  {/* Products List */}
+                  {loadingProducts ? (
+                    <ActivityIndicator size="large" color="#16a34a" style={styles.loader} />
+                  ) : (
+                    <FlatList
+                      data={filteredProducts}
+                      renderItem={renderProductItem}
+                      keyExtractor={item => item.id}
+                      style={styles.productList}
+                      showsVerticalScrollIndicator={false}
+                      ListEmptyComponent={
+                        <Text style={styles.noProducts}>No products found</Text>
+                      }
+                    />
+                  )}
+
+                  {/* Discount Amount */}
+                  <Text style={styles.label}>Discount Amount (%)</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={amount}
+                    onChangeText={setAmount}
+                    keyboardType="numeric"
+                    placeholder="Enter discount percentage"
+                    maxLength={3}
+                  />
+
+                  {/* Expiration Date */}
+                  <Text style={styles.label}>Expiration Date</Text>
+                  <TouchableOpacity
+                    style={styles.datePicker}
+                    onPress={() => setShowDatePicker(true)}
+                  >
+                    <Ionicons name="calendar" size={20} color="#6b7280" />
+                    <Text style={styles.dateText}>
+                      {endDate.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </Text>
+                  </TouchableOpacity>
+
+                  {showDatePicker && (
+                    <DateTimePicker
+                      value={endDate}
+                      mode="date"
+                      display="default"
+                      minimumDate={new Date()}
+                      onChange={(event, selectedDate) => {
+                        setShowDatePicker(false);
+                        if (selectedDate) setEndDate(selectedDate);
+                      }}
+                    />
+                  )}
+
+                  {/* Selected Product Summary */}
+                  {selectedProduct && (
+                    <View style={styles.selectedSummary}>
+                      <Image source={{ uri: selectedProduct.cover_image }} style={styles.summaryImage} />
+                      <View style={styles.summaryDetails}>
+                        <Text style={styles.summaryName}>{selectedProduct.name?.english}</Text>
+                        <Text style={styles.summaryPrice}>${selectedProduct.price}</Text>
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Actions */}
+                  <View style={styles.modalActions}>
+                    <TouchableOpacity
+                      style={styles.cancelButton}
+                      onPress={() => {
+                        setModalVisible(false);
+                        resetForm();
+                      }}
+                    >
+                      <Text style={styles.cancelText}>Cancel</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.createButton}
+                      onPress={handleCreateDiscount}
+                      disabled={creating}
+                    >
+                      {creating ? (
+                        <ActivityIndicator size="small" color="#fff" />
+                      ) : (
+                        <Text style={styles.createText}>Create Discount</Text>
+                      )}
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </KeyboardAvoidingView>
+          </SafeAreaView>
         </Modal>
       </View>
     </SafeAreaView>
@@ -376,6 +452,68 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9fafb',
   },
 
+  deleteReelButton: {
+    padding: 8,
+    justifyContent: 'center',
+  },
+
+  // Delete Modal
+  deleteModal: {
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    borderRadius: 24,
+    padding: wp('8%'),
+    alignItems: 'center',
+    margin: wp('10%'),
+  },
+
+  deleteTitle: {
+    fontSize: RFPercentage(2.4),
+    fontWeight: "700",
+    color: "#111",
+    marginTop: 16,
+    marginBottom: 8,
+  },
+
+  deleteMessage: {
+    fontSize: RFPercentage(1.8),
+    color: "#6b7280",
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+
+  deleteActions: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+
+  deleteCancel: {
+    flex: 1,
+    backgroundColor: '#f7f9fe',
+    padding: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+
+  deleteCancelText: {
+    color: "#4b5563",
+    fontWeight: "600",
+    fontSize: RFPercentage(1.8),
+  },
+
+  deleteConfirm: {
+    flex: 1,
+    backgroundColor: '#ef4444',
+    padding: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+
+  deleteConfirmText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: RFPercentage(1.8),
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -457,6 +595,7 @@ const styles = StyleSheet.create({
   discountCard: {
     flexDirection: 'row',
     backgroundColor: '#fff',
+    alignItems: "center",
     padding: wp('3%'),
     borderRadius: 16,
     marginBottom: 10,
@@ -560,17 +699,22 @@ const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
   },
 
   modalContent: {
     backgroundColor: '#fff',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderRadius: 24, 
     padding: wp('5%'),
+    // height: hp('70%'),
     maxHeight: hp('80%'),
   },
 
+  modalScrollContent: {
+    padding: wp('4%'),
+    flex: 1,
+    justifyContent: 'center',
+  },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
