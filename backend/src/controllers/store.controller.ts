@@ -23,6 +23,7 @@ export class StoreController {
     try {
       // Search for user in database
       const user = await Store.findOne({ username });
+      const currentStatus = user?.status;
 
       // Check if user exists
       if (!user) {
@@ -44,7 +45,9 @@ export class StoreController {
       if (!isPasswordValid) {
         return res.status(401).json({ message: "Invalid password" });
       }
-
+     if (currentStatus === 'expired') {
+        return res.status(401).json({ message: "Make sure to pay the subscription" });
+      }
       // Generate token (JWT example)
       const token = jwt.sign(
         { userId: user.id, username: user.username },
