@@ -19,6 +19,7 @@ import {
 } from "react-native-responsive-screen";
 import { RFPercentage } from "react-native-responsive-fontsize";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import { useProduct } from "../../../hooks/useProduct";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = (width - wp("10%")) / 2;
@@ -170,7 +171,8 @@ const DISCOUNT_PRODUCTS = [
 const DiscountProductsPage = () => {
   const router = useRouter();
   const { percentage } = useLocalSearchParams();
-  console.log("percentage: ", percentage);
+  const { discountedProduct } = useProduct();
+  console.log("percentage: ", discountedProduct);
 
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState(percentage);

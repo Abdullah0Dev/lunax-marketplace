@@ -1,5 +1,5 @@
 import express from "express";
-import { CustomerController } from "../controllers";
+import { CustomerController, DiscountController } from "../controllers";
 
 const router = express.Router();
 
@@ -10,6 +10,11 @@ router.get(
   "/stores/category/:category",
   CustomerController.getRelevantStoresByCategory,
 );
+router.get(
+  "/discount/products",
+  DiscountController.getProductsWithDiscount,
+);
+
 router.get("/stores/:id", CustomerController.getStoreById);
 router.get("/products/latest", CustomerController.getLatestProducts);
 router.get("/reels/feed", CustomerController.getReelsFeed);

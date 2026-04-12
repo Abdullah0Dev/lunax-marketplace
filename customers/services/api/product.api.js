@@ -11,6 +11,12 @@ export const productApi = api.injectEndpoints({
         { type: 'Product', id: `STORE_${storeId}` },
       ],
     }),
+    getProductsWithDiscounts: builder.query({
+      query: () => `/discount/products/`,
+      providesTags: (result, error) => [
+        { type: 'Product', id: `PRODUCTS_DISCOUNTS` },
+      ],
+    }),
 
     // Get single product by ID
     getProductById: builder.query({
@@ -64,5 +70,6 @@ export const {
   useGetProductByIdQuery,
   useSearchProductsQuery,
   useGetLatestProductsQuery,
-  useLazyGetLatestProductsQuery
+  useLazyGetLatestProductsQuery,
+  useGetProductsWithDiscountsQuery
 } = productApi;

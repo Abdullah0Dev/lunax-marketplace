@@ -5,7 +5,8 @@ import { exploreActions } from '../services/store/slices/explore.slice';
 import { favoritesActions } from '../services/store/slices/favorites.slice';
 import {
   useGetProductByIdQuery,
-  useGetLatestProductsQuery, // For related products
+  useGetLatestProductsQuery,
+  useGetProductsWithDiscountsQuery, // For related products
 } from '../services/api/product.api';
 
 export const useProduct = (productId) => {
@@ -21,6 +22,12 @@ export const useProduct = (productId) => {
   } = useGetProductByIdQuery(productId, {
     skip: !productId,
   });
+  const {
+    data: discountedProduct,
+    isLoading: discountedProductLoading,
+    error: discountedProductError,
+    refetch: refetchDiscountedProduct,
+  } = useGetProductsWithDiscountsQuery();
 
   // Fetch related products (using latest products as related)
   const {
@@ -47,6 +54,15 @@ export const useProduct = (productId) => {
       dispatch(favoritesActions.toggleFavoriteProduct(productToToggle));
     }
   };
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const data = await refetchDiscountedProduct()
+      console.log("refetchDiscountedProduct: ", data);
+      
+    }
+    fetchProducts()
+  }, [])
+
 
   // Calculate final price (product may have discount_price from API transform)
   const finalPrice = product?.discount_price || product?.price;
@@ -57,10 +73,10 @@ export const useProduct = (productId) => {
     relatedProducts: relatedData?.products || [],
     finalPrice,
     hasDiscount: !!product?.discount_price,
-
+    discountedProduct,
     // States
-    isLoading: productLoading || relatedLoading,
-    error: productError,
+    isLoading: productLoading || relatedLoading || discountedProductLoading,
+    error: productError || discountedProductError,
     isFavorite,
     favorites,
     // Actions

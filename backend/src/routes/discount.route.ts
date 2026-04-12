@@ -25,10 +25,6 @@ router.get(
   DiscountController.getProductDiscountInfo,
 );
 // get products by discount percentage
-router.get(
-  "/products",
-  DiscountController.getProductsWithDiscount,
-);
 
 // Admin endpoints
 router.post("/deactivate-expired", DiscountController.deactivateExpired);
