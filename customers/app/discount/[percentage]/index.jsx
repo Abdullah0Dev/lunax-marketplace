@@ -196,7 +196,7 @@ const DiscountProductsPage = () => {
   }, []);
 
   // Filter products by discount percentage
-  const filteredProducts = DISCOUNT_PRODUCTS.filter((product) => {
+  const filteredProducts = discountedProduct.filter((product) => {
     if (selectedFilter === "all") return true;
     if (selectedFilter === "10") return product.discount_percentage === 10;
     if (selectedFilter === "15") return product.discount_percentage === 15;
@@ -214,17 +214,30 @@ const DiscountProductsPage = () => {
   };
 
   const handleProductPress = (product) => {
+    const testProduct = discountedProduct[0]
+    const storeDetails = testProduct.store_id;
+    console.log("storeDetails: ", testProduct);
+// return;
     const enhancedProduct = {
       ...product,
+      id: product._id,
       storeDetails: {
-        id: product.store.id,
-        name: product.store.name.kurdish || product.store.name.english,
-        logo: product.store.logo,
+        id: storeDetails?._id,
+        number: storeDetails?.phone_number.replace("+964", "0"),
+        name: storeDetails?.name.kurdish || storeDetails?.name.english,
+        location: storeDetails?.address,
+        subtitle: "",
+        description: storeDetails?.description,
+        logo: storeDetails?.logo,
       },
     };
+    const stringifiedProduct = JSON.stringify(enhancedProduct);
+    const url = `/product/${product.id}`;
     router.push({
-      pathname: `/product/${product.id}`,
-      params: { productData: JSON.stringify(enhancedProduct) },
+      pathname: url,
+      params: {
+        storeData: stringifiedProduct,
+      },
     });
   };
 
@@ -270,9 +283,9 @@ const DiscountProductsPage = () => {
           </Text>
 
           <View style={styles.storeInfo}>
-            <Image source={{ uri: item.store.logo }} style={styles.storeLogo} />
+            <Image source={{ uri: item.store_id.logo }} style={styles.storeLogo} />
             <Text style={styles.storeName} numberOfLines={1}>
-              {item.store.name.english}
+              {item.store_id.name.english}
             </Text>
           </View>
         </View>

@@ -44,7 +44,7 @@ export class DiscountService {
         // You might also want to check if discount is still valid based on date
         // Add a discount_expiry_date field if you have one
       })
-        .populate("store_id", "name logo id") // Populate store info
+        .populate("store_id", "name logo id phone_number address description") // Populate store info
         .lean(); // Use lean() for better performance if you don't need Mongoose documents
 
       // Calculate effective price after discount for each product

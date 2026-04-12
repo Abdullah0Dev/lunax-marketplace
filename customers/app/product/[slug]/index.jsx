@@ -57,7 +57,7 @@ export default function ProductPage() {
     title: productData?.name?.kurdish || productData?.name?.english,
     mainImage: [{ uri: productData?.cover_image }],
     price: productData?.price || 20000,
-    images: productData?.media,
+    images: [productData?.cover_image, ...productData?.media],
     description: productData?.description,
     discountPrice: productData?.discount_price,
     storeDetails: {

@@ -121,7 +121,7 @@ export class DiscountController {
       const { productId } = req.params;
       const info = await DiscountService.getProductDiscountInfo(
         productId as string,
-      );
+      ); 
       res.json(info);
     } catch (error) {
       console.error("Error fetching product discount info:", error);
