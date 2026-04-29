@@ -292,6 +292,7 @@ const HomeScreen = () => {
                         .map((item) => (
                           <TouchableOpacity
                             onPress={() => handleOpenProductsDiscounts(item)}
+                            key={item.id}
                           >
                             <LinearGradient
                               key={item.id}
@@ -322,6 +323,7 @@ const HomeScreen = () => {
                         .map((item) => (
                           <TouchableOpacity
                             onPress={() => handleOpenProductsDiscounts(item)}
+                            key={item.id}
                           >
                             <LinearGradient
                               key={item.id}

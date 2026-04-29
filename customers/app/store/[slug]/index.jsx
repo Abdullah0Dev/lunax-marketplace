@@ -5,23 +5,29 @@ import {
   View,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
+  Animated,
 } from "react-native";
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
-import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
-import { FontAwesome6 } from "@expo/vector-icons";
+import { RFPercentage } from "react-native-responsive-fontsize";
+import { FontAwesome6, Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { adImages, categoriesData, isTablet } from "../../../constants";
 import { getPaletteByName } from "../../../constants/Colors";
 import VideoCard from "../../../components/VideoCard";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useRef, useEffect } from "react";
 import SlidingBox from "../../../components/SlidingBox";
 import { FlashList } from "@shopify/flash-list";
 import { defaultStyles } from "../../../constants/style";
+import { BlurView } from "expo-blur";
+
+const { width } = Dimensions.get("window");
+const CARD_WIDTH = (width - wp("10%")) / 2;
 
 const StorePage = () => {
   const router = useRouter();
@@ -29,18 +35,37 @@ const StorePage = () => {
   const storeDetails = fromProduct ? JSON.parse(store) : JSON.parse(store)[0];
   const storeProducts = storeDetails.products;
   const [activeIndex, setActiveIndex] = useState("all");
-  console.log("storeDetails: ", storeDetails); 
+  const [isLoading, setIsLoading] = useState(false);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.95)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        tension: 20,
+        friction: 7,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
 
   const addAllCategories = storeDetails.products.length > 0 ? ["all"] : [];
   const productCategories = [
     ...new Set(storeDetails.products.map((prod) => prod.category)),
     ...addAllCategories,
   ];
+
   const filteredProducts =
     activeIndex === "all"
       ? storeProducts
       : storeProducts?.filter((item) => item.category === activeIndex);
-  // console.log("categoryData: ", productCategories);
+
   const storeReels = storeDetails.reels.map((reel) => ({
     ...reel,
     id: reel.id,
@@ -49,8 +74,11 @@ const StorePage = () => {
       reel.thumbnail_url || require("../../../assets/images/m202.png"),
   }));
 
+  const formatPrice = (price) => {
+    return `${price.toLocaleString()} IQD`;
+  };
+
   const handleOpenReel = (item) => {
-    // console.log("data item: ", item);
     const feedVideo = JSON.stringify({
       id: item?.id,
       url: item?.url?.replace(
@@ -77,13 +105,21 @@ const StorePage = () => {
       },
     });
   };
+
   const handleViewProduct = (productId, product) => {
+    const hasDiscount =
+      product.discount_price && product.discount_price < product.price;
     const enhancedProduct = {
-      ...product, // Spread all existing product properties
+      ...product,
+      hasDiscount,
+      discountPercentage: hasDiscount
+        ? Math.round(
+            ((product.price - product.discount_price) / product.price) * 100,
+          )
+        : 0,
       storeDetails: {
-        // Add store details as a nested object
         id: storeDetails.id,
-        number: storeDetails.phone_number.replace("+964", "0"),
+        number: storeDetails.phone_number?.replace("+964", "0"),
         name: storeDetails.name.kurdish || storeDetails.name.english,
         location: storeDetails.address,
         subtitle: "",
@@ -92,7 +128,6 @@ const StorePage = () => {
       },
     };
     const stringifiedProduct = JSON.stringify(enhancedProduct);
-    // console.log("stringifiedProduct: ", stringifiedProduct);
     const url = `/product/${productId}`;
     router.navigate({
       pathname: url,
@@ -103,214 +138,288 @@ const StorePage = () => {
     });
   };
 
-  // 🔥 THEN: data
   const itemData = {
     id: storeDetails.id,
-    title: storeDetails?.name?.kurdish || storeDetails?.name?.english,
+    title:  storeDetails?.name?.english || storeDetails?.name?.kurdish,
     name: storeDetails?.name?.kurdish || storeDetails?.name?.english,
     subtitle: storeDetails?.address,
     description: storeDetails?.description,
     logo: storeDetails?.logo || require("../../../assets/images/m202.png"),
     gradient: gradient,
+    rating: storeDetails?.rating || 4.5,
+    totalProducts: storeProducts.length,
+    totalReels: storeReels.length,
   };
 
-  // Render category button
   const renderCategoryButton = useCallback(
     ({ item, index }) => (
       <TouchableOpacity
         key={index}
         style={[
           styles.categoryButton,
-          activeIndex === item && {
-            backgroundColor: itemData.gradient,
-            borderColor: itemData.gradient,
-          },
+          activeIndex === item && styles.categoryButtonActive,
         ]}
         onPress={() => setActiveIndex(item)}
       >
-        <Text
-          style={[
-            styles.categoryButtonText,
-            activeIndex === item && styles.activeCategoryText,
-          ]}
+        <LinearGradient
+          colors={
+            activeIndex === item
+              ? [itemData.gradient, itemData.gradient]
+              : ["#fff", "#fff"]
+          }
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.categoryGradient}
         >
-          {item === "all" ? "هەموو" : item}
-        </Text>
+          <Text
+            style={[
+              styles.categoryButtonText,
+              activeIndex === item && styles.activeCategoryText,
+            ]}
+          >
+            {item === "all" ? "All Products" : item}
+          </Text>
+        </LinearGradient>
       </TouchableOpacity>
     ),
     [activeIndex, itemData.gradient],
   );
-  // Empty state component
+
   const ListEmptyComponent = () => (
     <View style={styles.emptyContainer}>
-      <Image
-        source={require("../../../assets/images/m202.png")}
-        style={styles.emptyImage}
-      />
-      <Text style={styles.emptyText}>هیچ بەرهەمێک نەدۆزرایەوە</Text>
+      <Ionicons name="cube-outline" size={80} color="#ccc" />
+      <Text style={styles.emptyTitle}>No Products Found</Text>
+      <Text style={styles.emptyText}>
+        No products available in this category
+      </Text>
     </View>
   );
-  // Render product item
-  const renderProductItem = useCallback(({ item }) => {
+
+  const renderProductItem = useCallback(({ item, index }) => {
     const productName = item.name?.kurdish || item.name?.english || item.name;
+    const hasDiscount = item.discount_price && item.discount_price < item.price;
+    const discountPercentage = hasDiscount
+      ? Math.round(((item.price - item.discount_price) / item.price) * 100)
+      : 0;
 
     return (
-      <TouchableOpacity
-        style={styles.productCard}
-        onPress={() => handleViewProduct(item.id, item)}
-        activeOpacity={0.8}
+      <Animated.View
+        style={[
+          styles.itemContainer,
+          {
+            transform: [{ scale: scaleAnim }],
+            opacity: fadeAnim,
+          },
+        ]}
       >
-        <Image
-          source={item.cover_image}
-          style={styles.productImage}
-          contentFit="cover"
-        />
-        <View style={styles.productInfo}>
-          <Text style={styles.productTitle} numberOfLines={2}>
-            {productName}
-          </Text>
-          <View style={styles.priceContainer}>
-            <Text style={styles.productPrice}>IQD{item.discount_price || item.price}</Text>
-            {item.discount_price && (
-              <Text style={styles.oldPrice}>IQD{item.price}</Text>
+        <TouchableOpacity
+          style={styles.productCard}
+          onPress={() => handleViewProduct(item.id, item)}
+          activeOpacity={0.8}
+        >
+          <View style={styles.imageContainer}>
+            <Image
+              source={item.cover_image}
+              style={styles.productImage}
+              contentFit="cover"
+            />
+
+            {hasDiscount && (
+              <View style={styles.discountBadge}>
+                <Text style={styles.discountText}>-{discountPercentage}%</Text>
+              </View>
             )}
+
+            <View
+              style={[
+                styles.priceTag,
+                hasDiscount && styles.priceTagDiscounted,
+              ]}
+            >
+              {hasDiscount ? (
+                <>
+                  <Text style={styles.discountedPriceText}>
+                    {formatPrice(item.discount_price)}
+                  </Text>
+                  <Text style={styles.originalPriceText}>
+                    {formatPrice(item.price)}
+                  </Text>
+                </>
+              ) : (
+                <Text style={styles.priceText}>{formatPrice(item.price)}</Text>
+              )}
+            </View>
           </View>
-        </View>
-      </TouchableOpacity>
+
+          <View style={styles.productInfo}>
+            <Text style={styles.productTitle} numberOfLines={2}>
+              {productName}
+            </Text>
+            <View style={styles.categoryTag}>
+              <Ionicons name="pricetag-outline" size={10} color="#999" />
+              <Text style={styles.categoryText}>{item.category}</Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </Animated.View>
     );
   }, []);
 
+  const renderReelItem = useCallback(
+    ({ item, index }) => (
+      <VideoCard
+        key={index}
+        item={item}
+        index={index}
+        onPress={() => handleOpenReel(item)}
+      />
+    ),
+    [],
+  );
+
   return (
-    <View style={{ marginBottom: isTablet ? hp("0%") : hp("0%") }}>
+    <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View
-          style={[
-            styles.containerView,
-            {
-              backgroundColor: itemData.gradient,
-            },
-          ]}
+        {/* Header with Gradient */}
+        <LinearGradient
+          colors={[itemData.gradient, itemData.gradient]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.headerGradient}
         >
-          <TouchableOpacity onPress={() => router.back()}>
-            <LinearGradient
-              colors={["black", "#444444"]}
-              start={{ x: 1, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.gradientContainer}
+          <View style={styles.headerContainer}>
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={styles.backButton}
             >
-              <FontAwesome6 name="angle-left" style={styles.arrowIcon} />
-            </LinearGradient>
+              <BlurView
+                intensity={80}
+                tint="dark"
+                style={styles.backButtonBlur}
+              >
+                <FontAwesome6 name="angle-left" size={24} color="#fff" />
+              </BlurView>
+            </TouchableOpacity>
             <Text style={styles.storeTitle}>{itemData.title}</Text>
-          </TouchableOpacity>
-        </View>
+            <View style={styles.headerSpacer} />
+          </View>
+        </LinearGradient>
+
+        {/* Store Info Card */}
         <View style={styles.floatingCardContainer}>
-          <View style={styles.infoCardContainer}>
-            <View style={styles.infoCardContainer2}>
-              <View style={styles.nameContainer}>
-                <Text
-                  style={styles.nameText}
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                >
-                  {" "}
-                  {itemData.name}
-                </Text>
-                <Image
-                  source={require("../../../assets/images/m501.png")}
-                  style={styles.logoa1}
-                />
+          <View style={styles.storeInfoRow}>
+            <Image source={itemData.logo} style={styles.storeLogo} />
+            <View style={styles.storeDetails}>
+              <Text style={styles.storeName}>{itemData.name}</Text>
+              <View style={styles.locationRow}>
+                <Ionicons name="location-outline" size={14} color="#666" />
+                <Text style={styles.storeLocation}>{itemData.subtitle}</Text>
               </View>
-              <View style={styles.nameContainer}>
-                <Text
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                  style={styles.nameText}
-                >
+              <View style={styles.ratingRow}>
+                <Ionicons name="albums-outline" size={14} color="#666" />
+                {/* 
+                <Text style={styles.ratingText}>{itemData.rating}</Text> */}
+                <Text style={styles.statsText}>
                   {" "}
-                  {itemData.subtitle}
+                  {itemData.totalProducts} products
                 </Text>
-                <Image
-                  source={require("../../../assets/images/m503.webp")}
-                  style={styles.logoa1}
-                />
+                <Text style={styles.statsText}>
+                  • {itemData.totalReels} reels
+                </Text>
               </View>
-            </View>
-            <View style={styles.descContainer}>
-              <Image source={itemData.logo} style={styles.logoImage} />
             </View>
           </View>
 
-          <View
-            style={[styles.logoRow1, { backgroundColor: itemData.gradient }]}
-          >
-            <Text style={styles.logoText2}>{itemData.description}</Text>
+          <View style={styles.descriptionBox}>
+            <Text style={styles.descriptionText}>{itemData.description}</Text>
           </View>
         </View>
-        {/* Rells */}
 
-        <FlashList
-          data={storeReels}
-          renderItem={({ item, index }) => (
-            <VideoCard
-              key={index}
-              item={item}
-              index={index}
-              onPress={(idx) => handleOpenReel(item)}
+        {/* Stats Banner */}
+        {/* <View style={styles.statsBanner}>
+          <View style={styles.statItem}>
+            <FontAwesome6 name="store" size={16} color={itemData.gradient} />
+            <Text style={styles.statText}>Verified Store</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Ionicons
+              name="shield-checkmark"
+              size={16}
+              color={itemData.gradient}
             />
-          )}
-          ItemSeparatorComponent={() => <View style={{ width: 5 }} />}
-          keyExtractor={(item, index) => `${item}-${index}`}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          estimatedItemSize={80}
-          contentContainerStyle={[styles.categoriesList, { marginTop: 12 }]}
-          inverted={false}
-          renderReverse={true}
-        />
+            <Text style={styles.statText}>100% Authentic</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Ionicons
+              name="return-down-back"
+              size={16}
+              color={itemData.gradient}
+            />
+            <Text style={styles.statText}>Easy Returns</Text>
+          </View>
+        </View> */}
 
-        {/* Rells */}
-        <View style={{ marginTop: isTablet ? hp("7%") : hp("5%") }}>
-          <View style={defaultStyles.lineWithOr}>
-            <View style={defaultStyles.dashLine} />
-            <Text style={defaultStyles.textstudio}>products</Text>
-            <View style={defaultStyles.dashLine} />
+        {/* Reels Section */}
+        {storeReels.length > 0 && (
+          <>
+            <View style={styles.sectionHeader}>
+              <View style={styles.sectionTitleContainer}>
+                <FontAwesome6
+                  name="play-circle"
+                  size={20}
+                  color={itemData.gradient}
+                />
+                <Text style={styles.sectionTitle}>Store Reels</Text>
+              </View>
+              <Text style={styles.sectionSubtitle}>
+                {storeReels.length} videos
+              </Text>
+            </View>
+
+            <FlashList
+              data={storeReels}
+              renderItem={renderReelItem}
+              ItemSeparatorComponent={() => (
+                <View style={{ width: wp("2%") }} />
+              )}
+              keyExtractor={(item, index) => `${item.id}-${index}`}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              estimatedItemSize={120}
+              contentContainerStyle={styles.reelsList}
+            />
+          </>
+        )}
+
+        {/* Products Section Header */}
+        <View style={styles.productsHeaderContainer}>
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionTitleContainer}>
+              <Ionicons name="cube" size={20} color={itemData.gradient} />
+              <Text style={styles.sectionTitle}>Products</Text>
+            </View>
+            <Text style={styles.sectionSubtitle}>
+              {filteredProducts.length} items
+            </Text>
           </View>
         </View>
 
+        {/* Category Filters */}
         <FlashList
           data={productCategories.reverse()}
           renderItem={renderCategoryButton}
-          ItemSeparatorComponent={() => <View style={{ width: 5 }} />}
+          ItemSeparatorComponent={() => <View style={{ width: wp("2%") }} />}
           keyExtractor={(item, index) => `${item}-${index}`}
           horizontal
           showsHorizontalScrollIndicator={false}
-          estimatedItemSize={80}
-          contentContainerStyle={[
-            styles.categoriesList,
-            { flexDirection: "row-reverse" },
-          ]}
-          inverted={true}
-          // renderReverse={true}
+          estimatedItemSize={100}
+          contentContainerStyle={styles.categoriesList}
         />
-        {/* Pages */}
-        {/* <View style={styles.page}> */}
-        {/* <ScrollView>
-              <View style={styles.grid}>
-                {filteredProducts?.map((item, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    onPress={() => handleViewProduct(item.id, item)}
-                  >
-                    <Image source={item.cover_image} style={styles.image} />
-                    <Text style={[styles.title, { maxWidth: wp("50%") }]}>
-                      {item.name.kurdish || item.name.english}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </ScrollView> */}
+
+        {/* Products Grid */}
         <FlashList
-          // ref={flashListRef}
           data={filteredProducts}
           renderItem={renderProductItem}
           keyExtractor={(item, index) => `${item.id}-${index}`}
@@ -318,17 +427,13 @@ const StorePage = () => {
           estimatedItemSize={isTablet ? 350 : 300}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.productsList}
-          // ListHeaderComponent={ListHeaderComponent}
           ListEmptyComponent={ListEmptyComponent}
-          // ListFooterComponent={ListFooterComponent}
-          // onRefresh={handleRefresh}
-          // refreshing={refreshing}
           removeClippedSubviews={true}
           initialNumToRender={6}
           maxToRenderPerBatch={10}
           windowSize={10}
+          scrollEnabled={false} // Disable inner scroll since parent ScrollView handles it
         />
-        {/* </View> */}
       </ScrollView>
     </View>
   );
@@ -337,46 +442,322 @@ const StorePage = () => {
 export default StorePage;
 
 const styles = StyleSheet.create({
-  containerView: {
-    width: isTablet ? wp("100%") : wp("100%"),
-    height: isTablet ? hp("20%") : hp("25%"),
-    marginTop: isTablet ? hp("0%") : hp("0%"),
-    marginBottom: isTablet ? hp("0%") : hp("2%"),
-  },
-  productsTitle: {
-    fontSize: RFPercentage(2.5),
-    fontWeight: "bold",
-    color: "#333",
-    fontFamily: "k24",
+  container: {
+    flex: 1,
+    backgroundColor: "#f8f9fa",
   },
 
-  productsCount: {
-    fontSize: RFPercentage(1.8),
+  headerGradient: {
+    width: "100%",
+    height: isTablet ? hp("28%") : hp("30%"),
+    paddingTop: isTablet ? hp("6%") : hp("8%"),
+    paddingHorizontal: wp("5%"),
+  },
+  headerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  backButton: {
+    width: wp("10%"),
+    height: wp("10%"),
+  },
+
+  backButtonBlur: {
+    width: "100%",
+    height: "100%",
+    borderRadius: wp("5%"),
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden",
+    backgroundColor: "rgba(0,0,0,0.7)",
+  },
+
+  storeTitle: {
+    fontSize: RFPercentage(2.2),
+    color: "#fff",
+    fontWeight: "bold",
+    textAlign: "center",
+    flex: 1,
+  },
+
+  headerSpacer: {
+    width: wp("10%"),
+  },
+
+  floatingCardContainer: {
+    backgroundColor: "#fff",
+    marginHorizontal: wp("5%"),
+    marginTop: hp("-8%"),
+    borderRadius: 20,
+    padding: wp("5%"),
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+
+  storeInfoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: wp("4%"),
+    marginBottom: hp("2%"),
+  },
+
+  storeLogo: {
+    width: wp("18%"),
+    height: wp("18%"),
+    borderRadius: wp("9%"),
+    backgroundColor: "#f5f5f5",
+  },
+
+  storeDetails: {
+    flex: 1,
+  },
+
+  storeName: {
+    fontSize: RFPercentage(2.2),
+    fontWeight: "bold",
+    color: "#000",
+    marginBottom: hp("0.5%"),
+  },
+
+  locationRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: wp("1%"),
+    marginBottom: hp("0.5%"),
+  },
+
+  storeLocation: {
+    fontSize: RFPercentage(1.4),
+    color: "#666",
+  },
+
+  ratingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: wp("1%"),
+    flexWrap: "wrap",
+  },
+
+  ratingText: {
+    fontSize: RFPercentage(1.4),
+    color: "#666",
+    fontWeight: "600",
+  },
+
+  statsText: {
+    fontSize: RFPercentage(1.3),
     color: "#999",
-    fontFamily: "k24",
+  },
+
+  descriptionBox: {
+    backgroundColor: "#f8f9fa",
+    padding: wp("3%"),
+    borderRadius: 12,
+    marginTop: hp("1%"),
+  },
+
+  descriptionText: {
+    fontSize: RFPercentage(1.5),
+    color: "#666",
+    lineHeight: RFPercentage(2.2),
+    textAlign: "auto",
+  },
+
+  statsBanner: {
+    flexDirection: "row",
+    backgroundColor: "#fff",
+    marginHorizontal: wp("5%"),
+    marginTop: hp("2%"),
+    paddingVertical: hp("1.5%"),
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+
+  statItem: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: wp("2%"),
+  },
+
+  statDivider: {
+    width: 1,
+    height: "60%",
+    backgroundColor: "#f0f0f0",
+    alignSelf: "center",
+  },
+
+  statText: {
+    fontSize: RFPercentage(1.3),
+    color: "#333",
+    fontWeight: "500",
+  },
+
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: wp("5%"),
+    marginTop: hp("3%"),
+    marginBottom: hp("1.5%"),
+  },
+
+  sectionTitleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: wp("2%"),
+  },
+
+  sectionTitle: {
+    fontSize: RFPercentage(2),
+    fontWeight: "bold",
+    color: "#000",
+  },
+
+  sectionSubtitle: {
+    fontSize: RFPercentage(1.4),
+    color: "#999",
+  },
+
+  reelsList: {
+    paddingHorizontal: wp("3%"),
+    paddingBottom: hp("1%"),
+  },
+
+  productsHeaderContainer: {
+    marginTop: hp("2%"),
+  },
+
+  categoriesList: {
+    paddingHorizontal: wp("5%"),
+    paddingVertical: hp("1.5%"),
+  },
+
+  categoryButton: {
+    borderRadius: 25,
+    overflow: "hidden",
+    marginRight: wp("2%"),
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+
+  categoryButtonActive: {
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+
+  categoryGradient: {
+    paddingVertical: hp("1.2%"),
+    paddingHorizontal: wp("5%"),
+  },
+
+  categoryButtonText: {
+    fontSize: RFPercentage(1.6),
+    fontWeight: "600",
+    color: "#666",
+  },
+
+  activeCategoryText: {
+    color: "#fff",
   },
 
   productsList: {
+    paddingHorizontal: wp("3%"),
     paddingBottom: hp("10%"),
   },
 
+  itemContainer: {
+    width: CARD_WIDTH,
+    marginBottom: hp("2%"),
+    marginHorizontal: wp("1%"),
+  },
+
   productCard: {
-    flex: 1,
-    margin: wp("2%"),
     backgroundColor: "#fff",
-    borderRadius: 15,
+    borderRadius: 16,
     overflow: "hidden",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+
+  imageContainer: {
+    position: "relative",
+    width: "100%",
+    aspectRatio: 1,
+    backgroundColor: "#f5f5f5",
   },
 
   productImage: {
     width: "100%",
-    height: isTablet ? hp("25%") : hp("20%"),
-    backgroundColor: "#f5f5f5",
+    height: "100%",
+  },
+
+  discountBadge: {
+    position: "absolute",
+    top: 8,
+    left: 8,
+    backgroundColor: "#ff6b6b",
+    paddingHorizontal: wp("2%"),
+    paddingVertical: hp("0.5%"),
+    borderRadius: 20,
+    zIndex: 2,
+  },
+
+  discountText: {
+    color: "#fff",
+    fontSize: RFPercentage(1.2),
+    fontWeight: "bold",
+  },
+
+  priceTag: {
+    position: "absolute",
+    bottom: 8,
+    right: 8,
+    backgroundColor: "rgba(0,0,0,0.75)",
+    paddingHorizontal: wp("2.5%"),
+    paddingVertical: hp("0.5%"),
+    borderRadius: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: wp("1%"),
+  },
+
+  priceTagDiscounted: {
+    backgroundColor: "rgba(10,186,244,0.95)",
+  },
+
+  priceText: {
+    color: "#fff",
+    fontSize: RFPercentage(1.4),
+    fontWeight: "bold",
+  },
+
+  discountedPriceText: {
+    color: "#fff",
+    fontSize: RFPercentage(1.4),
+    fontWeight: "bold",
+  },
+
+  originalPriceText: {
+    color: "rgba(255,255,255,0.7)",
+    fontSize: RFPercentage(1.1),
+    textDecorationLine: "line-through",
   },
 
   productInfo: {
@@ -384,372 +765,43 @@ const styles = StyleSheet.create({
   },
 
   productTitle: {
-    fontSize: RFPercentage(1.8),
-    color: "#333",
-    fontFamily: "k24",
+    fontSize: RFPercentage(1.6),
+    fontWeight: "600",
+    color: "#000",
     marginBottom: hp("0.5%"),
-    lineHeight: hp("2.5%"),
+    lineHeight: RFPercentage(2.2),
   },
 
-  priceContainer: {
+  categoryTag: {
     flexDirection: "row",
     alignItems: "center",
-    gap: wp("2%"),
+    gap: wp("1%"),
   },
 
-  productPrice: {
-    fontSize: RFPercentage(2),
-    fontWeight: "bold",
-    color: "#0ABAF4",
-    fontFamily: "k24",
-  },
-
-  oldPrice: {
-    fontSize: RFPercentage(1.6),
+  categoryText: {
+    fontSize: RFPercentage(1.2),
     color: "#999",
-    textDecorationLine: "line-through",
-    fontFamily: "k24",
   },
 
   emptyContainer: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: hp("10%"),
+    paddingVertical: hp("15%"),
+    paddingHorizontal: wp("10%"),
   },
 
-  emptyImage: {
-    width: wp("30%"),
-    height: wp("30%"),
-    marginBottom: hp("2%"),
-    opacity: 0.5,
-  },
-  contentContainer: {
-    paddingBottom: isTablet ? wp("10%") : wp("23%"),
-  },
-  categoriesList: {
-    paddingVertical: hp("1%"),
-    paddingHorizontal: 12,
-  },
-
-  categoryButton: {
-    paddingVertical: hp("1.2%"),
-    paddingHorizontal: wp("5%"),
-    backgroundColor: "#fff",
-    borderRadius: 25,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-
-  categoryButtonText: {
-    color: "#666",
-    fontSize: RFPercentage(1.8),
-    fontWeight: "600",
-    fontFamily: "k24",
-  },
-
-  activeCategoryText: {
-    color: "#fff",
-  },
-
-  productsHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "baseline",
-    marginHorizontal: wp("5%"),
-    marginTop: hp("4%"),
-    marginBottom: hp("2%"),
-  },
-  card: {
-    flex: 1,
-    // margin: wp("2%"),
-    alignItems: "center",
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    overflow: "hidden",
-  },
-  image: {
-    width: isTablet ? wp("40%") : wp("44%"),
-    height: isTablet ? hp("30%") : hp("25%"),
-    borderRadius: 10,
-    backgroundColor: "rgba(0,0,0,0.05)",
-  },
-  storeImage: {
-    width: isTablet ? wp("13%") : wp("12%"),
-    height: isTablet ? hp("10%") : hp("6%"),
-    marginLeft: isTablet ? wp("26%") : wp("30%"),
-    marginTop: wp("2%"),
-    borderRadius: 10,
-    position: "absolute",
-    top: 0,
-    right: 0,
-  },
-
-  container: {
-    flex: 1,
-    backgroundColor: "black",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  floatingCardContainer: {
-    width: isTablet ? wp("90%") : wp("90%"),
-    minHeight: isTablet ? hp("22%") : hp("20%"),
-    backgroundColor: "#fff",
-    marginTop: -110,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    gap: 10,
-    alignSelf: "center",
-    borderRadius: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  arrowIcon: {
-    fontSize: RFPercentage(4),
-    color: "#fff",
-  },
-  storeTitle: {
-    fontSize: RFPercentage(4),
-    color: "white",
-    marginTop: isTablet ? wp("0%") : wp("3.5%"),
-    textAlign: "center",
-    fontWeight: "bold",
-    fontFamily: "lor",
-    left: isTablet ? wp("0%") : wp("4%"),
-  },
-  gradientContainer: {
-    width: isTablet ? hp("7%") : hp("5.5%"),
-    height: isTablet ? hp("7%") : hp("5.5%"),
-    borderRadius: isTablet ? hp("5%") : hp("2.75%"),
-    justifyContent: "center",
-    alignItems: "center",
-    top: isTablet ? hp("5%") : hp("6%"),
-    left: isTablet ? wp("2%") : wp("3%"),
-  },
-  nameContainer: {
-    display: "flex",
-    gap: 5,
-    alignItems: "center",
-    flexDirection: "row",
-  },
-  nameText: {
+  emptyTitle: {
     fontSize: RFPercentage(2),
-    color: "black",
     fontWeight: "bold",
-    fontFamily: "k24",
-  },
-  infoCardContainer: {
-    display: "flex",
-    alignSelf: "flex-end",
-    flexDirection: "row",
-    gap: 20,
-    alignItems: "center",
-  },
-  descContainer: {
-    width: isTablet ? wp("13%") : wp("22%"),
-    height: isTablet ? hp("10%") : hp("10%"),
-    borderRadius: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  infoCardContainer2: {
-    display: "flex",
-    gap: 10,
-    alignItems: "flex-end",
-    maxWidth: isTablet ? wp("50%") : wp("50%"),
-  },
-  wrapperTop: {
-    top: hp("-1%"),
+    color: "#000",
+    marginTop: hp("2%"),
+    marginBottom: hp("1%"),
   },
 
-  wrapperInner: {
-    top: hp("3%"),
-  },
-  row99: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 12,
-  },
-  card: {
-    width: isTablet ? wp("30%") : wp("35%"),
-    height: isTablet ? hp("30%") : hp("25%"),
-    marginHorizontal: wp("2%"),
-    borderRadius: 20,
-    overflow: "hidden",
-    backgroundColor: "#000",
-    position: "relative",
-  },
-
-  video: {
-    width: "100%",
-    height: "100%",
-  },
-
-  ratingBox: {
-    position: "absolute",
-    top: hp("1%"),
-    right: wp("3%"),
-  },
-
-  ratingIcon: {
-    width: isTablet ? wp("10%") : wp("10.5%"),
-    height: isTablet ? hp("8%") : hp("5%"),
-
-    borderRadius: 50,
-  },
-  log: {
-    backgroundColor: "white",
-    marginVertical: hp("1%"),
-    width: isTablet ? wp("90%") : wp("90%"),
-    height: isTablet ? hp("22%") : hp("20%"),
-    marginTop: isTablet ? hp("-6%") : hp("-12%"),
-    alignSelf: "center",
-    borderRadius: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    flexDirection: "row",
-  },
-  logoview: {
-    backgroundColor: "white",
-    marginVertical: hp("1%"),
-    width: isTablet ? wp("13%") : wp("22%"),
-    height: isTablet ? hp("10%") : hp("10%"),
-    marginTop: isTablet ? hp("-5%") : hp("-7%"),
-    marginLeft: isTablet ? wp("73%") : wp("65%"),
-    alignSelf: "center",
-    borderRadius: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    flexDirection: "row",
-  },
-  logoImage: {
-    width: isTablet ? wp("10%") : wp("22%"),
-    height: isTablet ? hp("8%") : hp("10%"),
-    borderRadius: 15,
-  },
-  logoa: {
-    width: isTablet ? wp("6%") : wp("7%"),
-    height: isTablet ? hp("5%") : hp("3%"),
-    borderRadius: 15,
-    right: isTablet ? wp("22%") : wp("35%"),
-    marginTop: isTablet ? hp("2%") : hp("2%"),
-  },
-  logoText: {
-    fontSize: RFPercentage(1.7),
-    color: "black",
-    marginTop: isTablet ? hp("0%") : hp("1%"),
+  emptyText: {
+    fontSize: RFPercentage(1.5),
+    color: "#999",
     textAlign: "center",
-    fontWeight: "bold",
-    fontFamily: "k24",
-    right: isTablet ? wp("30%") : wp("47%"),
-    top: isTablet ? hp("-3%") : hp("-3.5%"),
-  },
-
-  logoRow: {
-    position: "absolute",
-    flexDirection: "row",
-    alignItems: "center",
-    right: isTablet ? wp("20%") : wp("31%"),
-    top: isTablet ? hp("7%") : hp("6%"),
-  },
-  logoa1: {
-    width: isTablet ? wp("7%") : wp("7%"),
-    height: isTablet ? hp("5%") : hp("3%"),
-    borderRadius: 15,
-  },
-  logoText1: {
-    fontSize: RFPercentage(2),
-    color: "black",
-    marginLeft: 7,
-    fontWeight: "bold",
-    fontFamily: "k24",
-    marginHorizontal: isTablet ? wp("0%") : wp("1%"),
-    marginTop: isTablet ? hp("0%") : hp("0.3%"),
-  },
-  logoRow1: {
-    minWidth: isTablet ? wp("85%") : wp("85%"),
-    minHeight: isTablet ? hp("7%") : hp("7%"),
-    alignContent: "center",
-    justifyContent: "center",
-    borderRadius: 10,
-  },
-  logoText2: {
-    fontSize: RFPercentage(1.8),
-    color: "white",
-    textAlign: "center",
-    fontWeight: "bold",
-    fontFamily: "k24",
-  },
-
-  scrollRow: {
-    paddingHorizontal: 10,
-    justifyContent: "flex-end",
-    flex: 1,
-  },
-
-  button: {
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-    backgroundColor: "#fff",
-    borderRadius: 20,
-    marginRight: 10,
-  },
-
-  activeButton: {
-    backgroundColor: "rgb(103, 0, 143)",
-  },
-
-  buttonText: {
-    color: "black",
-    fontSize: 18,
-    fontWeight: "600",
-    fontFamily: "k24",
-  },
-
-  activeText: {
-    color: "#fff",
-  },
-
-  page: {
-    flex: 1,
-    padding: 10,
-  },
-
-  grid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-around",
-    display: "flex",
-  },
-
-  image: {
-    width: isTablet ? wp("40%") : wp("44%"),
-    height: isTablet ? hp("30%") : hp("25%"),
-    borderRadius: isTablet ? 15 : 10,
-  },
-
-  title: {
-    color: "black",
-    textAlign: "center",
-    paddingVertical: 8,
-    fontSize: RFPercentage(2.1),
-    fontWeight: "600",
-    fontFamily: "k24",
+    lineHeight: RFPercentage(2.2),
   },
 });

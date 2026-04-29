@@ -52,9 +52,9 @@ export const categoriesData = [
     },
     {
       id: 7,
-      title: 'پانزینخانە',
+      title: 'كوزماتيك',
       image: require('../assets/images/m25.png'),
-      screen: 'gas-station',  // English: gas station
+      screen: 'cosmetics',  // English: gas station
       palette: "palette4"
     },
     {

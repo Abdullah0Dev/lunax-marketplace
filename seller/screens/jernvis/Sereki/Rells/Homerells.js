@@ -92,7 +92,7 @@ export default function ReelManagement({ navigation }) {
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Videos,
-      allowsEditing: true,
+      allowsEditing: false,
       quality: 1,
     });
 

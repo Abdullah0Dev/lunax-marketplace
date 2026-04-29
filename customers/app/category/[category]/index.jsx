@@ -81,8 +81,8 @@ const CategoryPage = () => {
 
     return {
       id: store.id,
-      title: store.name.kurdish || store.name.english,
-      subtitle: store.description,
+      title: store.name.english || store.name.kurdish,
+      subtitle: "",
       iconImage: store.logo || require("../../../assets/images/m202.png"),
 
       // auto gradient per item
