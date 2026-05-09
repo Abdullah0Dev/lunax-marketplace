@@ -99,8 +99,8 @@ const StoreTab = () => {
             style={styles.headerIcon}
           />
           <View style={styles.headerTextContainer}>
-            <Text style={styles.headerTitle}>بەرهەمە نوێیەکان</Text>
-            <Text style={styles.headerSubtitle}>Latest Products & Deals</Text>
+            <Text style={styles.headerTitle}>بەرهەمێن نوێ</Text>
+            <Text style={styles.headerSubtitle}>نوێترین و باشترین بەرهەم</Text>
           </View>
           <View style={styles.statsBadge}>
             <Text style={styles.statsBadgeText}>{itemData.length}+</Text>
@@ -394,8 +394,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 8,
     right: 8,
-    backgroundColor: "#fff",
-    borderRadius: 20,
+    backgroundColor: "#ffffff",
+    borderRadius: 50,
     padding: 4,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -407,7 +407,7 @@ const styles = StyleSheet.create({
   storeLogo: {
     width: isTablet ? wp("8%") : wp("10%"),
     height: isTablet ? hp("6%") : hp("5%"),
-    borderRadius: 16,
+    borderRadius: 50,
     resizeMode: "contain",
   },
 

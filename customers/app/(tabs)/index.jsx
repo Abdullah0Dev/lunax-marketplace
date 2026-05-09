@@ -31,7 +31,7 @@ const isTablet = screenWidth >= 768;
 const RADIUS = 20;
 const ITEM_WIDTH = isTablet ? screenWidth * 0.5 : screenWidth * 0.88;
 const ITEM_HEIGHT = isTablet ? screenHeight * 0.6 : screenHeight * 0.6;
-
+import { useNavigation } from "@react-navigation/native";
 const HomeScreen = () => {
   const router = useRouter();
   const { width } = Dimensions.get("window");
@@ -42,7 +42,7 @@ const HomeScreen = () => {
   const [images, setImages] = useState([]);
   const [links, setLinks] = useState([]);
   const [localReels, setLocalReels] = useState([]);
-
+const navigation = useNavigation();
   // Option 1: Use useEffect to watch for reels changes
   // Option 3: Use useEffect to fetch on mount
   // useEffect(() => {
@@ -65,7 +65,15 @@ const HomeScreen = () => {
   ////////////////////////////////////////////////////
   const [images1, setImages1] = useState([]);
   const [links1, setLinks1] = useState([]);
+const [actionbadinii,setActionbadinii] = useState([]);
+    useEffect(() => {
+      axios.get('https://amedbaz.github.io/bnk/bnk.json')
+      .then(result=>{
+        setActionbadinii(result.data.bnk)
+      })
+      }, []);
 
+///////////////////////////////////
   useEffect(() => {
     fetch("https://amedbaz.github.io/lunabalav1/lunabalav1.json")
       .then((response) => response.json())
@@ -405,24 +413,24 @@ const HomeScreen = () => {
                 {/* koktel */}
 
                 {/* Brand */}
-                <View style={{ marginTop: isTablet ? hp("5%") : hp("2%") }}>
+                {/* <View style={{ marginTop: isTablet ? hp("5%") : hp("2%") }}>
                   <View style={styles.lineWithOr}>
                     <View style={styles.dashLine} />
                     <Text style={styles.textstudio}>brand</Text>
                     <View style={styles.dashLine} />
                   </View>
-                </View>
+                </View> */}
                 {/* Brand */}
 
                 {/* marka */}
-                <View style={{ marginTop: isTablet ? hp("0%") : hp("-1%") }}>
+                {/* <View style={{ marginTop: isTablet ? hp("0%") : hp("-1%") }}>
                   <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles.horizontalScroll}
                   >
                     <View>
-                      {/* ROW 1 */}
+                    
                       <View style={styles.row1}>
                         <View style={styles.item}>
                           <View style={styles.imageButton2}>
@@ -476,12 +484,12 @@ const HomeScreen = () => {
                       </View>
                     </View>
                   </ScrollView>
-                </View>
+                </View> */}
                 {/* marka */}
 
                 {/* mobilyat */}
                 <TouchableOpacity onPress={() => navigateTo("showroom")}>
-                  <View>
+                  <View style={{marginTop:10}}>
                     <Image
                       source={require("../../assets/images/m50.png")}
                       style={styles.bobilyat}
@@ -750,6 +758,30 @@ const HomeScreen = () => {
                     })}
                   </View>
                 </View>
+
+                <View >
+<View>
+  {actionbadinii
+    .filter(item => item.a1 && item.a1.trim() !== "")
+    .map((item) => (
+      <TouchableOpacity
+       
+        onPress={() => {
+          // پێویستە هەموو زانیارییەکان لە ناو یەک ئۆبجێکتدا بن
+          router.navigate({
+            pathname: "/badini",
+         
+          });
+        }}
+      > 
+        <Image
+          style={styles.wene}
+          source={{ uri: item.a1 }}
+        />
+      </TouchableOpacity>
+    ))}
+</View>
+ </View>
               </View>
             </View>
           </ScrollView>
@@ -1120,6 +1152,41 @@ const styles = StyleSheet.create({
     height: hp("13%"),
     right: isTablet ? hp("3.6%") : hp("1%"),
     top: isTablet ? hp("0%") : hp("-1%"),
+  },
+  overlayContainer: {
+   position: 'absolute',
+   top:isTablet ? hp("43%") : hp("26%"),
+  left:isTablet ? hp("25%") : hp("11%"),
+   borderRadius: 6,
+   overflow: 'hidden'
+ },
+blurBackground: {
+  paddingHorizontal:isTablet ? wp("3%") : wp("1%"),
+  paddingVertical:isTablet ? wp("1%") : wp("1%"),
+  borderRadius: 6,
+  
+},
+overlayText: {
+  color: '#fff',
+  fontSize: 15,
+  fontWeight: 'bold',
+  fontFamily:'k24'
+},
+ overlayContainer1: {
+  position: 'absolute',
+  top:hp("1%"),
+left:hp("1.5%"),
+  borderRadius: 6,
+  overflow: 'hidden'
+},
+ wene: {
+    width: isTablet ? wp("95%") : wp("95%"),
+    height: isTablet ? hp("25%") : hp("15%"),
+    left:10,
+    marginTop:10,
+    borderRadius:15
+    
+
   },
 });
 

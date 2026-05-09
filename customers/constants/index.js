@@ -131,7 +131,7 @@ export const categoriesData = [
     },
     {
       id: 18,
-      title: 'جيمينج',
+      title: 'گێمینگ',
       image: require('../assets/images/m65.png'),
       screen: 'gaming',  // English: Showroom
       palette: "palette3"

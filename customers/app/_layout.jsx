@@ -68,6 +68,7 @@ function RootLayoutNav() {
             options={{ headerShown: false, presentation: "modal" }}
           />
           <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+          
         </Stack>
       </GestureHandlerRootView>
     </Provider>

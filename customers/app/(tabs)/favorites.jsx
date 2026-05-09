@@ -294,7 +294,7 @@ const FavoritesTab = () => {
           <View style={styles.headerContent}>
             <Ionicons name="heart" size={28} color="#fff" />
             <View style={styles.headerTextContainer}>
-              <Text style={styles.headerTitle}>Favorites</Text>
+              <Text style={styles.headerTitle}>دلخواز</Text>
               <Text style={styles.headerSubtitle}>
                 {totalFavorites} {totalFavorites === 1 ? "item" : "items"} saved
               </Text>

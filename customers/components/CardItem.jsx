@@ -74,15 +74,16 @@ const styles = StyleSheet.create({
 
   cardContent: {
     flex: 1,
-    alignItems: "flex-end", // RTL
+    
   },
 
   cardTitle: {
-    fontSize: RFPercentage(2.5),
+    fontSize: RFPercentage(2.7),
     color: "#fff",
     fontWeight: "700",
-    fontFamily: "k24",
-    textAlign: "right",
+    textAlign: "center",
+    marginTop:15
+
   },
 
   cardSub: {

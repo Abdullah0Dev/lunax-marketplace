@@ -165,30 +165,7 @@ const CategoryPage = () => {
           />
         </View> */}
         {/* belavbun */}
-
-        <View>
-          {/* design */}
-          <View>
-            <LinearGradient
-              colors={[primaryColor, primaryColor + "80"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.vm}
-            >
-              <View style={styles.rowContainer00}>
-                <Image
-                  source={categoryData.image}
-                  contentFit="contain"
-                  style={styles.iconImage}
-                />
-                <Text style={styles.text}>
-                  باشترین دێ ب {categoryData.title}
-                </Text>
-              </View>
-            </LinearGradient>
-          </View>
-          {/* design */}
-        </View>
+ 
 
         <View style={styles.container}>
           <FlashList
