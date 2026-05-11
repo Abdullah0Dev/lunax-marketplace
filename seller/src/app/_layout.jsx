@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 import "react-native-reanimated";
-import { store, persistor } from "@/services/store/store";
+import { store, persistor } from "../services/store/store";
 import { useFonts } from "expo-font";
 
 import { PersistGate } from "redux-persist/integration/react";
@@ -16,10 +16,10 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
-    roboto: require("@/assets/font/Roboto.ttf"),
-    roboto1: require("@/assets/font/Roboto1.ttf"),
-    k24: require("@/assets/font/k24.ttf"),
-    lor: require("@/assets/font/logirent.otf"),
+    roboto: require("../assets/font/Roboto.ttf"),
+    roboto1: require("../assets/font/Roboto1.ttf"),
+    k24: require("../assets/font/k24.ttf"),
+    lor: require("../assets/font/logirent.otf"),
   });
 
   useEffect(() => {
@@ -50,10 +50,6 @@ export default function RootLayout() {
         <Stack>
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="home" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="modal"
-            options={{ presentation: "modal", title: "Modal" }}
-          />
         </Stack>
         <StatusBar style="auto" />
       </PersistGate>

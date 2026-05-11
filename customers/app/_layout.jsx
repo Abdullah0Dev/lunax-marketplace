@@ -49,28 +49,29 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   return (
-    // <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-    <Provider store={store}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-          }}
-        >
-          <StatusBar backgroundColor="transparent" style="auto" /> 
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="store" options={{ headerShown: false }} />
-          <Stack.Screen name="category" options={{ headerShown: false }} />
-          <Stack.Screen name="product" options={{ headerShown: false }} />
-          <Stack.Screen name="discount" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="search"
-            options={{ headerShown: false, presentation: "modal" }}
-          />
-          <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-        </Stack>
-      </GestureHandlerRootView>
-    </Provider>
-    // {/* </ThemeProvider> */}
+    <>
+      <Provider store={store}>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+            }}
+          >
+            <StatusBar backgroundColor="transparent" style="auto" />
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="store" options={{ headerShown: false }} />
+            <Stack.Screen name="category" options={{ headerShown: false }} />
+            <Stack.Screen name="product" options={{ headerShown: false }} />
+            <Stack.Screen name="discount" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="search"
+              options={{ headerShown: false, presentation: "modal" }}
+            />
+            <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+          </Stack>
+        </GestureHandlerRootView>
+      </Provider>
+      {/* </ThemeProvider> */}
+    </>
   );
 }

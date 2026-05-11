@@ -1,4 +1,4 @@
-import apiConfig from '../../config/api.config';
+ 
 import { BASE_URL } from './client';
 
 // Upload image first (can happen early)

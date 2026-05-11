@@ -48,6 +48,8 @@ export const loginUser = (username, password) => async (dispatch) => {
 
   } catch (error) {
     dispatch(authActions.setError('Network error. Please try again.'));
+  }finally{
+    dispatch(authActions.setLoading(false));
   }
 };
 
@@ -64,7 +66,7 @@ export const logoutUser = () => async (dispatch) => {
     await AsyncStorage.removeItem('store');
 
     // Clear localStorage if you're using it (for web)
-    localStorage.removeItem('token');
+    // localStorage.removeItem('token');
     console.log('User logged out successfully');
   } catch (error) {
     console.error('Logout error:', error);

@@ -198,8 +198,8 @@ const DiscountProductsPage = () => {
   // Filter products by discount percentage
   const filteredProducts = discountedProduct?.filter((product) => {
     if (selectedFilter === "all") return true;
-    if (selectedFilter === "10") return product?.discount_percentage === 10;
-    if (selectedFilter === "15") return product?.discount_percentage === 15;
+    if (selectedFilter === "10") return product?.discount_percentage >= 10;
+    if (selectedFilter === "15") return product?.discount_percentage >= 15;
     if (selectedFilter === "20") return product?.discount_percentage >= 20;
     if (selectedFilter === "25") return product?.discount_percentage >= 25;
     if (selectedFilter === "30") return product?.discount_percentage >= 30;

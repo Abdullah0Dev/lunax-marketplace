@@ -68,7 +68,7 @@ const ReelsTab = () => {
     }, []),
   );
 
-  return (
+  return ( 
     <View style={styles.videoContainer}>
       <TouchableOpacity
         style={styles.backBtnContainer}

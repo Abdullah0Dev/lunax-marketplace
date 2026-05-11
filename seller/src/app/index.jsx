@@ -17,7 +17,7 @@ import {
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "@/services/api/auth.api";
+import { loginUser } from "../services/api/auth.api";
 
 const { width: screenWidth } = Dimensions.get("window");
 const isTablet = screenWidth >= 768;
@@ -41,7 +41,7 @@ const SigninPage = ({ navigation }) => {
       // Clear any errors
       setLocalError("");
       // navigation.navigate('MainTabs');
-      router.push("home")
+      router.replace("home")
       // navigation.dispatch(
       //   CommonActions.reset({
       //     index: 0,
@@ -83,7 +83,7 @@ const SigninPage = ({ navigation }) => {
     <View style={styles.container}>
       {/* Logo */}
       <Image
-        source={require("@/assets/images/blun.jpg")}
+        source={require("../assets/images/blun.jpg")}
         style={[
           styles.image,
           {
